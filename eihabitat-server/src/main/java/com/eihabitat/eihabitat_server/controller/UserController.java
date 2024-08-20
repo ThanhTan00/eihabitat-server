@@ -1,9 +1,11 @@
 package com.eihabitat.eihabitat_server.controller;
 
+import com.eihabitat.eihabitat_server.dto.request.ApiResponse;
 import com.eihabitat.eihabitat_server.dto.request.UserCreationReq;
 import com.eihabitat.eihabitat_server.dto.request.UserUpdateReq;
 import com.eihabitat.eihabitat_server.entity.User;
 import com.eihabitat.eihabitat_server.service.UserService;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -16,8 +18,10 @@ public class UserController {
     private UserService userService;
 
     @PostMapping
-    User createUser(@RequestBody UserCreationReq req) {
-        return userService.createUser(req);
+    ApiResponse<User> createUser(@RequestBody @Valid UserCreationReq req) {
+        ApiResponse<User> resp = new ApiResponse<>();
+        resp.setData(userService.createUser(req));
+        return resp;
     }
 
     @GetMapping

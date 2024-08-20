@@ -1,60 +1,29 @@
 package com.eihabitat.eihabitat_server.dto.request;
 
+import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.Size;
+import lombok.*;
+import lombok.experimental.FieldDefaults;
+
 import java.time.LocalDate;
 
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
+@FieldDefaults(level = AccessLevel.PRIVATE)
 public class UserCreationReq {
-    private String email;
-    private String password;
-    private LocalDate signupDate;
-    private String firstName;
-    private String lastName;
-    private String profileName;
+    @Email(message = "EMAIL_INVALID")
+    String email;
 
-    public String getEmail() {
-        return email;
-    }
+    @Size(min = 8, message = "USER_PASSWORD_INVALID")
+    String password;
+    LocalDate signupDate;
+    String firstName;
+    String lastName;
 
-    public void setEmail(String email) {
-        this.email = email;
-    }
+    @Size(min = 6, message = "PROFILE_NAME_INVALID")
+    String profileName;
 
-    public String getPassword() {
-        return password;
-    }
 
-    public void setPassword(String password) {
-        this.password = password;
-    }
-
-    public LocalDate getSignupDate() {
-        return signupDate;
-    }
-
-    public void setSignupDate(LocalDate signupDate) {
-        this.signupDate = signupDate;
-    }
-
-    public String getFirstName() {
-        return firstName;
-    }
-
-    public void setFirstName(String firstName) {
-        this.firstName = firstName;
-    }
-
-    public String getLastName() {
-        return lastName;
-    }
-
-    public void setLastName(String lastName) {
-        this.lastName = lastName;
-    }
-
-    public String getProfileName() {
-        return profileName;
-    }
-
-    public void setProfileName(String profileName) {
-        this.profileName = profileName;
-    }
 }

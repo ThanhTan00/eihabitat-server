@@ -3,6 +3,8 @@ package com.eihabitat.eihabitat_server.service;
 import com.eihabitat.eihabitat_server.dto.request.UserCreationReq;
 import com.eihabitat.eihabitat_server.dto.request.UserUpdateReq;
 import com.eihabitat.eihabitat_server.entity.User;
+import com.eihabitat.eihabitat_server.exception.AppException;
+import com.eihabitat.eihabitat_server.exception.ErrorCode;
 import com.eihabitat.eihabitat_server.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -16,6 +18,9 @@ public class UserService {
 
     public User createUser(UserCreationReq request) {
         User user = new User();
+
+        if (userRepository.existsByEmail(request.getEmail()))
+            throw new AppException(ErrorCode.USER_EXISTED);
 
         user.setEmail(request.getEmail());
         user.setPassword(request.getPassword());
@@ -32,7 +37,7 @@ public class UserService {
     }
 
     public User getUser(String id) {
-        return userRepository.findById(id).orElseThrow(() -> new RuntimeException("User not found"));
+        return userRepository.findById(id).orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
     }
 
     public User updateUser(String userId, UserUpdateReq req) {
