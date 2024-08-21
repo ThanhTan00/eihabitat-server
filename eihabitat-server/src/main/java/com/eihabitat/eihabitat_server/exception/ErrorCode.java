@@ -8,6 +8,9 @@ public enum ErrorCode {
     PROFILE_NAME_INVALID( 1003, "Profile name must be at least 6 characters"),
     EMAIL_INVALID( 1004, "Email invalid"),
     USER_NOT_FOUND( 1005, "User not found"),
+    USER_NOT_EXISTED( 1006, "User not exists"),
+    USER_UNAUTHENTICATED( 1007, "User unauthenticated"),
+
     ;
 
     ErrorCode(int code, String message) {

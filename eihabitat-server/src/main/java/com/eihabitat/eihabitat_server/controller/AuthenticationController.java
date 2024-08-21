@@ -1,0 +1,44 @@
+package com.eihabitat.eihabitat_server.controller;
+
+import com.eihabitat.eihabitat_server.dto.request.ApiResponse;
+import com.eihabitat.eihabitat_server.dto.request.AuthenticationReq;
+import com.eihabitat.eihabitat_server.dto.request.IntrospectReq;
+import com.eihabitat.eihabitat_server.dto.response.AuthenticationResponse;
+import com.eihabitat.eihabitat_server.dto.response.IntrospectResponse;
+import com.eihabitat.eihabitat_server.service.AuthenticationService;
+import com.nimbusds.jose.JOSEException;
+import lombok.AccessLevel;
+import lombok.RequiredArgsConstructor;
+import lombok.experimental.FieldDefaults;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+
+import java.text.ParseException;
+
+@RestController
+@RequestMapping("/auth")
+@RequiredArgsConstructor
+@FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
+public class AuthenticationController {
+
+    AuthenticationService authenticationService;
+
+    @PostMapping("/token")
+    ApiResponse<AuthenticationResponse> authenticate(@RequestBody AuthenticationReq request){
+       var result =  authenticationService.authenticate(request);
+       return ApiResponse.<AuthenticationResponse>builder()
+               .code(1000)
+               .data(result)
+               .build();
+    }
+
+    @PostMapping("/introspect")
+    ApiResponse<IntrospectResponse> introspect(@RequestBody IntrospectReq request) throws ParseException, JOSEException {
+        var result = authenticationService.introspect(request);
+        return ApiResponse.<IntrospectResponse>builder()
+                .data(result)
+                .build();
+    }
+}

@@ -2,33 +2,34 @@ package com.eihabitat.eihabitat_server.service;
 
 import com.eihabitat.eihabitat_server.dto.request.UserCreationReq;
 import com.eihabitat.eihabitat_server.dto.request.UserUpdateReq;
+import com.eihabitat.eihabitat_server.dto.response.UserResponse;
 import com.eihabitat.eihabitat_server.entity.User;
 import com.eihabitat.eihabitat_server.exception.AppException;
 import com.eihabitat.eihabitat_server.exception.ErrorCode;
+import com.eihabitat.eihabitat_server.mapper.UserMapper;
 import com.eihabitat.eihabitat_server.repository.UserRepository;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.AccessLevel;
+import lombok.RequiredArgsConstructor;
+import lombok.experimental.FieldDefaults;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 
 @Service
+@RequiredArgsConstructor
+@FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 public class UserService {
-    @Autowired
-    private UserRepository userRepository;
+    UserRepository userRepository;
+    UserMapper userMapper;
 
     public User createUser(UserCreationReq request) {
-        User user = new User();
-
         if (userRepository.existsByEmail(request.getEmail()))
             throw new AppException(ErrorCode.USER_EXISTED);
-
-        user.setEmail(request.getEmail());
-        user.setPassword(request.getPassword());
-        user.setSignupDate(request.getSignupDate());
-        user.setFirstName(request.getFirstName());
-        user.setLastName(request.getLastName());
-        user.setProfileName(request.getProfileName());
-
+        User user = userMapper.toUser(request);
+        PasswordEncoder passwordEncoder = new BCryptPasswordEncoder(10);
+        user.setPassword(passwordEncoder.encode(user.getPassword()));
         return userRepository.save(user);
     }
 
@@ -36,26 +37,16 @@ public class UserService {
        return userRepository.findAll();
     }
 
-    public User getUser(String id) {
-        return userRepository.findById(id).orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
+    public UserResponse getUser(String id) {
+        return userMapper.toUserResponse(userRepository.findById(id).orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND)));
     }
 
-    public User updateUser(String userId, UserUpdateReq req) {
-        User user = getUser(userId);
+    public UserResponse updateUser(String userId, UserUpdateReq req) {
+        User user = userRepository.findById(userId).orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
 
-        user.setEmail(req.getEmail());
-        user.setPassword(req.getPassword());
-        user.setFirstName(req.getFirstName());
-        user.setLastName(req.getLastName());
-        user.setProfileName(req.getProfileName());
-        user.setProfileAvatar(req.getProfileAvatar());
-        user.setPhone(req.getPhone());
-        user.setAddress(req.getAddress());
-        user.setGender(req.getGender());
-        user.setDateOfBirth(req.getDateOfBirth());
-        user.setNationality(req.getNationality());
+        userMapper.updateUser(user, req);
 
-        return userRepository.save(user);
+        return userMapper.toUserResponse(userRepository.save(user));
     }
 
     public void deleteUser(String id) {

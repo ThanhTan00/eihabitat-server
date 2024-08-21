@@ -3,19 +3,23 @@ package com.eihabitat.eihabitat_server.controller;
 import com.eihabitat.eihabitat_server.dto.request.ApiResponse;
 import com.eihabitat.eihabitat_server.dto.request.UserCreationReq;
 import com.eihabitat.eihabitat_server.dto.request.UserUpdateReq;
+import com.eihabitat.eihabitat_server.dto.response.UserResponse;
 import com.eihabitat.eihabitat_server.entity.User;
 import com.eihabitat.eihabitat_server.service.UserService;
 import jakarta.validation.Valid;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.AccessLevel;
+import lombok.RequiredArgsConstructor;
+import lombok.experimental.FieldDefaults;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
 @RestController
+@RequiredArgsConstructor
+@FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 @RequestMapping("/users")
 public class UserController {
-    @Autowired
-    private UserService userService;
+    UserService userService;
 
     @PostMapping
     ApiResponse<User> createUser(@RequestBody @Valid UserCreationReq req) {
@@ -30,13 +34,17 @@ public class UserController {
     }
 
     @GetMapping("/{userId}")
-    User getUser(@PathVariable String userId) {
-        return userService.getUser(userId);
+    ApiResponse<UserResponse> getUser(@PathVariable("userId") String userId) {
+        ApiResponse<UserResponse> resp = new ApiResponse<>();
+        resp.setData(userService.getUser(userId));
+        return resp;
     }
 
     @PutMapping("/{userId}")
-    User updateUser(@PathVariable String userId, @RequestBody UserUpdateReq req) {
-        return userService.updateUser(userId, req);
+    ApiResponse<UserResponse> updateUser(@PathVariable String userId, @RequestBody UserUpdateReq req) {
+        ApiResponse<UserResponse> resp = new ApiResponse<>();
+        resp.setData(userService.updateUser(userId, req));
+        return resp;
     }
 
     @DeleteMapping("/{userId}")
