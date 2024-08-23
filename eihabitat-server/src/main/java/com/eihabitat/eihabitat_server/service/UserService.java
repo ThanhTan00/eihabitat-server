@@ -4,6 +4,7 @@ import com.eihabitat.eihabitat_server.dto.request.UserCreationReq;
 import com.eihabitat.eihabitat_server.dto.request.UserUpdateReq;
 import com.eihabitat.eihabitat_server.dto.response.UserResponse;
 import com.eihabitat.eihabitat_server.entity.User;
+import com.eihabitat.eihabitat_server.enums.Role;
 import com.eihabitat.eihabitat_server.exception.AppException;
 import com.eihabitat.eihabitat_server.exception.ErrorCode;
 import com.eihabitat.eihabitat_server.mapper.UserMapper;
@@ -15,6 +16,9 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 
 @Service
@@ -23,18 +27,30 @@ import java.util.List;
 public class UserService {
     UserRepository userRepository;
     UserMapper userMapper;
+    PasswordEncoder passwordEncoder;
 
-    public User createUser(UserCreationReq request) {
+    public UserResponse createUser(UserCreationReq request) {
         if (userRepository.existsByEmail(request.getEmail()))
             throw new AppException(ErrorCode.USER_EXISTED);
         User user = userMapper.toUser(request);
-        PasswordEncoder passwordEncoder = new BCryptPasswordEncoder(10);
         user.setPassword(passwordEncoder.encode(user.getPassword()));
-        return userRepository.save(user);
+
+        LocalDate date = LocalDate.now();
+        user.setSignupDate(date);
+
+        HashSet<String> roles = new HashSet<>();
+        roles.add(Role.USER.name());
+        user.setRoles(roles);
+
+        return userMapper.toUserResponse(userRepository.save(user));
     }
 
-    public List<User> getUsers() {
-       return userRepository.findAll();
+    public List<UserResponse> getUsers() {
+        List<UserResponse> userResponses = new ArrayList<>();
+        userRepository.findAll().forEach(user -> {
+            userResponses.add(userMapper.toUserResponse(user));
+        });
+       return userResponses;
     }
 
     public UserResponse getUser(String id) {
