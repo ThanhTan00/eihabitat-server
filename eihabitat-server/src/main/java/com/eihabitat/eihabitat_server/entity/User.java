@@ -30,6 +30,7 @@ public class User {
     String gender;
     LocalDate dateOfBirth;
     String nationality;
-    Set<String> roles;
 
+    @ManyToMany
+    Set<Role> roles;
 }

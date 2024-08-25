@@ -1,5 +1,6 @@
 package com.eihabitat.eihabitat_server.dto.response;
 
+import com.eihabitat.eihabitat_server.entity.Role;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 
@@ -24,5 +25,5 @@ public class UserResponse {
     String gender;
     LocalDate dateOfBirth;
     String nationality;
-    Set<String> roles;
+    Set<Role> roles;
 }

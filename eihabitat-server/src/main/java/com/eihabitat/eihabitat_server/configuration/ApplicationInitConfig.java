@@ -35,7 +35,7 @@ public class ApplicationInitConfig {
                         .firstName("Eihabitat")
                         .lastName("Admin")
                         .password(passwordEncoder.encode("eihabitatadmin"))
-                        .roles(roles)
+                        //.roles(roles)
                         .build();
 
                 userRepository.save(user);

@@ -64,4 +64,11 @@ public class UserController {
         return "User deleted";
     }
 
+    @GetMapping("/myInfo")
+    ApiResponse<UserResponse> getMyInfo() {
+        ApiResponse<UserResponse> resp = new ApiResponse<>();
+        resp.setData(userService.getMyInfo());
+        return resp;
+    }
+
 }
