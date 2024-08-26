@@ -1,7 +1,8 @@
 package com.eihabitat.eihabitat_server.configuration;
 
+import com.eihabitat.eihabitat_server.entity.Role;
 import com.eihabitat.eihabitat_server.entity.User;
-import com.eihabitat.eihabitat_server.enums.Role;
+import com.eihabitat.eihabitat_server.repository.RoleRepository;
 import com.eihabitat.eihabitat_server.repository.UserRepository;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
@@ -24,18 +25,24 @@ public class ApplicationInitConfig {
     PasswordEncoder passwordEncoder;
 
     @Bean
-    ApplicationRunner applicationRunner(UserRepository userRepository) {
+    ApplicationRunner applicationRunner(UserRepository userRepository, RoleRepository roleRepository) {
         return args -> {
             if(userRepository.findByEmail("eihabitat@gmail.com").isEmpty()) {
-                var roles = new HashSet<String>();
-                roles.add(Role.ADMIN.name());
+
+
+                Role adminRole = new Role("ADMIN", "role admin", null);
+                Role userRole = new Role("USER", "role user", null);
+                roleRepository.save(adminRole);
+                roleRepository.save(userRole);
+                HashSet<Role> roles = new HashSet<>();
+                roles.add(adminRole);
 
                 User user = User.builder()
                         .email("eihabitat@gmail.com")
                         .firstName("Eihabitat")
                         .lastName("Admin")
                         .password(passwordEncoder.encode("eihabitatadmin"))
-                        //.roles(roles)
+                        .roles(roles)
                         .build();
 
                 userRepository.save(user);

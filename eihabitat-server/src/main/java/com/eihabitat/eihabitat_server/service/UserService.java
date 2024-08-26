@@ -3,8 +3,8 @@ package com.eihabitat.eihabitat_server.service;
 import com.eihabitat.eihabitat_server.dto.request.UserCreationReq;
 import com.eihabitat.eihabitat_server.dto.request.UserUpdateReq;
 import com.eihabitat.eihabitat_server.dto.response.UserResponse;
+import com.eihabitat.eihabitat_server.entity.Role;
 import com.eihabitat.eihabitat_server.entity.User;
-import com.eihabitat.eihabitat_server.enums.Role;
 import com.eihabitat.eihabitat_server.exception.AppException;
 import com.eihabitat.eihabitat_server.exception.ErrorCode;
 import com.eihabitat.eihabitat_server.mapper.UserMapper;
@@ -25,6 +25,7 @@ import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -45,9 +46,11 @@ public class UserService {
         LocalDate date = LocalDate.now();
         user.setSignupDate(date);
 
-//        HashSet<String> roles = new HashSet<>();
-//        roles.add(Role.USER.name());
-//        user.setRoles(roles);
+        Role userRole = roleRepository.findById("USER").orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
+        HashSet<Role> userRoles = new HashSet<>();
+
+        userRoles.add(userRole);
+        user.setRoles(userRoles);
 
         return userMapper.toUserResponse(userRepository.save(user));
     }
@@ -72,7 +75,7 @@ public class UserService {
         User user = userRepository.findById(userId).orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
 
         userMapper.updateUser(user, req);
-        user.setPassword(passwordEncoder.encode(user.getPassword()));
+        user.setPassword(passwordEncoder.encode(req.getPassword()));
         var roles = roleRepository.findAllById(req.getRoles());
         user.setRoles(new HashSet<>(roles));
 

@@ -29,6 +29,7 @@ import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.Date;
 import java.util.StringJoiner;
+import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
@@ -86,7 +87,7 @@ public class AuthenticationService {
                 .expirationTime(new Date(
                         Instant.now().plus(1, ChronoUnit.HOURS).toEpochMilli()
                 ))
-                .claim("customClaim", "Custom Claim")
+                .jwtID(UUID.randomUUID().toString())
                 .claim("scope",buildScope(user))
                 .build();
         Payload payload = new Payload(jwtClaimsSet.toJSONObject());
