@@ -1,5 +1,6 @@
 package com.eihabitat.eihabitat_server.dto.response;
 
+import com.eihabitat.eihabitat_server.entity.User;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 
@@ -13,8 +14,7 @@ import java.time.LocalDateTime;
 public class PostResponse {
     String id;
     String caption;
-    String image;
-    String location;
-    String author;
+    String type;
     LocalDateTime createdAt;
+    User author;
 }

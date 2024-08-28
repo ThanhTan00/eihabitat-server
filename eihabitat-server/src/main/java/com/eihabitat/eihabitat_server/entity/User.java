@@ -33,4 +33,7 @@ public class User {
 
     @ManyToMany
     Set<Role> roles;
+
+    @OneToMany
+    Set<Post> posts;
 }

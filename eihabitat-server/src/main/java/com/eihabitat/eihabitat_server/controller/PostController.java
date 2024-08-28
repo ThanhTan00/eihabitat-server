@@ -1,7 +1,9 @@
 package com.eihabitat.eihabitat_server.controller;
 
+import com.eihabitat.eihabitat_server.dto.request.ApiResponse;
 import com.eihabitat.eihabitat_server.dto.request.PostCreationReq;
 import com.eihabitat.eihabitat_server.dto.request.PostUpdateReq;
+import com.eihabitat.eihabitat_server.dto.response.PostResponse;
 import com.eihabitat.eihabitat_server.entity.Post;
 import com.eihabitat.eihabitat_server.service.PostService;
 import jakarta.validation.Valid;
@@ -22,10 +24,11 @@ public class PostController {
     PostService postService;
 
     @PostMapping
-    public ResponseEntity<Post> createPost(@Valid @RequestBody PostCreationReq postRequest,
-                                           @RequestParam String userId) {
-        Post createdPost = postService.createPost(postRequest, userId);
-        return new ResponseEntity<>(createdPost, HttpStatus.CREATED);
+    public ApiResponse<PostResponse> createPost(@RequestBody PostCreationReq postRequest) {
+        ApiResponse resp = new ApiResponse();
+        resp.setCode(1000);
+        resp.setData(postService.createPost(postRequest));
+        return resp;
     }
 
     @PutMapping("/{postId}")
@@ -47,15 +50,15 @@ public class PostController {
         return ResponseEntity.ok(post);
     }
 
-    @GetMapping
-    public ResponseEntity<List<Post>> findAllPost() throws Exception {
-        List<Post> posts = postService.findAllPost();
-        return ResponseEntity.ok(posts);
-    }
-
-    @GetMapping("/user/{userId}")
-    public ResponseEntity<List<Post>> findPostByUserId(@PathVariable String userId) {
-        List<Post> posts = postService.findPostByUserId(userId);
-        return ResponseEntity.ok(posts);
-    }
+//    @GetMapping
+//    public ResponseEntity<List<Post>> findAllPost() throws Exception {
+//        List<Post> posts = postService.findAllPost();
+//        return ResponseEntity.ok(posts);
+//    }
+//
+//    @GetMapping("/user/{userId}")
+//    public ResponseEntity<List<Post>> findPostByUserId(@PathVariable String userId) {
+//        List<Post> posts = postService.findPostByUserId(userId);
+//        return ResponseEntity.ok(posts);
+//    }
 }

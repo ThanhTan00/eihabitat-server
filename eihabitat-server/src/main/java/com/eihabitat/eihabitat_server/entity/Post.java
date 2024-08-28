@@ -5,6 +5,7 @@ import jakarta.persistence.*;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.HashSet;
 import java.util.Set;
@@ -20,14 +21,11 @@ public class Post {
     @GeneratedValue(strategy = GenerationType.UUID)
     String id;
     String caption;
-    String image;
-    String location;
+    String type;
     LocalDateTime createdAt;
-    String author;
 
-    @Embedded
-    UserResponse user;
-
-//    @OneToMany
-//    Set<String> likedByUsers = new HashSet<>();
+    @ManyToOne
+    @JoinColumn(name="user_id", nullable=false)
+    User author;
 }
+
