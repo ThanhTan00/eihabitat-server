@@ -45,9 +45,11 @@ public class PostController {
     }
 
     @GetMapping("/{postId}")
-    public ResponseEntity<Post> findPostById(@PathVariable String postId) throws Exception {
-        Post post = postService.findPostById(postId);
-        return ResponseEntity.ok(post);
+    public ApiResponse<PostResponse> findPostById(@PathVariable String postId) throws Exception {
+        ApiResponse resp = new ApiResponse();
+        resp.setCode(1000);
+        resp.setData(postService.findPostById(postId));
+        return resp;
     }
 
 //    @GetMapping
