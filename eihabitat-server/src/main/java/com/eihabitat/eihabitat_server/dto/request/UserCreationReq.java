@@ -25,5 +25,4 @@ public class UserCreationReq {
     @Size(min = 6, message = "PROFILE_NAME_INVALID")
     String profileName;
 
-
 }
