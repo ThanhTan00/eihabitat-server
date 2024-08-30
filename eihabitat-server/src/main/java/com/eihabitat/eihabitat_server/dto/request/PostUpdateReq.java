@@ -12,7 +12,7 @@ import java.time.LocalDateTime;
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class PostUpdateReq {
     String caption;
-    String image;
-    String location;
+    String type;
     LocalDateTime updatedAt;
+    String author;
 }

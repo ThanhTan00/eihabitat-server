@@ -14,5 +14,7 @@ public interface PostMapper {
     Post toPost(PostCreationReq request);
 
     PostResponse toPostResponse(Post post);
+
+    @Mapping(target = "author", ignore = true)
     void updatePost (@MappingTarget Post post, PostUpdateReq request);
 }

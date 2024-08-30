@@ -7,6 +7,7 @@ import org.springframework.data.repository.query.Param;
 import java.util.List;
 
 public interface PostRepository extends JpaRepository<Post, String> {
+
 //    public List<Post> findByUserId(String userId);
 //
 //    public List<Post> findAllPostByUserIds(@Param("users") List<String> userIds);

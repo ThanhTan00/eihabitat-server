@@ -41,9 +41,18 @@ public class PostService {
         return repo.save(post);
     }
 
-    public Post updatePost(String postId, PostUpdateReq postRequest) throws Exception {
-        Post existingPost = findPostById(postId);
-        mapper.updatePost(existingPost, postRequest);
+    public Post updatePost(String postId, PostUpdateReq updateRequest) {
+        Post existingPost = repo.findById(postId)
+                .orElseThrow(() -> new AppException(ErrorCode.POST_NOT_FOUND));
+
+        // Check if the user has permission to update the post
+//        if (!existingPost.getAuthor().getId().equals(updateRequest.getAuthorId())) {
+//            throw new AppException(ErrorCode.UNAUTHORIZED_UPDATE);
+//        }
+
+        // Update the post fields
+        mapper.updatePost(existingPost, updateRequest);
+        existingPost.setCreatedAt(LocalDateTime.now());
         return repo.save(existingPost);
     }
 
@@ -54,10 +63,10 @@ public class PostService {
 
     public Post findPostById(String postId) throws Exception {
         Optional<Post> opt = repo.findById(postId);
-        if(opt.isPresent()) {
+        if (opt.isPresent()) {
             return opt.get();
         }
-        throw new Exception("Post not exist with id: "+postId);
+        throw new Exception("Post not exist with id: " + postId);
     }
 
 //    public List<Post> findAllPost() throws Exception {
@@ -68,11 +77,17 @@ public class PostService {
 //        throw new Exception("Post Not Exist");
 //    }
 
-    public void deletePost(String postId) throws Exception {
-        Post post = findPostById(postId);
-        repo.delete(post);
-    }
+    public Post deletePost(String postId) {
+        Post post = repo.findById(postId)
+                .orElseThrow(() -> new AppException(ErrorCode.POST_NOT_FOUND));
 
+        // Optionally, you might want to check if the current user has permission to delete the post
+        // if (!post.getAuthor().getId().equals(currentUserId)) {
+        //     throw new AppException(ErrorCode.UNAUTHORIZED_DELETE);
+        // }
+        repo.delete(post);
+        return post;
+    }
 //    public Post likePost(String postId, String userId) throws Exception  {
 //        UserResponse user= userService.getUser(userId);
 //        Post post=findPostById(postId);

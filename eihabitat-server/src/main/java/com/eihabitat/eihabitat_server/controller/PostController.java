@@ -31,17 +31,21 @@ public class PostController {
         return resp;
     }
 
-    @PutMapping("/{postId}")
-    public ResponseEntity<Post> updatePost(@PathVariable String postId,
-                                           @Valid @RequestBody PostUpdateReq postRequest) throws Exception {
-        Post updatedPost = postService.updatePost(postId, postRequest);
-        return ResponseEntity.ok(updatedPost);
+    @PostMapping("/update/{postId}")
+    public ApiResponse<PostResponse> updatePost(@PathVariable String postId,
+                                           @Valid @RequestBody PostUpdateReq postRequest) {
+        ApiResponse resp = new ApiResponse();
+        resp.setCode(1009);
+        resp.setData(postService.updatePost(postId,postRequest));
+        return resp;
     }
 
     @DeleteMapping("/{postId}")
-    public ResponseEntity<Void> deletePost(@PathVariable String postId) throws Exception {
-        postService.deletePost(postId);
-        return ResponseEntity.noContent().build();
+    public ApiResponse<PostResponse> deletePost(@PathVariable String postId) throws Exception {
+        ApiResponse resp = new ApiResponse();
+        resp.setCode(1009);
+        resp.setData(postService.deletePost(postId));
+        return resp;
     }
 
     @GetMapping("/{postId}")
