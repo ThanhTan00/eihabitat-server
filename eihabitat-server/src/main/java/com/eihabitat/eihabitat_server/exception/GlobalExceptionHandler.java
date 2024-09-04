@@ -28,7 +28,7 @@ public class GlobalExceptionHandler {
                 .body(
                         ApiResponse.builder()
                                 .code(errorCode.getCode())
-                                .data(errorCode.getMessage())
+                                .message(errorCode.getMessage())
                                 .build()
                 );
     }

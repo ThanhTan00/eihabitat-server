@@ -30,8 +30,7 @@ public class PostController {
         resp.setData(postService.createPost(postRequest));
         return resp;
     }
-
-    @PostMapping("/update/{postId}")
+    @PutMapping("/update/{postId}")
     public ApiResponse<PostResponse> updatePost(@PathVariable String postId,
                                            @Valid @RequestBody PostUpdateReq postRequest) {
         ApiResponse resp = new ApiResponse();
@@ -43,7 +42,7 @@ public class PostController {
     @DeleteMapping("/{postId}")
     public ApiResponse<PostResponse> deletePost(@PathVariable String postId) throws Exception {
         ApiResponse resp = new ApiResponse();
-        resp.setCode(1009);
+        resp.setCode(1000);
         resp.setData(postService.deletePost(postId));
         return resp;
     }

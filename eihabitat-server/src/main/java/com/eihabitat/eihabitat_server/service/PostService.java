@@ -77,7 +77,7 @@ public class PostService {
 //        throw new Exception("Post Not Exist");
 //    }
 
-    public Post deletePost(String postId) {
+    public String deletePost(String postId) {
         Post post = repo.findById(postId)
                 .orElseThrow(() -> new AppException(ErrorCode.POST_NOT_FOUND));
 
@@ -86,7 +86,7 @@ public class PostService {
         //     throw new AppException(ErrorCode.UNAUTHORIZED_DELETE);
         // }
         repo.delete(post);
-        return post;
+        return "Deleted post successfully";
     }
 //    public Post likePost(String postId, String userId) throws Exception  {
 //        UserResponse user= userService.getUser(userId);
