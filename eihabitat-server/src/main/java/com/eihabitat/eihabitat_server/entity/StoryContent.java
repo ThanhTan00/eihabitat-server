@@ -4,24 +4,21 @@ import jakarta.persistence.*;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 
-import java.time.LocalDateTime;
-
 @Data
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE)
 @Entity
-public class Post {
+
+public class StoryContent {
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
     String id;
-    String caption;
-    String type;
-    LocalDateTime createdAt;
+
+    String imageId;
 
     @ManyToOne
-    @JoinColumn(name="user_id", nullable=false)
-    User author;
+    @JoinColumn(name="story_id", nullable=false)
+    Story storyId;
 }
-
