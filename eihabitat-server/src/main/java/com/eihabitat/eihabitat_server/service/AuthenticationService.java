@@ -3,6 +3,7 @@ package com.eihabitat.eihabitat_server.service;
 import com.eihabitat.eihabitat_server.dto.request.AuthenticationReq;
 import com.eihabitat.eihabitat_server.dto.request.IntrospectReq;
 import com.eihabitat.eihabitat_server.dto.request.LogoutRequest;
+import com.eihabitat.eihabitat_server.dto.request.RefreshRequest;
 import com.eihabitat.eihabitat_server.dto.response.AuthenticationResponse;
 import com.eihabitat.eihabitat_server.dto.response.IntrospectResponse;
 import com.eihabitat.eihabitat_server.entity.InvalidatedToken;
@@ -111,6 +112,35 @@ public class AuthenticationService {
             throw new AppException(ErrorCode.UNAUTHENTICATED);
             
         return signedJWT;
+    }
+
+    public AuthenticationResponse refreshToken(RefreshRequest request) 
+            throws JOSEException, ParseException {
+
+        var signedJWT = verifyToken(request.getToken());
+
+        var jit = signedJWT.getJWTClaimsSet().getJWTID();
+        var expiryTime = signedJWT.getJWTClaimsSet().getExpirationTime();
+
+        InvalidatedToken invalidatedToken = InvalidatedToken.builder()  
+                .id(jit)
+                .expiryTime((java.sql.Date) expiryTime)
+                .build();
+
+        invalidatedTokenRepository.save(invalidatedToken);
+
+        var username = signedJWT.getJWTClaimsSet().getSubject();
+
+        var user = userRepository.findByUsername(username).orElseThrow(
+            () -> new AppException(ErrorCode.UNAUTHENTICATED));
+
+        var token = generateToken(user);
+
+        return AuthenticationResponse.builder()
+                .token(token)
+                .authenticated(true)
+                .build();
+
     }
 
     private String generateToken(User user) {

@@ -3,6 +3,8 @@ package com.eihabitat.eihabitat_server.controller;
 import com.eihabitat.eihabitat_server.dto.request.ApiResponse;
 import com.eihabitat.eihabitat_server.dto.request.AuthenticationReq;
 import com.eihabitat.eihabitat_server.dto.request.IntrospectReq;
+import com.eihabitat.eihabitat_server.dto.request.LogoutRequest;
+import com.eihabitat.eihabitat_server.dto.request.RefreshRequest;
 import com.eihabitat.eihabitat_server.dto.response.AuthenticationResponse;
 import com.eihabitat.eihabitat_server.dto.response.IntrospectResponse;
 import com.eihabitat.eihabitat_server.service.AuthenticationService;
@@ -39,6 +41,21 @@ public class AuthenticationController {
         var result = authenticationService.introspect(request);
         return ApiResponse.<IntrospectResponse>builder()
                 .data(result)
+                .build();
+    }
+
+    @PostMapping("/refesh")
+    ApiResponse<AuthenticationResponse> authenticate(@RequestBody RefreshRequest request) throws JOSEException, ParseException{
+       var result =  authenticationService.refreshToken(request);
+       return ApiResponse.<AuthenticationResponse>builder()
+               .data(result)
+               .build();
+    }
+
+    @PostMapping("/logout")
+    ApiResponse<Void> logout(@RequestBody LogoutRequest request) throws ParseException, JOSEException {
+        authenticationService.logout(request);
+        return ApiResponse.<Void>builder()
                 .build();
     }
 }
