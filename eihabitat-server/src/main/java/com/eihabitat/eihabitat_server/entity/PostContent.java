@@ -1,10 +1,7 @@
 package com.eihabitat.eihabitat_server.entity;
-
 import jakarta.persistence.*;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
-
-import java.time.LocalDateTime;
 
 @Data
 @Builder
@@ -12,16 +9,14 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE)
 @Entity
-public class Post {
+public class PostContent {
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
     String id;
-    String caption;
-    String type;
-    LocalDateTime createdAt;
+
+    String imageId;
 
     @ManyToOne
-    @JoinColumn(name="user_id", nullable=false)
-    User author;
+    @JoinColumn(name="post_id", nullable=false)
+    Post postId;
 }
-

@@ -1,10 +1,13 @@
 package com.eihabitat.eihabitat_server.controller;
 
 import com.eihabitat.eihabitat_server.dto.request.ApiResponse;
+import com.eihabitat.eihabitat_server.dto.request.PostContentReq;
 import com.eihabitat.eihabitat_server.dto.request.PostCreationReq;
 import com.eihabitat.eihabitat_server.dto.request.PostUpdateReq;
+import com.eihabitat.eihabitat_server.dto.response.PostContentResponse;
 import com.eihabitat.eihabitat_server.dto.response.PostResponse;
 import com.eihabitat.eihabitat_server.entity.Post;
+import com.eihabitat.eihabitat_server.service.PostContentService;
 import com.eihabitat.eihabitat_server.service.PostService;
 import jakarta.validation.Valid;
 import lombok.AccessLevel;
@@ -22,6 +25,15 @@ import java.util.List;
 @RequestMapping("/post")
 public class PostController {
     PostService postService;
+    PostContentService postContentService;
+
+    @PostMapping("/postContent")
+    public ApiResponse<PostContentResponse> createPostContent(@RequestBody PostContentReq postContentReq) {
+        ApiResponse resp = new ApiResponse();
+        resp.setCode(1000);
+        resp.setData(postContentService.createPostContent(postContentReq));
+        return resp;
+    }
 
     @PostMapping
     public ApiResponse<PostResponse> createPost(@RequestBody PostCreationReq postRequest) {
