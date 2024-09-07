@@ -41,13 +41,14 @@ import java.util.UUID;
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 public class AuthenticationService {
     UserRepository userRepository;
+
     InvalidatedTokenRepository invalidatedTokenRepository;
     @NonFinal
     @Value("${jwt.signerKey}")
     protected String SIGNER_KEY;
 
-    public IntrospectResponse introspect(IntrospectReq requset) throws JOSEException, ParseException {
-        var token = requset.getToken();
+    public IntrospectResponse introspect(IntrospectReq request) throws JOSEException, ParseException {
+        var token = request.getToken();
 
         boolean isValid = true;
 
@@ -88,7 +89,7 @@ public class AuthenticationService {
 
         InvalidatedToken invalidatedToken = InvalidatedToken.builder()
             .id(jit)
-            .expiryTime((java.sql.Date) expiryTime)
+            .expiryTime(expiryTime)
             .build();
         
             invalidatedTokenRepository.save(invalidatedToken);
@@ -100,15 +101,15 @@ public class AuthenticationService {
 
         SignedJWT signedJWT = SignedJWT.parse(token);
 
-        Date expireTime = signedJWT.getJWTClaimsSet().getExpirationTime();
+        Date expireTime = (Date) signedJWT.getJWTClaimsSet().getExpirationTime();
 
         var verified = signedJWT.verify(verifier);
 
-        if (!(verified && expireTime.after(new Date())))
+        if (!(verified && expireTime.after(new java.util.Date())))
             throw new AppException(ErrorCode.UNAUTHENTICATED);
 
         if (invalidatedTokenRepository
-        .existsById(signedJWT.getJWTClaimsSet().getJWTID())) 
+        .existsById(signedJWT.getJWTClaimsSet().getJWTID()))
             throw new AppException(ErrorCode.UNAUTHENTICATED);
             
         return signedJWT;
@@ -131,7 +132,7 @@ public class AuthenticationService {
 
         var username = signedJWT.getJWTClaimsSet().getSubject();
 
-        var user = userRepository.findByUsername(username).orElseThrow(
+        var user = userRepository.findByEmail(username).orElseThrow(
             () -> new AppException(ErrorCode.UNAUTHENTICATED));
 
         var token = generateToken(user);
@@ -149,7 +150,7 @@ public class AuthenticationService {
         JWTClaimsSet jwtClaimsSet = new JWTClaimsSet.Builder()
                 .subject(user.getEmail())
                 .issuer("eihabitat")
-                .issueTime(new Date())
+                .issueTime(new java.util.Date())
                 .expirationTime(new Date(
                         Instant.now().plus(1, ChronoUnit.HOURS).toEpochMilli()
                 ))
