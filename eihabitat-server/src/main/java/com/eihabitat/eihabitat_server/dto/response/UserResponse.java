@@ -19,10 +19,11 @@ public class UserResponse {
     String firstName;
     String lastName;
     String profileName;
-    String profileAvatar;
+    String avatar;
     String phone;
     String address;
     String gender;
+    String bio;
     LocalDate dateOfBirth;
     String nationality;
     Set<Role> roles;

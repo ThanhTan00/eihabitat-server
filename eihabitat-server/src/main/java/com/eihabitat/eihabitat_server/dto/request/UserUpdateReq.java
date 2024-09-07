@@ -21,8 +21,8 @@ public class UserUpdateReq {
     String phone;
     String address;
     String gender;
+    String bio;
     LocalDate dateOfBirth;
     String nationality;
-    List<String> roles;
 
 }

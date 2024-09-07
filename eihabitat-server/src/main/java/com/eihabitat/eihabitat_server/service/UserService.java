@@ -76,9 +76,6 @@ public class UserService {
 
         userMapper.updateUser(user, req);
         user.setPassword(passwordEncoder.encode(req.getPassword()));
-        var roles = roleRepository.findAllById(req.getRoles());
-        user.setRoles(new HashSet<>(roles));
-
         return userMapper.toUserResponse(userRepository.save(user));
     }
 

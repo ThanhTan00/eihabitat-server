@@ -25,6 +25,7 @@ public class User {
     String lastName;
     String profileName;
     String profileAvatar;
+    String bio;
     String phone;
     String address;
     String gender;
