@@ -12,17 +12,12 @@ import java.util.List;
 @AllArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class UserUpdateReq {
-    String email;
-    String password;
     String firstName;
     String lastName;
     String profileName;
-    String profileAvatar;
     String phone;
     String address;
     String gender;
     String bio;
     LocalDate dateOfBirth;
-    String nationality;
-
 }

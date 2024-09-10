@@ -71,11 +71,11 @@ public class UserService {
         return userMapper.toUserResponse(userRepository.findById(id).orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND)));
     }
 
-    public UserResponse updateUser(String userId, UserUpdateReq req) {
-        User user = userRepository.findById(userId).orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
-
+    public UserResponse updateUser(UserUpdateReq req) {
+        var context = SecurityContextHolder.getContext();
+        String email = context.getAuthentication().getName();
+        User user = userRepository.findByEmail(email).orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
         userMapper.updateUser(user, req);
-        user.setPassword(passwordEncoder.encode(req.getPassword()));
         return userMapper.toUserResponse(userRepository.save(user));
     }
 
@@ -87,6 +87,14 @@ public class UserService {
         var context = SecurityContextHolder.getContext();
         String email = context.getAuthentication().getName();
         User user = userRepository.findByEmail(email).orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
+
         return userMapper.toUserResponse(user);
     }
+
+//    public void logout() {
+//        var context = SecurityContextHolder.getContext();
+//        String token = context.getAuthentication().getAuthorities().toString();
+//
+//
+//    }
 }

@@ -23,6 +23,7 @@ import lombok.experimental.FieldDefaults;
 import lombok.experimental.NonFinal;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -97,11 +98,12 @@ public class AuthenticationService {
 
     private SignedJWT verifyToken(String token) throws JOSEException, ParseException {
 
+
         JWSVerifier verifier = new MACVerifier(SIGNER_KEY.getBytes());
 
         SignedJWT signedJWT = SignedJWT.parse(token);
 
-        Date expireTime = (Date) signedJWT.getJWTClaimsSet().getExpirationTime();
+        Date expireTime = signedJWT.getJWTClaimsSet().getExpirationTime();
 
         var verified = signedJWT.verify(verifier);
 
@@ -125,7 +127,7 @@ public class AuthenticationService {
 
         InvalidatedToken invalidatedToken = InvalidatedToken.builder()  
                 .id(jit)
-                .expiryTime((java.sql.Date) expiryTime)
+                .expiryTime(expiryTime)
                 .build();
 
         invalidatedTokenRepository.save(invalidatedToken);

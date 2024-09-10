@@ -19,7 +19,7 @@ public class UserResponse {
     String firstName;
     String lastName;
     String profileName;
-    String avatar;
+    String profileAvatar;
     String phone;
     String address;
     String gender;

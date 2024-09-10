@@ -6,18 +6,15 @@ import com.eihabitat.eihabitat_server.dto.request.PostCreationReq;
 import com.eihabitat.eihabitat_server.dto.request.PostUpdateReq;
 import com.eihabitat.eihabitat_server.dto.response.PostContentResponse;
 import com.eihabitat.eihabitat_server.dto.response.PostResponse;
-import com.eihabitat.eihabitat_server.entity.Post;
-import com.eihabitat.eihabitat_server.service.PostContentService;
 import com.eihabitat.eihabitat_server.service.PostService;
 import jakarta.validation.Valid;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Set;
 
 @RestController
 @RequiredArgsConstructor
@@ -25,18 +22,18 @@ import java.util.List;
 @RequestMapping("/post")
 public class PostController {
     PostService postService;
-    PostContentService postContentService;
+//    PostContentService postContentService;
 
-    @PostMapping("/postContent")
-    public ApiResponse<PostContentResponse> createPostContent(@RequestBody PostContentReq postContentReq) {
-        ApiResponse resp = new ApiResponse();
-        resp.setCode(1000);
-        resp.setData(postContentService.createPostContent(postContentReq));
-        return resp;
-    }
+//    @PostMapping("/postContent")
+//    public ApiResponse<PostContentResponse> createPostContent(@RequestBody PostContentReq postContentReq) {
+//        ApiResponse resp = new ApiResponse();
+//        resp.setCode(1000);
+//        resp.setData(postContentService.createPostContent(postContentReq));
+//        return resp;
+//    }
 
     @PostMapping
-    public ApiResponse<PostResponse> createPost(@RequestBody PostCreationReq postRequest) {
+    public ApiResponse<PostResponse> createPost(@RequestBody PostCreationReq postRequest) throws Exception {
         ApiResponse resp = new ApiResponse();
         resp.setCode(1000);
         resp.setData(postService.createPost(postRequest));
@@ -67,11 +64,13 @@ public class PostController {
         return resp;
     }
 
-//    @GetMapping
-//    public ResponseEntity<List<Post>> findAllPost() throws Exception {
-//        List<Post> posts = postService.findAllPost();
-//        return ResponseEntity.ok(posts);
-//    }
+    @GetMapping("/user/{userId}")
+    public ApiResponse<Set<PostResponse>> findAllPostByUserId(@PathVariable String userId) throws Exception {
+        ApiResponse resp = new ApiResponse();
+        resp.setCode(1000);
+        resp.setData(postService.findAllPostByUserId(userId));
+        return resp;
+    }
 //
 //    @GetMapping("/user/{userId}")
 //    public ResponseEntity<List<Post>> findPostByUserId(@PathVariable String userId) {

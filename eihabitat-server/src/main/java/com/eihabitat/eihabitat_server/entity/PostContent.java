@@ -16,7 +16,5 @@ public class PostContent {
 
     String imageId;
 
-    @ManyToOne
-    @JoinColumn(name="post_id", nullable=false)
-    Post postId;
+    String postId;
 }

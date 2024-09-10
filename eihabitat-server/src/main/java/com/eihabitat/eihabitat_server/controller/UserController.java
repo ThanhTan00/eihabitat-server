@@ -51,10 +51,10 @@ public class UserController {
         return resp;
     }
 
-    @PutMapping("/{userId}")
-    ApiResponse<UserResponse> updateUser(@PathVariable String userId, @RequestBody UserUpdateReq req) {
+    @PutMapping()
+    ApiResponse<UserResponse> updateUser(@RequestBody UserUpdateReq req) {
         ApiResponse<UserResponse> resp = new ApiResponse<>();
-        resp.setData(userService.updateUser(userId, req));
+        resp.setData(userService.updateUser( req));
         return resp;
     }
 
