@@ -6,18 +6,13 @@ import com.eihabitat.eihabitat_server.dto.request.PostCreationReq;
 import com.eihabitat.eihabitat_server.dto.request.PostUpdateReq;
 import com.eihabitat.eihabitat_server.dto.response.PostContentResponse;
 import com.eihabitat.eihabitat_server.dto.response.PostResponse;
-import com.eihabitat.eihabitat_server.entity.Post;
 import com.eihabitat.eihabitat_server.service.PostContentService;
 import com.eihabitat.eihabitat_server.service.PostService;
 import jakarta.validation.Valid;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
@@ -46,7 +41,7 @@ public class PostController {
     public ApiResponse<PostResponse> updatePost(@PathVariable String postId,
                                            @Valid @RequestBody PostUpdateReq postRequest) {
         ApiResponse resp = new ApiResponse();
-        resp.setCode(1009);
+        resp.setCode(1000);
         resp.setData(postService.updatePost(postId,postRequest));
         return resp;
     }
