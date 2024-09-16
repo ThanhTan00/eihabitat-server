@@ -6,13 +6,15 @@ import com.eihabitat.eihabitat_server.dto.request.PostCreationReq;
 import com.eihabitat.eihabitat_server.dto.request.PostUpdateReq;
 import com.eihabitat.eihabitat_server.dto.response.PostContentResponse;
 import com.eihabitat.eihabitat_server.dto.response.PostResponse;
-import com.eihabitat.eihabitat_server.service.PostContentService;
+//import com.eihabitat.eihabitat_server.service.PostContentService;
 import com.eihabitat.eihabitat_server.service.PostService;
 import jakarta.validation.Valid;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import org.springframework.web.bind.annotation.*;
+import java.util.List;
+import java.util.Set;
 
 @RestController
 @RequiredArgsConstructor
