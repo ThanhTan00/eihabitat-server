@@ -8,6 +8,8 @@ import lombok.*;
 import lombok.experimental.FieldDefaults;
 
 import java.time.Instant;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.UUID;
 
 @Data
@@ -16,17 +18,13 @@ import java.util.UUID;
 @AllArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class CommentResponse {
-    UUID id;
+    String id;
 
     String content;
 
-    String ownerUsername;
+    String ownerProfileName;
 
-    String ownerDisplayName;
+    String ownerAvatar;
 
-    String postId;
-
-    @JsonSerialize(using = LocalDateTimeSerializer.class)
-    @JsonDeserialize(using = LocalDateTimeDeserializer.class)
-    Instant creationDate;
+    LocalDateTime creationDate;
 }

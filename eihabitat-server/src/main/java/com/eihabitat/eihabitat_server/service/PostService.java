@@ -4,14 +4,18 @@ import com.eihabitat.eihabitat_server.dto.request.PostContentReq;
 import com.eihabitat.eihabitat_server.dto.request.PostCreationReq;
 import com.eihabitat.eihabitat_server.dto.request.PostUpdateReq;
 import com.eihabitat.eihabitat_server.dto.response.AllPostResponse;
+import com.eihabitat.eihabitat_server.dto.response.CommentResponse;
 import com.eihabitat.eihabitat_server.dto.response.PostContentResponse;
 import com.eihabitat.eihabitat_server.dto.response.PostResponse;
+import com.eihabitat.eihabitat_server.entity.Comment;
 import com.eihabitat.eihabitat_server.entity.Post;
 import com.eihabitat.eihabitat_server.entity.PostContent;
 import com.eihabitat.eihabitat_server.entity.User;
 import com.eihabitat.eihabitat_server.exception.AppException;
 import com.eihabitat.eihabitat_server.exception.ErrorCode;
+import com.eihabitat.eihabitat_server.mapper.CommentMapper;
 import com.eihabitat.eihabitat_server.mapper.PostMapper;
+import com.eihabitat.eihabitat_server.repository.CommentRepository;
 import com.eihabitat.eihabitat_server.repository.PostContentRepository;
 import com.eihabitat.eihabitat_server.repository.PostRepository;
 import com.eihabitat.eihabitat_server.repository.UserRepository;
@@ -36,8 +40,12 @@ public class PostService {
     PostRepository repo;
 
     PostMapper mapper;
+
+    CommentMapper commentMapper;
+
     UserRepository userRepo;
     PostContentRepository postContentRepo;
+    CommentRepository commentRepo;
 
     PostRepository postRepository;
 
@@ -93,9 +101,16 @@ public class PostService {
         }
         PostResponse postResponse = mapper.toPostResponse(opt);
 
+        Set<Comment> comments = commentRepo.findAllByPostId(postId);
+        Set<CommentResponse> commentResponseSet = new HashSet<>();
+        for (Comment comment : comments) {
+            commentResponseSet.add(commentMapper.toCommentResponse(comment));
+        }
+
         postResponse.setPostContentSet(postContentResponseSet);
         postResponse.setAuthorProfileName(author.getProfileName());
         postResponse.setAuthorProfileAvatar(author.getProfileAvatar());
+        postResponse.setCommentSet(commentResponseSet);
 
         return postResponse;
     }

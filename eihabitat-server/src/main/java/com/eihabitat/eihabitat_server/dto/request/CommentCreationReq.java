@@ -18,6 +18,4 @@ public class CommentCreationReq {
     String content;
 
     String postId;
-
-    String username;
 }

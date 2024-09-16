@@ -3,8 +3,7 @@ import jakarta.persistence.*;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 
-import java.time.Instant;
-import java.util.UUID;
+import java.time.LocalDateTime;
 
 @Data
 @Builder
@@ -15,16 +14,9 @@ import java.util.UUID;
 public class Comment {
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
-    UUID id;
+    String id;
     String content;
-    String ownerUsername;
-    String ownerDisplayName;
-    Instant creationDate;
-
-    @Column(name = "a_post_id")
+    LocalDateTime creationDate;
+    String ownerId;
     String postId;
-
-    @ManyToOne
-    @JoinColumn(name = "post_id")
-    Post post;
 }

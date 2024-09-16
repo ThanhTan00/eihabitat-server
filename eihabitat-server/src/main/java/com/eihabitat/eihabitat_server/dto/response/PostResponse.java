@@ -21,4 +21,5 @@ public class PostResponse {
     String authorProfileName;
     String authorProfileAvatar;
     Set<PostContentResponse> postContentSet;
+    Set<CommentResponse> commentSet;
 }

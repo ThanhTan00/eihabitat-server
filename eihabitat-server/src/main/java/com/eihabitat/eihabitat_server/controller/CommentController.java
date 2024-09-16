@@ -25,17 +25,16 @@ public class CommentController {
     CommentService commentService;
 
     @PostMapping()
-    public ApiResponse<CommentResponse> addComment(@RequestBody CommentCreationReq commentCreationReq, Principal principal, String postId) {
+    public ApiResponse<CommentResponse> addComment(@RequestBody CommentCreationReq commentCreationReq) {
         ApiResponse resp = new ApiResponse();
         resp.setCode(1000);
-        commentCreationReq.setUsername(principal.getName());
-        resp.setData(commentService.addComment(postId, commentCreationReq));
+        resp.setData(commentService.addComment(commentCreationReq));
         return resp;
     }
 
     //    @PreAuthorize("@postOwner.isCommentOwner(#id)")
     @PutMapping("/update/{commentId}")
-    public ApiResponse<CommentResponse> updateComment(@PathVariable UUID commentId,
+    public ApiResponse<CommentResponse> updateComment(@PathVariable String commentId,
                                                       @Valid @RequestBody CommentUpdateReq commentRequest) {
         ApiResponse resp = new ApiResponse();
         resp.setCode(1000);

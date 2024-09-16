@@ -3,7 +3,9 @@ package com.eihabitat.eihabitat_server.repository;
 import com.eihabitat.eihabitat_server.entity.Comment;
 import org.springframework.data.jpa.repository.JpaRepository;
 
+import java.util.Set;
 import java.util.UUID;
 
-public interface CommentRepository extends JpaRepository<Comment, UUID> {
+public interface CommentRepository extends JpaRepository<Comment, String> {
+    Set<Comment> findAllByPostId(String postId);
 }

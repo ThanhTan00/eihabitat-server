@@ -2,6 +2,7 @@ package com.eihabitat.eihabitat_server.mapper;
 
 import com.eihabitat.eihabitat_server.dto.request.CommentCreationReq;
 import com.eihabitat.eihabitat_server.dto.request.CommentUpdateReq;
+import com.eihabitat.eihabitat_server.dto.response.CommentResponse;
 import com.eihabitat.eihabitat_server.entity.Comment;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
@@ -14,4 +15,6 @@ public interface CommentMapper {
 
     @Mapping(target = "postId", ignore = true)
     void updateComment(@MappingTarget Comment comment, CommentUpdateReq request);
+
+    CommentResponse toCommentResponse(Comment comment);
 }
