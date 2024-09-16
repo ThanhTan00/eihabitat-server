@@ -12,7 +12,6 @@ import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import org.springframework.web.bind.annotation.*;
-
 import java.util.List;
 import java.util.Set;
 
@@ -43,7 +42,7 @@ public class PostController {
     public ApiResponse<PostResponse> updatePost(@PathVariable String postId,
                                            @Valid @RequestBody PostUpdateReq postRequest) {
         ApiResponse resp = new ApiResponse();
-        resp.setCode(1009);
+        resp.setCode(1000);
         resp.setData(postService.updatePost(postId,postRequest));
         return resp;
     }
