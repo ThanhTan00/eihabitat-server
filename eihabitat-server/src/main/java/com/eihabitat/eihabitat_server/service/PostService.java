@@ -3,22 +3,13 @@ package com.eihabitat.eihabitat_server.service;
 import com.eihabitat.eihabitat_server.dto.request.PostContentReq;
 import com.eihabitat.eihabitat_server.dto.request.PostCreationReq;
 import com.eihabitat.eihabitat_server.dto.request.PostUpdateReq;
-import com.eihabitat.eihabitat_server.dto.response.AllPostResponse;
-import com.eihabitat.eihabitat_server.dto.response.CommentResponse;
-import com.eihabitat.eihabitat_server.dto.response.PostContentResponse;
-import com.eihabitat.eihabitat_server.dto.response.PostResponse;
-import com.eihabitat.eihabitat_server.entity.Comment;
-import com.eihabitat.eihabitat_server.entity.Post;
-import com.eihabitat.eihabitat_server.entity.PostContent;
-import com.eihabitat.eihabitat_server.entity.User;
+import com.eihabitat.eihabitat_server.dto.response.*;
+import com.eihabitat.eihabitat_server.entity.*;
 import com.eihabitat.eihabitat_server.exception.AppException;
 import com.eihabitat.eihabitat_server.exception.ErrorCode;
 import com.eihabitat.eihabitat_server.mapper.CommentMapper;
 import com.eihabitat.eihabitat_server.mapper.PostMapper;
-import com.eihabitat.eihabitat_server.repository.CommentRepository;
-import com.eihabitat.eihabitat_server.repository.PostContentRepository;
-import com.eihabitat.eihabitat_server.repository.PostRepository;
-import com.eihabitat.eihabitat_server.repository.UserRepository;
+import com.eihabitat.eihabitat_server.repository.*;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
@@ -29,8 +20,10 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Optional;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -38,16 +31,15 @@ import java.util.Set;
 @Slf4j
 public class PostService {
     PostRepository repo;
-
     PostMapper mapper;
-
     CommentMapper commentMapper;
-
     UserRepository userRepo;
     PostContentRepository postContentRepo;
     CommentRepository commentRepo;
-
     PostRepository postRepository;
+    UserLikePostRepository userLikePostRepository;
+    UserLikePostService userLikeService;
+    UserService userService;
 
     public PostResponse createPost(PostCreationReq postRequest) throws Exception {
         String email = SecurityContextHolder.getContext().getAuthentication().getName();
@@ -58,7 +50,7 @@ public class PostService {
         post.setCreatedAt(LocalDateTime.now());
 
         Post createdPost = repo.save(post);
-        for(PostContentReq p : postRequest.getPostContentReq()) {
+        for (PostContentReq p : postRequest.getPostContentReq()) {
             postContentRepo.save(PostContent.builder()
                     .imageId(p.getImageId())
                     .postId(createdPost.getId())
@@ -82,11 +74,6 @@ public class PostService {
         return repo.save(existingPost);
     }
 
-//    public List<Post> findPostByUserId(String userId) {
-//        List<Post> posts = repo.findByUserId(userId);
-//        return posts;
-//    }
-
     public PostResponse findPostById(String postId) throws Exception {
         Post opt = repo.findById(postId).orElseThrow(() -> new AppException(ErrorCode.POST_NOT_FOUND));
 
@@ -96,7 +83,7 @@ public class PostService {
 
         Set<PostContentResponse> postContentResponseSet = new HashSet<>();
 
-        for(PostContent postContent : postContentSet) {
+        for (PostContent postContent : postContentSet) {
             postContentResponseSet.add(mapper.toPostContentResponse(postContent));
         }
         PostResponse postResponse = mapper.toPostResponse(opt);
@@ -118,13 +105,10 @@ public class PostService {
     public Set<PostResponse> findAllPostByUserId(String userId) throws Exception {
 
         Set<Post> listPost = postRepository.findAllByAuthorId(userId);
-
         Set<PostResponse> listPostResponse = new HashSet<>();
-
         for (Post post : listPost) {
             listPostResponse.add(findPostById(post.getId()));
         }
-
         return listPostResponse;
     }
 
@@ -139,23 +123,27 @@ public class PostService {
         repo.delete(post);
         return "Deleted post successfully";
     }
-//    public Post likePost(String postId, String userId) throws Exception  {
-//        UserResponse user= userService.getUser(userId);
-//        Post post=findPostById(postId);
-//        post.getLikedByUsers().add(user.getId());
-//
-//        return repo.save(post);
-//    }
 
-//    public Post editPost(Post post) throws Exception {
-//        Post isPost=findPostById(post.getId());
-//
-//        if(post.getCaption()!=null) {
-//            isPost.setCaption(post.getCaption());
-//        }
-//        if(post.getLocation()!=null) {
-//            isPost.setLocation(post.getLocation());
-//        }
-//        return repo.save(isPost);
-//    }
+    public PostResponse getPostWithLikes(String postId) {
+        Post post = postRepository.findById(postId)
+                .orElseThrow(() -> new RuntimeException("Post not found"));
+
+        PostResponse postResponse = mapper.toPostResponse(post);
+
+        // Add likes information
+        List<UserLikePostResponse> likes = userLikeService.getLikesForPost(postId);
+        long likeCount = likes.size();
+
+        // Create a set of user IDs who liked the post
+        Set<String> likedUserIds = likes.stream()
+                .map(UserLikePostResponse::getUserId)
+                .collect(Collectors.toSet());
+
+        // Add like information to PostResponse
+        postResponse.setLikedUserIds(likedUserIds);
+        postResponse.setLikeCount(likeCount);
+
+        return postResponse;
+    }
+
 }

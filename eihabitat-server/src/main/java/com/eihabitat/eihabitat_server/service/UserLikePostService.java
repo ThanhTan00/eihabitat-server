@@ -1,0 +1,54 @@
+package com.eihabitat.eihabitat_server.service;
+
+import com.eihabitat.eihabitat_server.dto.request.UserLikePostReq;
+import com.eihabitat.eihabitat_server.dto.response.UserLikePostResponse;
+import com.eihabitat.eihabitat_server.entity.UserLikePost;
+import com.eihabitat.eihabitat_server.mapper.UserLikePostMapper;
+import com.eihabitat.eihabitat_server.repository.UserLikePostRepository;
+import lombok.AccessLevel;
+import lombok.RequiredArgsConstructor;
+import lombok.experimental.FieldDefaults;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.stereotype.Service;
+
+import java.util.List;
+import java.util.stream.Collectors;
+
+@Service
+@RequiredArgsConstructor
+@FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
+@Slf4j
+public class UserLikePostService {
+    UserLikePostRepository userLikePostRepository;
+    UserLikePostMapper userLikePostMapper;
+
+    public UserLikePostResponse likePost(UserLikePostReq request) {
+        if (userLikePostRepository.existsByUserIdAndPostId(request.getUserId(), request.getPostId())) {
+            throw new RuntimeException("User has already liked this post");
+        }
+
+        UserLikePost userLikePost = userLikePostMapper.toUserLikePost(request);
+        UserLikePost savedLike = userLikePostRepository.save(userLikePost);
+
+        return userLikePostMapper.toUserLikePostResponse(savedLike);
+    }
+
+    public UserLikePostResponse unlikePost(String userId, String postId) {
+        return userLikePostRepository.deleteByUserIdAndPostId(userId, postId);
+    }
+
+    public List<UserLikePostResponse> getLikesForPost(String postId) {
+        List<UserLikePost> likes = userLikePostRepository.findByPostId(postId);
+        return likes.stream()
+                .map(userLikePostMapper::toUserLikePostResponse)
+                .collect(Collectors.toList());
+    }
+
+    public long getLikeCountForPost(String postId) {
+        return userLikePostRepository.countByPostId(postId);
+    }
+
+    public boolean hasUserLikedPost(String userId, String postId) {
+        return userLikePostRepository.existsByUserIdAndPostId(userId, postId);
+    }
+}

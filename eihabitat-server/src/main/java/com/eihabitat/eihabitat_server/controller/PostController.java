@@ -10,6 +10,7 @@ import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import org.springframework.web.bind.annotation.*;
+
 import java.util.Set;
 
 @RestController
@@ -58,10 +59,4 @@ public class PostController {
         resp.setData(postService.findAllPostByUserId(userId));
         return resp;
     }
-//
-//    @GetMapping("/user/{userId}")
-//    public ResponseEntity<List<Post>> findPostByUserId(@PathVariable String userId) {
-//        List<Post> posts = postService.findPostByUserId(userId);
-//        return ResponseEntity.ok(posts);
-//    }
 }

@@ -6,6 +6,7 @@ import lombok.*;
 import lombok.experimental.FieldDefaults;
 
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Set;
 
 @Data
@@ -22,4 +23,6 @@ public class PostResponse {
     String authorProfileAvatar;
     Set<PostContentResponse> postContentSet;
     Set<CommentResponse> commentSet;
+    Set<String> likedUserIds;
+    Long likeCount;
 }
