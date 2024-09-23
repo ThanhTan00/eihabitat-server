@@ -19,12 +19,8 @@ import java.util.UUID;
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class CommentResponse {
     String id;
-
     String content;
-
     String ownerProfileName;
-
     String ownerAvatar;
-
     LocalDateTime creationDate;
 }

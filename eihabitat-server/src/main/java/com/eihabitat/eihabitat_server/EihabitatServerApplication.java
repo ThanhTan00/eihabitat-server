@@ -6,8 +6,9 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 @SpringBootApplication
 public class EihabitatServerApplication {
 
-	public static void main(String[] args) {
-		SpringApplication.run(EihabitatServerApplication.class, args);
-	}
+    public static void main(String[] args) {
+        SpringApplication.run(EihabitatServerApplication.class, args);
+    }
 
 }
+

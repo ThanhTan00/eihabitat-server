@@ -12,14 +12,12 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @AllArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE)
-@Document(collection = "comments")
-public class Comment {
-
+@Document(collection = "post_likes")
+public class UserLikePost {
     @Id
     String id;
 
-    String content;
-    LocalDateTime creationDate;
-    String ownerId;
+    String userId;
     String postId;
+    LocalDateTime likedAt;
 }
