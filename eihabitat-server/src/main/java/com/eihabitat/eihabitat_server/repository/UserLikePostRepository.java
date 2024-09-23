@@ -7,6 +7,7 @@ import org.springframework.data.mongodb.repository.Query;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
 public interface UserLikePostRepository extends MongoRepository <UserLikePost, String> {
     // Find if a user has liked a specific post
@@ -22,6 +23,5 @@ public interface UserLikePostRepository extends MongoRepository <UserLikePost, S
     UserLikePostResponse deleteByUserIdAndPostId(String userId, String postId);
 
     // Custom query to check if a user has liked a post
-    @Query("{'userId': ?0, 'postId': ?1}")
     boolean existsByUserIdAndPostId(String userId, String postId);
 }

@@ -23,6 +23,7 @@ public class PostResponse {
     String authorProfileAvatar;
     Set<PostContentResponse> postContentSet;
     Set<CommentResponse> commentSet;
-    Set<String> likedUserIds;
-    Long likeCount;
+    int numberOfLikes;
+    String latestUserLike;
+    String latestUserLikeAvatar;
 }

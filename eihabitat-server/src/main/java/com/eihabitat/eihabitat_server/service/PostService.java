@@ -7,18 +7,12 @@ import com.eihabitat.eihabitat_server.dto.response.AllPostResponse;
 import com.eihabitat.eihabitat_server.dto.response.CommentResponse;
 import com.eihabitat.eihabitat_server.dto.response.PostContentResponse;
 import com.eihabitat.eihabitat_server.dto.response.PostResponse;
-import com.eihabitat.eihabitat_server.entity.Comment;
-import com.eihabitat.eihabitat_server.entity.Post;
-import com.eihabitat.eihabitat_server.entity.PostContent;
-import com.eihabitat.eihabitat_server.entity.User;
+import com.eihabitat.eihabitat_server.entity.*;
 import com.eihabitat.eihabitat_server.exception.AppException;
 import com.eihabitat.eihabitat_server.exception.ErrorCode;
 import com.eihabitat.eihabitat_server.mapper.CommentMapper;
 import com.eihabitat.eihabitat_server.mapper.PostMapper;
-import com.eihabitat.eihabitat_server.repository.CommentRepository;
-import com.eihabitat.eihabitat_server.repository.PostContentRepository;
-import com.eihabitat.eihabitat_server.repository.PostRepository;
-import com.eihabitat.eihabitat_server.repository.UserRepository;
+import com.eihabitat.eihabitat_server.repository.*;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
@@ -29,6 +23,7 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
@@ -41,6 +36,7 @@ public class PostService {
     PostContentRepository postContentRepo;
     CommentRepository commentRepo;
     PostRepository postRepository;
+    UserLikePostRepository likePostRepo;
 
     PostMapper mapper;
     CommentMapper commentMapper;
@@ -78,6 +74,9 @@ public class PostService {
     public PostResponse findPostById(String postId) throws Exception {
         Post opt = postRepository.findById(postId).orElseThrow(() -> new AppException(ErrorCode.POST_NOT_FOUND));
 
+        List<UserLikePost> userLikePosts = likePostRepo.findByPostId(postId);
+        log.info("liked by: " + userLikePosts.toString());
+
         Set<PostContent> postContentSet = postContentRepo.findAllByPostId(opt.getId());
 
         User author = opt.getAuthor();
@@ -90,16 +89,32 @@ public class PostService {
         PostResponse postResponse = mapper.toPostResponse(opt);
 
         Set<Comment> comments = commentRepo.findAllByPostId(postId);
+
+
         Set<CommentResponse> commentResponseSet = new HashSet<>();
         for (Comment comment : comments) {
-            commentResponseSet.add(commentMapper.toCommentResponse(comment));
+            User u = userRepo.findById(comment.getOwnerId()).orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
+            CommentResponse commentResponse = commentMapper.toCommentResponse(comment);
+            commentResponse.setOwnerProfileName(u.getProfileName());
+            commentResponse.setOwnerAvatar(u.getProfileAvatar());
+            commentResponseSet.add(commentResponse);
+        }
+        log.info("comment by: " + commentResponseSet.toString());
+        if (userLikePosts.isEmpty()) {
+            postResponse.setLatestUserLike(null);
+            postResponse.setLatestUserLikeAvatar(null);
+        } else {
+            User latestUserLike = userRepo.findById(userLikePosts.getLast().getUserId()).orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
+            log.info("latest liked by: " + latestUserLike.toString());
+            postResponse.setLatestUserLike(latestUserLike.getProfileName());
+            postResponse.setLatestUserLikeAvatar(latestUserLike.getProfileAvatar());
         }
 
         postResponse.setPostContentSet(postContentResponseSet);
         postResponse.setAuthorProfileName(author.getProfileName());
         postResponse.setAuthorProfileAvatar(author.getProfileAvatar());
         postResponse.setCommentSet(commentResponseSet);
-
+        postResponse.setNumberOfLikes(userLikePosts.size());
         return postResponse;
     }
 

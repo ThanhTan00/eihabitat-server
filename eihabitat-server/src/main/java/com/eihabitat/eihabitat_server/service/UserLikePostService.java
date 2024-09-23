@@ -11,6 +11,7 @@ import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -22,15 +23,17 @@ public class UserLikePostService {
     UserLikePostRepository userLikePostRepository;
     UserLikePostMapper userLikePostMapper;
 
-    public UserLikePostResponse likePost(UserLikePostReq request) {
+    public String likePost(UserLikePostReq request) {
         if (userLikePostRepository.existsByUserIdAndPostId(request.getUserId(), request.getPostId())) {
             throw new RuntimeException("User has already liked this post");
         }
 
         UserLikePost userLikePost = userLikePostMapper.toUserLikePost(request);
-        UserLikePost savedLike = userLikePostRepository.save(userLikePost);
+        userLikePost.setLikedAt(LocalDateTime.now());
 
-        return userLikePostMapper.toUserLikePostResponse(savedLike);
+        userLikePostRepository.save(userLikePost);
+
+        return "Post liked successfully!";
     }
 
     public UserLikePostResponse unlikePost(String userId, String postId) {

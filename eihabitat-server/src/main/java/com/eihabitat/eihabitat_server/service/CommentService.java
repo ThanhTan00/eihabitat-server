@@ -37,6 +37,7 @@ public class CommentService {
         var context = SecurityContextHolder.getContext();
         String email = context.getAuthentication().getName();
         User user = userRepository.findByEmail(email).orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
+        //log.info(user.getProfileName());
 
         Comment comment = commentMapper.toComment(data);
         comment.setPostId(data.getPostId());
