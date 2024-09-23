@@ -37,27 +37,27 @@ import java.util.Set;
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 @Slf4j
 public class PostService {
-    PostRepository repo;
-
-    PostMapper mapper;
-
-    CommentMapper commentMapper;
-
     UserRepository userRepo;
     PostContentRepository postContentRepo;
     CommentRepository commentRepo;
-
     PostRepository postRepository;
+
+    PostMapper mapper;
+    CommentMapper commentMapper;
+
+
+
 
     public PostResponse createPost(PostCreationReq postRequest) throws Exception {
         String email = SecurityContextHolder.getContext().getAuthentication().getName();
+
         User user = userRepo.findByEmail(email).orElseThrow(() -> new AppException(ErrorCode.USER_NOT_EXISTED));
         Post post = mapper.toPost(postRequest);
 
         post.setAuthor(user);
         post.setCreatedAt(LocalDateTime.now());
 
-        Post createdPost = repo.save(post);
+        Post createdPost = postRepository.save(post);
         for(PostContentReq p : postRequest.getPostContentReq()) {
             postContentRepo.save(PostContent.builder()
                     .imageId(p.getImageId())
@@ -68,27 +68,15 @@ public class PostService {
     }
 
     public Post updatePost(String postId, PostUpdateReq updateRequest) {
-        Post existingPost = repo.findById(postId)
+        Post existingPost = postRepository.findById(postId)
                 .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
-
-        // Check if the user has permission to update the post
-//        if (!existingPost.getAuthor().getId().equals(updateRequest.getAuthorId())) {
-//            throw new AppException(ErrorCode.UNAUTHORIZED_UPDATE);
-//        }
-
-        // Update the post fields
         mapper.updatePost(existingPost, updateRequest);
         existingPost.setCreatedAt(LocalDateTime.now());
-        return repo.save(existingPost);
+        return postRepository.save(existingPost);
     }
 
-//    public List<Post> findPostByUserId(String userId) {
-//        List<Post> posts = repo.findByUserId(userId);
-//        return posts;
-//    }
-
     public PostResponse findPostById(String postId) throws Exception {
-        Post opt = repo.findById(postId).orElseThrow(() -> new AppException(ErrorCode.POST_NOT_FOUND));
+        Post opt = postRepository.findById(postId).orElseThrow(() -> new AppException(ErrorCode.POST_NOT_FOUND));
 
         Set<PostContent> postContentSet = postContentRepo.findAllByPostId(opt.getId());
 
@@ -116,46 +104,28 @@ public class PostService {
     }
 
     public Set<PostResponse> findAllPostByUserId(String userId) throws Exception {
-
         Set<Post> listPost = postRepository.findAllByAuthorId(userId);
-
         Set<PostResponse> listPostResponse = new HashSet<>();
-
         for (Post post : listPost) {
             listPostResponse.add(findPostById(post.getId()));
         }
+        return listPostResponse;
+    }
 
+    public Set<PostResponse> findAllPostByUserProfileName(String userProfileName) throws Exception {
+        Set<Post> listPost = postRepository.findAllByAuthorProfileName(userProfileName);
+        Set<PostResponse> listPostResponse = new HashSet<>();
+        for (Post post : listPost) {
+            listPostResponse.add(findPostById(post.getId()));
+        }
         return listPostResponse;
     }
 
     public String deletePost(String postId) {
-        Post post = repo.findById(postId)
+        Post post = postRepository.findById(postId)
                 .orElseThrow(() -> new AppException(ErrorCode.POST_NOT_FOUND));
-
-        // Optionally, you might want to check if the current user has permission to delete the post
-        // if (!post.getAuthor().getId().equals(currentUserId)) {
-        //     throw new AppException(ErrorCode.UNAUTHORIZED_DELETE);
-        // }
-        repo.delete(post);
+        postRepository.delete(post);
         return "Deleted post successfully";
     }
-//    public Post likePost(String postId, String userId) throws Exception  {
-//        UserResponse user= userService.getUser(userId);
-//        Post post=findPostById(postId);
-//        post.getLikedByUsers().add(user.getId());
-//
-//        return repo.save(post);
-//    }
 
-//    public Post editPost(Post post) throws Exception {
-//        Post isPost=findPostById(post.getId());
-//
-//        if(post.getCaption()!=null) {
-//            isPost.setCaption(post.getCaption());
-//        }
-//        if(post.getLocation()!=null) {
-//            isPost.setLocation(post.getLocation());
-//        }
-//        return repo.save(isPost);
-//    }
 }

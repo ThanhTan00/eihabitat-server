@@ -40,8 +40,11 @@ public class UserService {
     public UserResponse createUser(UserCreationReq request) {
         if (userRepository.existsByEmail(request.getEmail()))
             throw new AppException(ErrorCode.USER_EXISTED);
+        if (userRepository.existsByProfileName(request.getProfileName()))
+            throw new AppException(ErrorCode.USERNAME_EXISTED);
         User user = userMapper.toUser(request);
         user.setPassword(passwordEncoder.encode(user.getPassword()));
+        user.setProfileAvatar("asset/images/default-avatar.png");
 
         LocalDate date = LocalDate.now();
         user.setSignupDate(date);
@@ -91,10 +94,8 @@ public class UserService {
         return userMapper.toUserResponse(user);
     }
 
-//    public void logout() {
-//        var context = SecurityContextHolder.getContext();
-//        String token = context.getAuthentication().getAuthorities().toString();
-//
-//
-//    }
+    public UserResponse getUserInfo(String userProfileName) {
+        User user = userRepository.findByProfileName(userProfileName).orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
+        return userMapper.toUserResponse(user);
+    }
 }

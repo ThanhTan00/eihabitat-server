@@ -44,13 +44,6 @@ public class UserController {
         return resp;
     }
 
-    @GetMapping("/{userId}")
-    ApiResponse<UserResponse> getUser(@PathVariable("userId") String userId) {
-        ApiResponse<UserResponse> resp = new ApiResponse<>();
-        resp.setData(userService.getUser(userId));
-        return resp;
-    }
-
     @PutMapping()
     ApiResponse<UserResponse> updateUser(@RequestBody UserUpdateReq req) {
         ApiResponse<UserResponse> resp = new ApiResponse<>();
@@ -68,6 +61,13 @@ public class UserController {
     ApiResponse<UserResponse> getMyInfo() {
         ApiResponse<UserResponse> resp = new ApiResponse<>();
         resp.setData(userService.getMyInfo());
+        return resp;
+    }
+
+    @GetMapping("/{userProfileName}")
+    ApiResponse<UserResponse> getUserProfile(@PathVariable String userProfileName) {
+        ApiResponse<UserResponse> resp = new ApiResponse<>();
+        resp.setData(userService.getUserInfo(userProfileName));
         return resp;
     }
 

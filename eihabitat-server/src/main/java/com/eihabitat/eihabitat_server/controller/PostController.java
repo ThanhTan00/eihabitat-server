@@ -58,6 +58,16 @@ public class PostController {
         resp.setData(postService.findAllPostByUserId(userId));
         return resp;
     }
+
+    @GetMapping("/username/{userProfileName}")
+    public ApiResponse<Set<PostResponse>> findAllPostByUserProfileName(@PathVariable String userProfileName) throws Exception {
+        ApiResponse resp = new ApiResponse();
+        resp.setCode(1000);
+        resp.setData(postService.findAllPostByUserProfileName(userProfileName));
+        return resp;
+    }
+
+
 //
 //    @GetMapping("/user/{userId}")
 //    public ResponseEntity<List<Post>> findPostByUserId(@PathVariable String userId) {

@@ -11,9 +11,11 @@ import java.util.Set;
 public interface PostRepository extends JpaRepository<Post, String> {
 
     public Set<Post> findAllByAuthorId(String authorId);
+    public Set<Post> findAllByAuthorProfileName(String authorId);
 //
 //    public List<Post> findAllPostByUserIds(@Param("users") List<String> userIds);
 //
 //    public List<Post> findAllPostByUserIdsSortedByDateDesc(@Param("users") List<String> userIds);
+
 
 }

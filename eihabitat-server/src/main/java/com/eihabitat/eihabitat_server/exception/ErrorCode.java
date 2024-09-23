@@ -19,6 +19,7 @@ public enum ErrorCode {
     POST_NOT_FOUND( 1009, "Post not found", HttpStatus.NOT_FOUND),
     STORY_NOT_FOUND( 1010, "Story not found", HttpStatus.NOT_FOUND),
     COMMENT_NOT_EXISTED(1011, "Comment not exists", HttpStatus.NOT_FOUND),
+    USERNAME_EXISTED(1012, "Username already exists", HttpStatus.CONFLICT),
     ;
 
     ErrorCode(int code, String message, HttpStatusCode statusCode) {
