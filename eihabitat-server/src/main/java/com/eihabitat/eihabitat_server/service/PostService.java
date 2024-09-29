@@ -3,9 +3,9 @@ package com.eihabitat.eihabitat_server.service;
 import com.eihabitat.eihabitat_server.dto.request.PostContentReq;
 import com.eihabitat.eihabitat_server.dto.request.PostCreationReq;
 import com.eihabitat.eihabitat_server.dto.request.PostUpdateReq;
-import com.eihabitat.eihabitat_server.dto.response.AllPostResponse;
 import com.eihabitat.eihabitat_server.dto.response.CommentResponse;
 import com.eihabitat.eihabitat_server.dto.response.PostContentResponse;
+import com.eihabitat.eihabitat_server.dto.response.PostOnPersonalWallResponse;
 import com.eihabitat.eihabitat_server.dto.response.PostResponse;
 import com.eihabitat.eihabitat_server.entity.*;
 import com.eihabitat.eihabitat_server.exception.AppException;
@@ -17,14 +17,12 @@ import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Optional;
 import java.util.Set;
 
 @Service
@@ -75,7 +73,6 @@ public class PostService {
         Post opt = postRepository.findById(postId).orElseThrow(() -> new AppException(ErrorCode.POST_NOT_FOUND));
 
         List<UserLikePost> userLikePosts = likePostRepo.findByPostId(postId);
-        log.info("liked by: " + userLikePosts.toString());
 
         Set<PostContent> postContentSet = postContentRepo.findAllByPostId(opt.getId());
 
@@ -91,15 +88,14 @@ public class PostService {
         Set<Comment> comments = commentRepo.findAllByPostId(postId);
 
 
-        Set<CommentResponse> commentResponseSet = new HashSet<>();
-        for (Comment comment : comments) {
-            User u = userRepo.findById(comment.getOwnerId()).orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
-            CommentResponse commentResponse = commentMapper.toCommentResponse(comment);
-            commentResponse.setOwnerProfileName(u.getProfileName());
-            commentResponse.setOwnerAvatar(u.getProfileAvatar());
-            commentResponseSet.add(commentResponse);
-        }
-        log.info("comment by: " + commentResponseSet.toString());
+//        Set<CommentResponse> commentResponseSet = new HashSet<>();
+//        for (Comment comment : comments) {
+//            User u = userRepo.findById(comment.getOwnerId()).orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
+//            CommentResponse commentResponse = commentMapper.toCommentResponse(comment);
+//            commentResponse.setOwnerProfileName(u.getProfileName());
+//            commentResponse.setOwnerAvatar(u.getProfileAvatar());
+//            commentResponseSet.add(commentResponse);
+//        }
         if (userLikePosts.isEmpty()) {
             postResponse.setLatestUserLike(null);
             postResponse.setLatestUserLikeAvatar(null);
@@ -113,7 +109,7 @@ public class PostService {
         postResponse.setPostContentSet(postContentResponseSet);
         postResponse.setAuthorProfileName(author.getProfileName());
         postResponse.setAuthorProfileAvatar(author.getProfileAvatar());
-        postResponse.setCommentSet(commentResponseSet);
+//        postResponse.setCommentSet(commentResponseSet);
         postResponse.setNumberOfLikes(userLikePosts.size());
         return postResponse;
     }
@@ -127,11 +123,23 @@ public class PostService {
         return listPostResponse;
     }
 
-    public Set<PostResponse> findAllPostByUserProfileName(String userProfileName) throws Exception {
+    public Set<PostOnPersonalWallResponse> findAllPostByUserProfileName(String userProfileName) throws Exception {
         Set<Post> listPost = postRepository.findAllByAuthorProfileName(userProfileName);
-        Set<PostResponse> listPostResponse = new HashSet<>();
+        Set<PostOnPersonalWallResponse> listPostResponse = new HashSet<>();
+
         for (Post post : listPost) {
-            listPostResponse.add(findPostById(post.getId()));
+            List<PostContent> postContents = postContentRepo.findAllByPostId(post.getId()).stream().toList();
+            List<UserLikePost> userLikePosts = likePostRepo.findByPostId(post.getId());
+            List<Comment> comments = commentRepo.findAllByPostId(post.getId()).stream().toList();
+            new PostOnPersonalWallResponse();
+            listPostResponse.add(
+                    PostOnPersonalWallResponse.builder()
+                            .id(post.getId())
+                            .representImage(postContents.getFirst().getImageId())
+                            .numberOfLikes(userLikePosts.size())
+                            .numberOfComments(comments.size())
+                            .build()
+            );
         }
         return listPostResponse;
     }

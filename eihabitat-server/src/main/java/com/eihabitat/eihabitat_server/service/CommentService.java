@@ -20,6 +20,8 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
+import java.util.HashSet;
+import java.util.Set;
 
 @Service
 @RequiredArgsConstructor
@@ -32,19 +34,15 @@ public class CommentService {
     CommentMapper commentMapper;
 
     public CommentResponse addComment(CommentCreationReq data) {
-        Post post = postRepository.findById(data.getPostId()).orElseThrow(() -> new AppException(ErrorCode.POST_NOT_FOUND));
-
         var context = SecurityContextHolder.getContext();
         String email = context.getAuthentication().getName();
         User user = userRepository.findByEmail(email).orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
-        //log.info(user.getProfileName());
 
         Comment comment = commentMapper.toComment(data);
         comment.setPostId(data.getPostId());
         comment.setContent(data.getContent());
         comment.setOwnerId(user.getId());
         comment.setCreationDate(LocalDateTime.now());
-
 
         CommentResponse commentResponse = commentMapper.toCommentResponse(commentRepository.save(comment));
         commentResponse.setOwnerProfileName(user.getProfileName());
@@ -58,5 +56,18 @@ public class CommentService {
         commentMapper.updateComment(comment, data);
         comment.setContent(data.getContent());
         return commentRepository.save(comment);
+    }
+
+    public Set<CommentResponse> getAllCommentByPostId(String postId) {
+        Set<Comment> comments = commentRepository.findAllByPostId(postId);
+        Set<CommentResponse> commentResponses = new HashSet<>();
+        for (Comment comment : comments) {
+            CommentResponse commentResponse = commentMapper.toCommentResponse(comment);
+            User u = userRepository.findById(comment.getOwnerId()).orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
+            commentResponse.setOwnerAvatar(u.getProfileAvatar());
+            commentResponse.setOwnerProfileName(u.getProfileName());
+            commentResponses.add(commentResponse);
+        }
+        return commentResponses;
     }
 }

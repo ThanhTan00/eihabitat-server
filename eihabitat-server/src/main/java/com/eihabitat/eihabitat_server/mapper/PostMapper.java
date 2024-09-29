@@ -3,7 +3,6 @@ package com.eihabitat.eihabitat_server.mapper;
 import com.eihabitat.eihabitat_server.dto.request.PostContentReq;
 import com.eihabitat.eihabitat_server.dto.request.PostCreationReq;
 import com.eihabitat.eihabitat_server.dto.request.PostUpdateReq;
-import com.eihabitat.eihabitat_server.dto.response.AllPostResponse;
 import com.eihabitat.eihabitat_server.dto.response.PostContentResponse;
 import com.eihabitat.eihabitat_server.dto.response.PostResponse;
 import com.eihabitat.eihabitat_server.entity.Post;
@@ -25,6 +24,4 @@ public interface PostMapper {
     void updatePost (@MappingTarget Post post, PostUpdateReq request);
 
     PostContentResponse toPostContentResponse(PostContent postContents);
-
-    AllPostResponse toAllPostResponse(Post post);
 }

@@ -15,6 +15,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.security.Principal;
+import java.util.Set;
 import java.util.UUID;
 
 @RestController
@@ -31,6 +32,15 @@ public class CommentController {
         resp.setData(commentService.addComment(commentCreationReq));
         return resp;
     }
+
+    @GetMapping("/{postId}")
+    public ApiResponse<Set<CommentResponse>> getComment(@PathVariable String postId) {
+        ApiResponse resp = new ApiResponse();
+        resp.setCode(1000);
+        resp.setData(commentService.getAllCommentByPostId(postId));
+        return resp;
+    }
+
 
     //    @PreAuthorize("@postOwner.isCommentOwner(#id)")
     @PutMapping("/update/{commentId}")
