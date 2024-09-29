@@ -17,6 +17,7 @@ import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Sort;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
@@ -85,7 +86,7 @@ public class PostService {
         }
         PostResponse postResponse = mapper.toPostResponse(opt);
 
-        Set<Comment> comments = commentRepo.findAllByPostId(postId);
+        Set<Comment> comments = commentRepo.findAllByPostId(Sort.by(Sort.Direction.DESC, "creationDate"), postId);
 
 
 //        Set<CommentResponse> commentResponseSet = new HashSet<>();
@@ -124,13 +125,13 @@ public class PostService {
     }
 
     public Set<PostOnPersonalWallResponse> findAllPostByUserProfileName(String userProfileName) throws Exception {
-        Set<Post> listPost = postRepository.findAllByAuthorProfileName(userProfileName);
+        Set<Post> listPost = postRepository.findAllByAuthorProfileName(Sort.by(Sort.Direction.DESC, "createdAt"), userProfileName);
         Set<PostOnPersonalWallResponse> listPostResponse = new HashSet<>();
 
         for (Post post : listPost) {
             List<PostContent> postContents = postContentRepo.findAllByPostId(post.getId()).stream().toList();
             List<UserLikePost> userLikePosts = likePostRepo.findByPostId(post.getId());
-            List<Comment> comments = commentRepo.findAllByPostId(post.getId()).stream().toList();
+            List<Comment> comments = commentRepo.findAllByPostId(Sort.by(Sort.Direction.DESC, "creationDate"), post.getId()).stream().toList();
             new PostOnPersonalWallResponse();
             listPostResponse.add(
                     PostOnPersonalWallResponse.builder()
@@ -141,6 +142,7 @@ public class PostService {
                             .build()
             );
         }
+
         return listPostResponse;
     }
 

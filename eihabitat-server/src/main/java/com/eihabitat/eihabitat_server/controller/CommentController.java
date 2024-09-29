@@ -1,23 +1,54 @@
 package com.eihabitat.eihabitat_server.controller;
 
-import com.eihabitat.eihabitat_server.dto.request.CommentMessage;
+import com.eihabitat.eihabitat_server.dto.request.ApiResponse;
+import com.eihabitat.eihabitat_server.dto.request.CommentCreationReq;
+import com.eihabitat.eihabitat_server.dto.request.CommentUpdateReq;
+import com.eihabitat.eihabitat_server.dto.request.PostUpdateReq;
 import com.eihabitat.eihabitat_server.dto.response.CommentResponse;
+import com.eihabitat.eihabitat_server.dto.response.PostResponse;
 import com.eihabitat.eihabitat_server.service.CommentService;
+import jakarta.validation.Valid;
+import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
-import org.springframework.messaging.handler.annotation.MessageMapping;
-import org.springframework.messaging.handler.annotation.SendTo;
-import org.springframework.stereotype.Controller;
+import lombok.experimental.FieldDefaults;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.web.bind.annotation.*;
 
-@Controller
+import java.security.Principal;
+import java.util.Set;
+import java.util.UUID;
+
+@RestController
 @RequiredArgsConstructor
+@FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
+@RequestMapping("/comment")
 public class CommentController {
+    CommentService commentService;
 
-    private final CommentService commentService;
+    @PostMapping()
+    public ApiResponse<CommentResponse> addComment(@RequestBody CommentCreationReq commentCreationReq) {
+        ApiResponse resp = new ApiResponse();
+        resp.setCode(1000);
+        resp.setData(commentService.addComment(commentCreationReq));
+        return resp;
+    }
 
-    @MessageMapping("/comment")
-    @SendTo("/topic/comments")
-    public CommentResponse addComment(CommentMessage commentMessage) {
-        // Call your service method to save the comment
-        return commentService.addComment(commentMessage);
+    @GetMapping("/{postId}")
+    public ApiResponse<Set<CommentResponse>> getComment(@PathVariable String postId) {
+        ApiResponse resp = new ApiResponse();
+        resp.setCode(1000);
+        resp.setData(commentService.getAllCommentByPostId(postId));
+        return resp;
+    }
+
+
+    //    @PreAuthorize("@postOwner.isCommentOwner(#id)")
+    @PutMapping("/update/{commentId}")
+    public ApiResponse<CommentResponse> updateComment(@PathVariable String commentId,
+                                                      @Valid @RequestBody CommentUpdateReq commentRequest) {
+        ApiResponse resp = new ApiResponse();
+        resp.setCode(1000);
+        resp.setData(commentService.updateComment(commentId, commentRequest));
+        return resp;
     }
 }
