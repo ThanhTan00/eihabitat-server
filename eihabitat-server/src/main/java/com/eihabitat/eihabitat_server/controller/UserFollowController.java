@@ -2,7 +2,6 @@ package com.eihabitat.eihabitat_server.controller;
 
 import com.eihabitat.eihabitat_server.dto.request.ApiResponse;
 import com.eihabitat.eihabitat_server.dto.request.UserFollowReq;
-import com.eihabitat.eihabitat_server.dto.response.UserFollowResponse;
 import com.eihabitat.eihabitat_server.dto.response.UserResponse;
 import com.eihabitat.eihabitat_server.service.UserFollowService;
 import lombok.AccessLevel;
@@ -20,7 +19,7 @@ public class UserFollowController {
     private final UserFollowService followService;
 
     @PostMapping
-    public ApiResponse<UserFollowResponse> followUser(@RequestBody UserFollowReq requestDto) {
+    public ApiResponse<String> followUser(@RequestBody UserFollowReq requestDto) {
         ApiResponse resp = new ApiResponse();
         resp.setCode(1000);
         resp.setData(followService.followUser(requestDto));

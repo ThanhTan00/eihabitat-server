@@ -11,6 +11,6 @@ import java.util.Date;
 @Builder
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class UserFollowReq {
-    private String followerId;
-    private String followedId;
+    String followerId;
+    String followedId;
 }

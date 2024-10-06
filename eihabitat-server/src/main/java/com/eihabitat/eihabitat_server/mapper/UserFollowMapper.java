@@ -1,7 +1,7 @@
 package com.eihabitat.eihabitat_server.mapper;
 
-import com.eihabitat.eihabitat_server.dto.response.UserFollowResponse;
-import com.eihabitat.eihabitat_server.dto.response.UserResponse;
+import com.eihabitat.eihabitat_server.dto.request.UserFollowReq;
+import com.eihabitat.eihabitat_server.dto.response.UserFollowerResponse;
 import com.eihabitat.eihabitat_server.entity.User;
 import com.eihabitat.eihabitat_server.entity.UserFollow;
 import org.mapstruct.Mapper;
@@ -12,7 +12,7 @@ public interface UserFollowMapper {
     @Mapping(target = "id", ignore = true)
     UserFollow userToUserFollow(User follower, User followed);
 
-    UserFollowResponse userFollowToResponseDto(UserFollow userFollow);
+    UserFollow toUserFollow(UserFollowReq userFollowReq);
 
-    UserResponse userToResponseDto(User user);
+    UserFollowerResponse toUserFollowerResponse(User user);
 }

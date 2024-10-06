@@ -2,6 +2,7 @@ package com.eihabitat.eihabitat_server.service;
 
 import com.eihabitat.eihabitat_server.dto.request.UserCreationReq;
 import com.eihabitat.eihabitat_server.dto.request.UserUpdateReq;
+import com.eihabitat.eihabitat_server.dto.response.UserFollowerResponse;
 import com.eihabitat.eihabitat_server.dto.response.UserResponse;
 import com.eihabitat.eihabitat_server.entity.Role;
 import com.eihabitat.eihabitat_server.entity.User;
@@ -36,6 +37,7 @@ public class UserService {
     UserMapper userMapper;
     PasswordEncoder passwordEncoder;
     RoleRepository roleRepository;
+    UserFollowService userFollowService;
 
     public UserResponse createUser(UserCreationReq request) {
         if (userRepository.existsByEmail(request.getEmail()))
@@ -96,6 +98,11 @@ public class UserService {
 
     public UserResponse getUserInfo(String userProfileName) {
         User user = userRepository.findByProfileName(userProfileName).orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
-        return userMapper.toUserResponse(user);
+        List<UserFollowerResponse> listFollowers = userFollowService.getFollowers(user.getProfileName());
+        List<UserFollowerResponse> listFollowing = userFollowService.getFollowing(user.getProfileName());
+        UserResponse userResponse = userMapper.toUserResponse(user);
+        userResponse.setFollowers(listFollowers.size());
+        userResponse.setFollowing(listFollowing.size());
+        return userResponse;
     }
 }
