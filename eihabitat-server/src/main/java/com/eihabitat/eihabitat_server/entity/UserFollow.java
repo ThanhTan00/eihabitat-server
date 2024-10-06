@@ -20,9 +20,4 @@ public class UserFollow {
     private String followedId;
     Date followedAt;
 
-    public UserFollow(String followerId, String followedId) {
-        this.followerId = followerId;
-        this.followedId = followedId;
-        this.followedAt = new Date();
-    }
 }

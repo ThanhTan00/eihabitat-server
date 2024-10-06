@@ -14,6 +14,7 @@ import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
+import java.util.Date;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
@@ -28,28 +29,22 @@ public class UserFollowService {
     private final UserFollowMapper userFollowMapper;
 
     public UserFollowResponse followUser(UserFollowReq requestDto) {
-        User follower = userRepository.findByProfileName(requestDto.getFollowerProfileName())
-                .orElseThrow(() -> new RuntimeException("Follower not found"));
-        User followed = userRepository.findByProfileName(requestDto.getFollowedProfileName())
-                .orElseThrow(() -> new RuntimeException("Followed user not found"));
-
-        if (follower.getId().equals(followed.getId())) {
+        if (requestDto.getFollowerId().equals(requestDto.getFollowedId())) {
             throw new RuntimeException("Users cannot follow themselves");
         }
 
-        UserFollow userFollow = userFollowMapper.userToUserFollow(follower, followed);
+        UserFollow userFollow = new UserFollow();
+        userFollow.setFollowerId(requestDto.getFollowerId());
+        userFollow.setFollowedId(requestDto.getFollowedId());
+        userFollow.setFollowedAt(new Date());
+
         userFollow = userFollowRepository.save(userFollow);
 
         return userFollowMapper.userFollowToResponseDto(userFollow);
     }
 
     public UserFollowResponse unfollowUser(UserFollowReq requestDto) {
-        User follower = userRepository.findByProfileName(requestDto.getFollowerProfileName())
-                .orElseThrow(() -> new RuntimeException("Follower not found"));
-        User followed = userRepository.findByProfileName(requestDto.getFollowedProfileName())
-                .orElseThrow(() -> new RuntimeException("Followed user not found"));
-
-        return userFollowRepository.deleteByFollowerIdAndFollowedId(follower.getId(), followed.getId());
+        return userFollowRepository.deleteByFollowerIdAndFollowedId(requestDto.getFollowerId(), requestDto.getFollowedId());
     }
 
     public List<UserResponse> getFollowers(String profileName) {

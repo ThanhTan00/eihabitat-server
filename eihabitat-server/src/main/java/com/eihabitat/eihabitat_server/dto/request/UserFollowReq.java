@@ -13,6 +13,4 @@ import java.util.Date;
 public class UserFollowReq {
     private String followerId;
     private String followedId;
-    String followerProfileName;
-    String followedProfileName;
 }
