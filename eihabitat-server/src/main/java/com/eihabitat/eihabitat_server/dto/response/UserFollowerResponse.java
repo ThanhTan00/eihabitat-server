@@ -10,8 +10,9 @@ import java.util.Date;
 @NoArgsConstructor
 @AllArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE)
-public class UserFollowResponse {
-    String followerId;
-    String followedId;
-    Date followedAt;
+public class UserFollowerResponse {
+    String profileName;
+    String profileAvatar;
+    String firstName;
+    String lastName;
 }

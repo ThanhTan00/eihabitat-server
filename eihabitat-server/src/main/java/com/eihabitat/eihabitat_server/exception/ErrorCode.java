@@ -20,6 +20,7 @@ public enum ErrorCode {
     STORY_NOT_FOUND( 1010, "Story not found", HttpStatus.NOT_FOUND),
     COMMENT_NOT_EXISTED(1011, "Comment not exists", HttpStatus.NOT_FOUND),
     USERNAME_EXISTED(1012, "Username already exists", HttpStatus.CONFLICT),
+    FOLLOW_RELATIONSHIP_NOT_FOUND(1013, "Follow relationship not found", HttpStatus.NOT_FOUND),
     ;
 
     ErrorCode(int code, String message, HttpStatusCode statusCode) {

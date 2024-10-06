@@ -27,4 +27,6 @@ public class UserResponse {
     LocalDate dateOfBirth;
     String nationality;
     Set<Role> roles;
+    int followers;
+    int following;
 }
