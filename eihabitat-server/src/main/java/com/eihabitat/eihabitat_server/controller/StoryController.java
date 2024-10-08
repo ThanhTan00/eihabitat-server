@@ -1,16 +1,12 @@
 package com.eihabitat.eihabitat_server.controller;
 
 import com.eihabitat.eihabitat_server.dto.request.ApiResponse;
-import com.eihabitat.eihabitat_server.dto.request.StoryContentReq;
 import com.eihabitat.eihabitat_server.dto.request.StoryCreationReq;
-import com.eihabitat.eihabitat_server.dto.response.StoryContentResponse;
 import com.eihabitat.eihabitat_server.dto.response.StoryResponse;
-import com.eihabitat.eihabitat_server.service.StoryContentService;
 import com.eihabitat.eihabitat_server.service.StoryService;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 
@@ -20,15 +16,6 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping("/story")
 public class StoryController {
     StoryService storyService;
-    StoryContentService storyContentService;
-
-    @PostMapping("/storyContent")
-    public ApiResponse<StoryContentResponse> createStoryContent(@RequestBody StoryContentReq storyContentReq) {
-        ApiResponse resp = new ApiResponse();
-        resp.setCode(1000);
-        resp.setData(storyContentService.createStoryContent(storyContentReq));
-        return resp;
-    }
 
     @PostMapping
     public ApiResponse<StoryResponse> createStory(@RequestBody StoryCreationReq storyRequest) {
@@ -59,9 +46,11 @@ public class StoryController {
 //    }
 
     @DeleteMapping("/{storyId}")
-    public ResponseEntity<Void> deletePost(@PathVariable String storyId) throws Exception {
-        storyService.deleteStory(storyId);
-        return ResponseEntity.noContent().build();
+    public ApiResponse<StoryResponse> deleteStory(@PathVariable String storyId) throws Exception {
+        ApiResponse resp = new ApiResponse();
+        resp.setCode(1000);
+        resp.setData(storyService.deleteStory(storyId));
+        return resp;
     }
 
 }

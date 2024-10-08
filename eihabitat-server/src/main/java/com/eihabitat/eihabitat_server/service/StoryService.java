@@ -1,8 +1,7 @@
 package com.eihabitat.eihabitat_server.service;
 
-import com.eihabitat.eihabitat_server.dto.request.PostCreationReq;
 import com.eihabitat.eihabitat_server.dto.request.StoryCreationReq;
-import com.eihabitat.eihabitat_server.entity.Post;
+import com.eihabitat.eihabitat_server.dto.response.StoryResponse;
 import com.eihabitat.eihabitat_server.entity.Story;
 import com.eihabitat.eihabitat_server.entity.User;
 import com.eihabitat.eihabitat_server.exception.AppException;
@@ -14,6 +13,8 @@ import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.scheduling.annotation.Scheduled;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -28,13 +29,32 @@ public class StoryService {
     StoryRepository repo;
     StoryMapper mapper;
     UserRepository userRepo;
+    private final StoryRepository storyRepository;
 
     public Story createStory(StoryCreationReq storyRequest) {
-        User user = userRepo.findById(storyRequest.getAuthor()).orElseThrow(() -> new AppException(ErrorCode.USER_NOT_EXISTED));
+        String email = SecurityContextHolder.getContext().getAuthentication().getName();
+
+        User user = userRepo.findByEmail(email).orElseThrow(() -> new AppException(ErrorCode.USER_NOT_EXISTED));
         Story story = mapper.toStory(storyRequest);
         story.setAuthor(user);
         story.setCreatedAt(LocalDateTime.now());
+        story.setExpiresAt(LocalDateTime.now().plusHours(24));
+        story.setImageUrl(storyRequest.getImageUrl());
         return repo.save(story);
+    }
+
+//    public List<StoryResponse> getActiveStories() {
+//        LocalDateTime now = LocalDateTime.now();
+//        List<Story> activeStories = storyRepository.findByExpiresAtAfter(now);
+//        return storyMapper.toDtoList(activeStories);
+//    }
+
+    @Scheduled(fixedRate = 3600000) // Run every hour
+    public void deleteExpiredStories() {
+        LocalDateTime now = LocalDateTime.now();
+        List<Story> expiredStories = storyRepository.findByExpiresAtBefore(now);
+        storyRepository.deleteAll(expiredStories);
+        log.info("Deleted {} expired stories", expiredStories.size());
     }
 
     public Story findStoryById(String storyId) throws Exception {
@@ -45,18 +65,12 @@ public class StoryService {
         throw new Exception("Story not exist with id: "+ storyId);
     }
 
-//    public List<Story> getAllStories() {
-//        return repo.findAll();
-//    }
-//
-//    public List<Story> getStoriesByAuthor(String author) {
-//        return repo.findStoryByUserId(author);
-//    }
 
-
-    public void deleteStory(String id) throws Exception {
-        Story story = findStoryById(id);
-        repo.delete(story);
+    public String deleteStory(String id) throws Exception {
+        Story story = storyRepository.findById(id)
+                .orElseThrow(() -> new AppException(ErrorCode.STORY_NOT_FOUND));
+        storyRepository.delete(story);
+        return "Deleted post successfully";
     }
 
 }
