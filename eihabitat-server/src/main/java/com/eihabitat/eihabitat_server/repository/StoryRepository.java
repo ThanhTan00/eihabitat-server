@@ -9,4 +9,5 @@ import java.util.List;
 public interface StoryRepository extends MongoRepository<Story, String> {
     List<Story> findByExpiresAtAfter(LocalDateTime time);
     List<Story> findByExpiresAtBefore(LocalDateTime time);
+    List<Story> findAllByAuthorIdAndExpiresAtAfter(String authorId, LocalDateTime time);
 }

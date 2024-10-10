@@ -18,6 +18,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -31,23 +32,30 @@ public class StoryService {
     UserRepository userRepo;
     private final StoryRepository storyRepository;
 
-    public Story createStory(StoryCreationReq storyRequest) {
-        String email = SecurityContextHolder.getContext().getAuthentication().getName();
-
-        User user = userRepo.findByEmail(email).orElseThrow(() -> new AppException(ErrorCode.USER_NOT_EXISTED));
+    public String createStory(StoryCreationReq storyRequest) {
         Story story = mapper.toStory(storyRequest);
-        story.setAuthorId(user.getId());
+        story.setAuthorId(storyRequest.getAuthorId());
         story.setCreatedAt(LocalDateTime.now());
         story.setExpiresAt(LocalDateTime.now().plusHours(24));
         story.setImageUrl(storyRequest.getImageUrl());
-        return repo.save(story);
+        storyRepository.save(story);
+        return "Story created successfully";
     }
 
-//    public List<StoryResponse> getActiveStories() {
-//        LocalDateTime now = LocalDateTime.now();
-//        List<Story> activeStories = storyRepository.findByExpiresAtAfter(now);
-//        return storyMapper.toDtoList(activeStories);
-//    }
+    public List<StoryResponse> getActiveStories(String authorId) {
+        User user = userRepo.findById(authorId).orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
+        LocalDateTime now = LocalDateTime.now();
+        List<Story> activeStories = storyRepository.findAllByAuthorIdAndExpiresAtAfter(authorId, now);
+        log.info("Active stories: {}", activeStories);
+        List<StoryResponse> responses = new ArrayList<>();
+        for (Story story : activeStories) {
+            StoryResponse storyResponse = mapper.toStoryResponse(story);
+            storyResponse.setAuthorAvatar(user.getProfileAvatar());
+            storyResponse.setAuthorProfileName(user.getProfileName());
+            responses.add(storyResponse);
+        }
+        return responses;
+    }
 
     @Scheduled(fixedRate = 3600000) // Run every hour
     public void deleteExpiredStories() {

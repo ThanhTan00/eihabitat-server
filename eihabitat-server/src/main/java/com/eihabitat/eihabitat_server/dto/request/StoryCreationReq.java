@@ -15,6 +15,5 @@ import java.time.LocalDateTime;
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class StoryCreationReq {
     String imageUrl;
-    LocalDateTime createdAt;
-    LocalDateTime expiresAt;
+    String authorId;
 }
