@@ -1,0 +1,4 @@
+aws.s3.bucket-name = eihabitat-bucket
+aws.s3.access-key = AKIAW3MD6K7IOCLWLCN7
+aws.s3.secret-key = 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
+aws.s3.region = ap-south-1
