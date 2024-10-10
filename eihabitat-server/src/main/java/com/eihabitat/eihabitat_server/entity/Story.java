@@ -15,12 +15,10 @@ import java.time.LocalDateTime;
 @Document(collection = "stories")
 public class Story {
     @Id
-    @GeneratedValue(strategy = GenerationType.UUID)
     String id;
     String imageUrl;
     LocalDateTime createdAt;
     LocalDateTime expiresAt;
 
     String authorId;
-
 }

@@ -9,7 +9,6 @@ import org.mapstruct.Mapping;
 
 @Mapper(componentModel = "spring")
 public interface StoryMapper {
-    @Mapping(target = "author", ignore = true)
     Story toStory(StoryCreationReq request);
 
     StoryResponse toStoryResponse(Story story);

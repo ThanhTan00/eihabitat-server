@@ -25,11 +25,11 @@ public class StoryController {
         return resp;
     }
 
-    @GetMapping("/{storyId}")
-    public ApiResponse<StoryResponse> findStoryById(@PathVariable String storyId) throws Exception {
+    @GetMapping("/{authorId}")
+    public ApiResponse<StoryResponse> findAllByAuthorId(@PathVariable String authorId) throws Exception {
         ApiResponse resp = new ApiResponse();
         resp.setCode(1000);
-        resp.setData(storyService.findStoryById(storyId));
+        resp.setData(storyService.getActiveStories(authorId));
         return resp;
     }
 
