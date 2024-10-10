@@ -36,7 +36,7 @@ public class StoryService {
 
         User user = userRepo.findByEmail(email).orElseThrow(() -> new AppException(ErrorCode.USER_NOT_EXISTED));
         Story story = mapper.toStory(storyRequest);
-        story.setAuthor(user);
+        story.setAuthorId(user.getId());
         story.setCreatedAt(LocalDateTime.now());
         story.setExpiresAt(LocalDateTime.now().plusHours(24));
         story.setImageUrl(storyRequest.getImageUrl());
