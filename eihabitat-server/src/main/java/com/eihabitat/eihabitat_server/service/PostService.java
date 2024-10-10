@@ -3,14 +3,12 @@ package com.eihabitat.eihabitat_server.service;
 import com.eihabitat.eihabitat_server.dto.request.PostContentReq;
 import com.eihabitat.eihabitat_server.dto.request.PostCreationReq;
 import com.eihabitat.eihabitat_server.dto.request.PostUpdateReq;
-import com.eihabitat.eihabitat_server.dto.response.CommentResponse;
 import com.eihabitat.eihabitat_server.dto.response.PostContentResponse;
 import com.eihabitat.eihabitat_server.dto.response.PostOnPersonalWallResponse;
 import com.eihabitat.eihabitat_server.dto.response.PostResponse;
 import com.eihabitat.eihabitat_server.entity.*;
 import com.eihabitat.eihabitat_server.exception.AppException;
 import com.eihabitat.eihabitat_server.exception.ErrorCode;
-import com.eihabitat.eihabitat_server.mapper.CommentMapper;
 import com.eihabitat.eihabitat_server.mapper.PostMapper;
 import com.eihabitat.eihabitat_server.repository.*;
 import lombok.AccessLevel;
@@ -36,12 +34,7 @@ public class PostService {
     CommentRepository commentRepo;
     PostRepository postRepository;
     UserLikePostRepository likePostRepo;
-
     PostMapper mapper;
-    CommentMapper commentMapper;
-
-
-
 
     public PostResponse createPost(PostCreationReq postRequest) throws Exception {
         String email = SecurityContextHolder.getContext().getAuthentication().getName();

@@ -1,9 +1,9 @@
 package com.eihabitat.eihabitat_server.entity;
 
-//import com.eihabitat.eihabitat_server.service.StoryListener;
 import jakarta.persistence.*;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
+import org.springframework.data.mongodb.core.mapping.Document;
 
 import java.time.LocalDateTime;
 
@@ -12,19 +12,15 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @AllArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE)
-@Entity
-//@EntityListeners(StoryListener.class)
+@Document(collection = "stories")
 public class Story {
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
     String id;
-    String type;
+    String imageUrl;
     LocalDateTime createdAt;
+    LocalDateTime expiresAt;
 
-    @ManyToOne
-    @JoinColumn(name="user_id", nullable=false)
-    User author;
+    String authorId;
 
-//    @Transient
-//    private boolean shouldBeRemoved = false;
 }

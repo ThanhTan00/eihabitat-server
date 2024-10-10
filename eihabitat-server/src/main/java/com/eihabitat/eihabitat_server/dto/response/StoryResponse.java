@@ -13,8 +13,9 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class StoryResponse {
-    String id;
-    String type;
-    LocalDateTime createdAt;
-    User author;
+    private Long id;
+    private Long userId;
+    private String imageUrl;
+    private LocalDateTime createdAt;
+    private LocalDateTime expiresAt;
 }
