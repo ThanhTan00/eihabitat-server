@@ -8,14 +8,12 @@ import com.eihabitat.eihabitat_server.dto.request.RefreshRequest;
 import com.eihabitat.eihabitat_server.dto.response.AuthenticationResponse;
 import com.eihabitat.eihabitat_server.dto.response.IntrospectResponse;
 import com.eihabitat.eihabitat_server.service.AuthenticationService;
+import com.eihabitat.eihabitat_server.service.UserService;
 import com.nimbusds.jose.JOSEException;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.text.ParseException;
 
@@ -26,6 +24,7 @@ import java.text.ParseException;
 public class AuthenticationController {
 
     AuthenticationService authenticationService;
+    private final UserService userService;
 
     @PostMapping("/token")
     ApiResponse<AuthenticationResponse> authenticate(@RequestBody AuthenticationReq request){
@@ -60,4 +59,22 @@ public class AuthenticationController {
                 .message("Successfully logged out")
                 .build();
     }
+
+    @GetMapping("/confirm-email")
+    public String confirmEmail(@RequestParam("token") String token) {
+        try {
+            if (userService.verifyUser(token)) {
+                return "Your email has been successfully verified.";
+            } else {
+                return "User details not found. Please log in and regenerate the confirmation link.";
+            }
+        } catch (IllegalArgumentException e) {
+            return "Invalid token. Please check the link or request a new one.";
+        } catch (IllegalStateException e) {
+            return e.getMessage();  // This will either show "Token expired" or "Token already verified"
+        } catch (Exception e) {
+            return "An error occurred while verifying your email. Please try again later.";
+        }
+    }
+
 }

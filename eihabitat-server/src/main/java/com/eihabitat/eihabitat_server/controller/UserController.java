@@ -6,6 +6,7 @@ import com.eihabitat.eihabitat_server.dto.request.UserUpdateReq;
 import com.eihabitat.eihabitat_server.dto.response.UserResponse;
 import com.eihabitat.eihabitat_server.entity.User;
 import com.eihabitat.eihabitat_server.service.UserService;
+import jakarta.mail.MessagingException;
 import jakarta.validation.Valid;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
@@ -26,7 +27,7 @@ public class UserController {
     UserService userService;
 
     @PostMapping
-    ApiResponse<UserResponse> createUser(@RequestBody @Valid UserCreationReq req) {
+    ApiResponse<UserResponse> createUser(@RequestBody @Valid UserCreationReq req) throws MessagingException {
         ApiResponse<UserResponse> resp = new ApiResponse<>();
         resp.setData(userService.createUser(req));
         return resp;
