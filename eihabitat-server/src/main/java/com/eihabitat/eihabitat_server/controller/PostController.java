@@ -68,6 +68,13 @@ public class PostController {
         return resp;
     }
 
+    @GetMapping("/newsFeedPosts/{rootUserId}")
+    public ApiResponse<Set<PostResponse>> findAllNewsFeedPosts(@PathVariable String rootUserId) throws Exception {
+        ApiResponse resp = new ApiResponse();
+        resp.setCode(1000);
+        resp.setData(postService.findAllNewsFeedPosts(rootUserId));
+        return resp;
+    }
 
 //
 //    @GetMapping("/user/{userId}")

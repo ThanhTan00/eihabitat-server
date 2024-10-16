@@ -1,12 +1,9 @@
 package com.eihabitat.eihabitat_server.dto.response;
 
-import com.eihabitat.eihabitat_server.entity.PostContent;
-import com.eihabitat.eihabitat_server.entity.User;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 
 import java.time.LocalDateTime;
-import java.util.List;
 import java.util.Set;
 
 @Data
@@ -14,7 +11,7 @@ import java.util.Set;
 @NoArgsConstructor
 @AllArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE)
-public class PostResponse {
+public class PostOnNewsFeedResponse {
     String id;
     String caption;
     String type;
@@ -22,8 +19,8 @@ public class PostResponse {
     String authorProfileName;
     String authorProfileAvatar;
     Set<PostContentResponse> postContentSet;
-    int numberOfComments;
     int numberOfLikes;
+    int numberOfComments;
     String latestUserLike;
     String latestUserLikeAvatar;
 }
