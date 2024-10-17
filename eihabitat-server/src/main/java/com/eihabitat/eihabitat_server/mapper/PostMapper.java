@@ -4,6 +4,7 @@ import com.eihabitat.eihabitat_server.dto.request.PostContentReq;
 import com.eihabitat.eihabitat_server.dto.request.PostCreationReq;
 import com.eihabitat.eihabitat_server.dto.request.PostUpdateReq;
 import com.eihabitat.eihabitat_server.dto.response.PostContentResponse;
+import com.eihabitat.eihabitat_server.dto.response.PostOnNewsFeedResponse;
 import com.eihabitat.eihabitat_server.dto.response.PostResponse;
 import com.eihabitat.eihabitat_server.entity.Post;
 import com.eihabitat.eihabitat_server.entity.PostContent;
@@ -24,4 +25,5 @@ public interface PostMapper {
     void updatePost (@MappingTarget Post post, PostUpdateReq request);
 
     PostContentResponse toPostContentResponse(PostContent postContents);
+    PostOnNewsFeedResponse toPostOnNewsFeedResponse(Post post);
 }

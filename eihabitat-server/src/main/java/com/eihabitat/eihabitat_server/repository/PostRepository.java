@@ -13,6 +13,7 @@ public interface PostRepository extends JpaRepository<Post, String> {
 
     public Set<Post> findAllByAuthorId(String authorId);
     public Set<Post> findAllByAuthorProfileName(Sort sort, String authorId);
+    public Set<Post> findAllByAuthorIdIn(Set<String> authorIds);
 //
 //    public List<Post> findAllPostByUserIds(@Param("users") List<String> userIds);
 //

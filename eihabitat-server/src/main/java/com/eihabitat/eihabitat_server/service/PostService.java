@@ -20,9 +20,11 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -34,6 +36,7 @@ public class PostService {
     CommentRepository commentRepo;
     PostRepository postRepository;
     UserLikePostRepository likePostRepo;
+    UserFollowRepository userFollowRepo;
     PostMapper mapper;
 
     public PostResponse createPost(PostCreationReq postRequest) throws Exception {
@@ -99,7 +102,7 @@ public class PostService {
             postResponse.setLatestUserLike(latestUserLike.getProfileName());
             postResponse.setLatestUserLikeAvatar(latestUserLike.getProfileAvatar());
         }
-
+        postResponse.setNumberOfComments(comments.size());
         postResponse.setPostContentSet(postContentResponseSet);
         postResponse.setAuthorProfileName(author.getProfileName());
         postResponse.setAuthorProfileAvatar(author.getProfileAvatar());
@@ -144,6 +147,23 @@ public class PostService {
                 .orElseThrow(() -> new AppException(ErrorCode.POST_NOT_FOUND));
         postRepository.delete(post);
         return "Deleted post successfully";
+    }
+
+    public Set<PostResponse> findAllNewsFeedPosts(String rootUserId) throws Exception {
+        List<UserFollow> followeds = userFollowRepo.findByFollowerId(rootUserId);
+        Set<String> followedIds = new HashSet<>();
+        for (UserFollow userFollow : followeds) {
+            followedIds.add(userFollow.getFollowedId());
+        }
+        log.info("followed ids: " + followedIds.toString());
+        Set<Post> listPost = postRepository.findAllByAuthorIdIn(followedIds);
+
+        log.info("list posts: " + listPost.toString());
+        Set<PostResponse> listPostResponse = new HashSet<>();
+        for (Post post : listPost) {
+            listPostResponse.add(findPostById(post.getId()));
+        }
+        return listPostResponse;
     }
 
 }
