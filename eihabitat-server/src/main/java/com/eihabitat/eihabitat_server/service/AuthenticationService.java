@@ -22,6 +22,8 @@ import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import lombok.experimental.NonFinal;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -63,13 +65,10 @@ public class AuthenticationService {
                 .build();
     }
 
-
     public AuthenticationResponse authenticate(AuthenticationReq authenticationReq) {
         PasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
-
         var user = userRepository.findByEmail(authenticationReq.getEmail())
                 .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_EXISTED));
-
         boolean authenticated = passwordEncoder.matches(authenticationReq.getPassword(), user.getPassword());
 
         if (!authenticated)

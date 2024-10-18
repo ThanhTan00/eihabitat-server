@@ -1,15 +1,11 @@
 package com.eihabitat.eihabitat_server.configuration;
 
-
-import com.eihabitat.eihabitat_server.enums.Role;
-
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.core.annotation.Order;
 import org.springframework.http.HttpMethod;
 import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
@@ -19,19 +15,14 @@ import org.springframework.security.config.annotation.web.configurers.AbstractHt
 import org.springframework.security.core.Authentication;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.security.oauth2.jose.jws.MacAlgorithm;
-import org.springframework.security.oauth2.jwt.JwtDecoder;
-import org.springframework.security.oauth2.jwt.NimbusJwtDecoder;
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationConverter;
 import org.springframework.security.oauth2.server.resource.authentication.JwtGrantedAuthoritiesConverter;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
-import org.springframework.security.web.authentication.logout.LogoutSuccessHandler;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 import org.springframework.web.filter.CorsFilter;
 
-import javax.crypto.spec.SecretKeySpec;
 import java.io.IOException;
 
 @Configuration
@@ -39,14 +30,17 @@ import java.io.IOException;
 @EnableMethodSecurity
 public class SecurityConfig {
 
-    private final String[] PUBLIC_ENDPOINT = {"/users","/auth/token","/auth/introspect", "/auth/logout", "/auth/refresh", "/ws/**"};
+    private final String[] PUBLIC_ENDPOINT = {"/login/oauth2/code/google","/oauth2/authorization/google","/users","/auth/token","/auth/introspect", "/auth/logout", "/auth/refresh", "/ws/**"};
 
     private CustomJwtDecoder customJwtDecoder;
 
     @Bean(name = "securityFilterChainOauth2")
+    @Order(1)
     public SecurityFilterChain securityFilterChainOauth2(HttpSecurity http) throws Exception {
+        http.securityMatcher("/login/**", "/oauth2/**");
         return http.authorizeHttpRequests(registry->{
                     registry.requestMatchers("/").permitAll();
+                    registry.requestMatchers("/oauth2/**").permitAll();
                     registry.anyRequest().authenticated();
                 })
                 .oauth2Login(oauth2login->{
@@ -62,8 +56,10 @@ public class SecurityConfig {
     }
 
     @Bean(name = "securityFilterChainJwt")
+    @Order(2)
     public SecurityFilterChain securityFilterChain(HttpSecurity httpSecurity) throws Exception {
         httpSecurity
+                .securityMatcher("/auth/**", "/users/**")
                 .authorizeHttpRequests(authorize -> authorize
                         .requestMatchers(HttpMethod.POST, PUBLIC_ENDPOINT).permitAll()
                         .requestMatchers(HttpMethod.GET, PUBLIC_ENDPOINT).permitAll()
