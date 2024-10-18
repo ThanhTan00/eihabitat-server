@@ -1,53 +1,51 @@
 package com.eihabitat.eihabitat_server.S3Upload;
 
-import software.amazon.awssdk.core.sync.ResponseTransformer;
+import software.amazon.awssdk.core.sync.RequestBody;
 import software.amazon.awssdk.services.s3.S3Client;
 import software.amazon.awssdk.services.s3.model.GetObjectRequest;
 import software.amazon.awssdk.services.s3.model.PutObjectRequest;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
-import org.springframework.web.multipart.MultipartFile;
-
-import java.io.IOException;
-import java.io.InputStream;
+import java.io.File;
+import java.nio.file.Files;
+import java.nio.file.Path;
 
 @Service
 public class S3Service {
 
-    @Autowired
-    private S3Client s3Client;
+    private final S3Client s3Client;
 
-    @Value("${aws.s3.bucket-name}")
+    @Value("${aws.s3.bucketName}")
     private String bucketName;
 
-    public String uploadFile(MultipartFile file) throws IOException {
-        String fileName = System.currentTimeMillis() + "_" + file.getOriginalFilename();
+    public S3Service(S3Client s3Client) {
+        this.s3Client = s3Client;
+    }
 
-        // Upload file to S3 bucket
+    public void uploadFile(String fileName, File file) throws Exception {
         s3Client.putObject(
                 PutObjectRequest.builder()
                         .bucket(bucketName)
                         .key(fileName)
                         .build(),
-                software.amazon.awssdk.core.sync.RequestBody.fromBytes(file.getBytes())
+                RequestBody.fromFile(file)
+        );
+    }
+
+    public byte[] downloadFile(String fileName) throws Exception {
+        Path tempFile = Files.createTempFile("s3file-", ".tmp");
+
+        s3Client.getObject(
+                GetObjectRequest.builder()
+                        .bucket(bucketName)
+                        .key(fileName)
+                        .build(),
+                tempFile
         );
 
-        return fileName;
+        return Files.readAllBytes(tempFile);
     }
-
-     public byte[] downloadFile(String fileName) throws IOException {
-        GetObjectRequest getObjectRequest = GetObjectRequest.builder()
-                .bucket(bucketName)
-                .key(fileName)
-                .build();
-
-        // Download the file from S3 and return it as a byte array
-        try (InputStream inputStream = s3Client.getObject(getObjectRequest, ResponseTransformer.toInputStream())) {
-            return inputStream.readAllBytes();
-        }
-    }
-
 }
+
 
 
