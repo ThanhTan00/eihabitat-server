@@ -12,11 +12,9 @@ import com.nimbusds.jose.JOSEException;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
+import java.security.Principal;
 import java.text.ParseException;
 
 @RestController
@@ -27,7 +25,12 @@ public class AuthenticationController {
 
     AuthenticationService authenticationService;
 
-    @PostMapping("/token")
+    @RequestMapping("/user")
+        public Principal user(Principal user){
+            return user;
+        }
+
+    @PostMapping("/tokenjwt")
     ApiResponse<AuthenticationResponse> authenticate(@RequestBody AuthenticationReq request){
        var result =  authenticationService.authenticate(request);
        return ApiResponse.<AuthenticationResponse>builder()

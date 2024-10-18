@@ -13,6 +13,7 @@ import lombok.experimental.FieldDefaults;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.oauth2.client.authentication.OAuth2AuthenticationToken;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -24,6 +25,15 @@ import java.util.List;
 public class UserController {
     private static final Logger log = LoggerFactory.getLogger(UserController.class);
     UserService userService;
+
+    @GetMapping("/profile")
+    ApiResponse<UserResponse> getUserProfileByGoogle(OAuth2AuthenticationToken token) {
+        ApiResponse<UserResponse> resp = new ApiResponse<>();
+        resp.setData(userService.getUserInfoByGoogle(token));
+
+        return resp;
+    }
+
 
     @PostMapping
     ApiResponse<UserResponse> createUser(@RequestBody @Valid UserCreationReq req) {

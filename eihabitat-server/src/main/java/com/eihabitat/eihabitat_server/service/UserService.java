@@ -20,6 +20,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.oauth2.client.authentication.OAuth2AuthenticationToken;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
@@ -38,6 +39,23 @@ public class UserService {
     PasswordEncoder passwordEncoder;
     RoleRepository roleRepository;
     UserFollowService userFollowService;
+
+    public UserResponse getUserInfoByGoogle(OAuth2AuthenticationToken token) {
+        String userEmail = token.getPrincipal().getAttribute("email");
+        Optional<User> user = userRepository.findByEmail(userEmail);
+//        if(user != null){
+//            throw new AppException(ErrorCode.USER_EXISTED);
+//        }
+        UserCreationReq userCreationReq = new UserCreationReq().builder()
+                .email(userEmail)
+                .firstName(token.getPrincipal().getAttribute("family_name"))
+                .lastName(token.getPrincipal().getAttribute("given_name"))
+                .password(passwordEncoder.encode(token.getCredentials().toString()))
+                .signupDate(LocalDate.now())
+                .profileName(token.getPrincipal().getAttribute("email"))
+                .build();
+        return createUser(userCreationReq);
+    }
 
     public UserResponse createUser(UserCreationReq request) {
         if (userRepository.existsByEmail(request.getEmail()))
@@ -105,4 +123,5 @@ public class UserService {
         userResponse.setFollowing(listFollowing.size());
         return userResponse;
     }
-}
+
+    }
