@@ -19,11 +19,14 @@ import org.springframework.security.oauth2.server.resource.authentication.JwtAut
 import org.springframework.security.oauth2.server.resource.authentication.JwtGrantedAuthoritiesConverter;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
+import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.cors.CorsConfiguration;
+import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 import org.springframework.web.filter.CorsFilter;
 
 import java.io.IOException;
+import java.util.Arrays;
 
 @Configuration
 @EnableWebSecurity
@@ -37,8 +40,9 @@ public class SecurityConfig {
     @Bean(name = "securityFilterChainOauth2")
     @Order(1)
     public SecurityFilterChain securityFilterChainOauth2(HttpSecurity http) throws Exception {
-        http.securityMatcher("/login/**", "/oauth2/**");
-        return http.authorizeHttpRequests(registry->{
+        http.securityMatcher("/login/**", "/oauth2/**")
+            .cors(cors -> cors.configurationSource(corsConfigurationSource()))
+            .authorizeHttpRequests(registry->{
                     registry.requestMatchers("/").permitAll();
                     registry.requestMatchers("/oauth2/**").permitAll();
                     registry.anyRequest().authenticated();
@@ -47,12 +51,12 @@ public class SecurityConfig {
                     oauth2login.successHandler(new AuthenticationSuccessHandler() {
                         @Override
                         public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response, Authentication authentication) throws IOException, ServletException {
-                            response.sendRedirect("/auth/user");
+                            response.sendRedirect("/auth/loginWithGoogle");
                         }
                     });
                 })
-                .formLogin(Customizer.withDefaults())
-                .build();
+                .formLogin(Customizer.withDefaults());
+        return http.build();
     }
 
     @Bean(name = "securityFilterChainJwt")
@@ -81,11 +85,25 @@ public class SecurityConfig {
         corsConfiguration.addAllowedOrigin("http://localhost:3000/");
         corsConfiguration.addAllowedMethod("*");
         corsConfiguration.addAllowedHeader("*");
+        corsConfiguration.setAllowCredentials(true);
 
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         source.registerCorsConfiguration("/**", corsConfiguration);
 
         return new CorsFilter(source);
+    }
+
+    @Bean
+    public CorsConfigurationSource corsConfigurationSource() {
+        CorsConfiguration configuration = new CorsConfiguration();
+        configuration.setAllowedOrigins(Arrays.asList("http://localhost:3000/"));  // Allow the frontend
+        configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS"));
+        configuration.setAllowedHeaders(Arrays.asList("Authorization", "Cache-Control", "Content-Type"));
+        configuration.setAllowCredentials(true);  // Allow credentials like cookies, if needed
+
+        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+        source.registerCorsConfiguration("/**", configuration);  // Apply this configuration to all paths
+        return source;
     }
 
     @Bean

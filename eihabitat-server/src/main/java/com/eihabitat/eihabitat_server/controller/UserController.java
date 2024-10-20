@@ -26,15 +26,6 @@ public class UserController {
     private static final Logger log = LoggerFactory.getLogger(UserController.class);
     UserService userService;
 
-    @GetMapping("/profile")
-    ApiResponse<UserResponse> getUserProfileByGoogle(OAuth2AuthenticationToken token) {
-        ApiResponse<UserResponse> resp = new ApiResponse<>();
-        resp.setData(userService.getUserInfoByGoogle(token));
-
-        return resp;
-    }
-
-
     @PostMapping
     ApiResponse<UserResponse> createUser(@RequestBody @Valid UserCreationReq req) {
         ApiResponse<UserResponse> resp = new ApiResponse<>();

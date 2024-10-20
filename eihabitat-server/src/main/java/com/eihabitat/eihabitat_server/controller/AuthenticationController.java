@@ -7,6 +7,7 @@ import com.eihabitat.eihabitat_server.dto.request.LogoutRequest;
 import com.eihabitat.eihabitat_server.dto.request.RefreshRequest;
 import com.eihabitat.eihabitat_server.dto.response.AuthenticationResponse;
 import com.eihabitat.eihabitat_server.dto.response.IntrospectResponse;
+import com.eihabitat.eihabitat_server.dto.response.UserResponse;
 import com.eihabitat.eihabitat_server.service.AuthenticationService;
 import com.nimbusds.jose.JOSEException;
 import lombok.AccessLevel;
@@ -14,6 +15,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.security.oauth2.client.authentication.OAuth2AuthenticationToken;
 import org.springframework.web.bind.annotation.*;
 
 import java.security.Principal;
@@ -27,10 +29,13 @@ public class AuthenticationController {
 
     AuthenticationService authenticationService;
 
-    @RequestMapping("/user")
-        public Principal user(Principal user){
-            return user;
-        }
+    @GetMapping("/loginWithGoogle")
+    ApiResponse<AuthenticationResponse> getUserProfileByGoogle(OAuth2AuthenticationToken token) {
+        ApiResponse<AuthenticationResponse> resp = new ApiResponse<>();
+        resp.setCode(1000);
+        resp.setData(authenticationService.loginWithGoogle(token));
+        return resp;
+    }
 
     @PostMapping("/token")
     ApiResponse<AuthenticationResponse> authenticate(@RequestBody AuthenticationReq request){

@@ -1,16 +1,16 @@
 package com.eihabitat.eihabitat_server.service;
 
-import com.eihabitat.eihabitat_server.dto.request.AuthenticationReq;
-import com.eihabitat.eihabitat_server.dto.request.IntrospectReq;
-import com.eihabitat.eihabitat_server.dto.request.LogoutRequest;
-import com.eihabitat.eihabitat_server.dto.request.RefreshRequest;
+import com.eihabitat.eihabitat_server.dto.request.*;
 import com.eihabitat.eihabitat_server.dto.response.AuthenticationResponse;
 import com.eihabitat.eihabitat_server.dto.response.IntrospectResponse;
 import com.eihabitat.eihabitat_server.entity.InvalidatedToken;
+import com.eihabitat.eihabitat_server.entity.Role;
 import com.eihabitat.eihabitat_server.entity.User;
 import com.eihabitat.eihabitat_server.exception.AppException;
 import com.eihabitat.eihabitat_server.exception.ErrorCode;
+import com.eihabitat.eihabitat_server.mapper.UserMapper;
 import com.eihabitat.eihabitat_server.repository.InvalidatedTokenRepository;
+import com.eihabitat.eihabitat_server.repository.RoleRepository;
 import com.eihabitat.eihabitat_server.repository.UserRepository;
 import com.nimbusds.jose.*;
 import com.nimbusds.jose.crypto.MACSigner;
@@ -28,15 +28,15 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.oauth2.client.authentication.OAuth2AuthenticationToken;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 
 import java.text.ParseException;
 import java.time.Instant;
+import java.time.LocalDate;
 import java.time.temporal.ChronoUnit;
-import java.util.Date;
-import java.util.StringJoiner;
-import java.util.UUID;
+import java.util.*;
 
 @Service
 @RequiredArgsConstructor
@@ -44,6 +44,8 @@ import java.util.UUID;
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 public class AuthenticationService {
     UserRepository userRepository;
+    RoleRepository roleRepository;
+    UserMapper  userMapper;
 
     InvalidatedTokenRepository invalidatedTokenRepository;
     @NonFinal
@@ -65,6 +67,39 @@ public class AuthenticationService {
                 .build();
     }
 
+    public AuthenticationResponse loginWithGoogle(OAuth2AuthenticationToken token) {
+        String userEmail = token.getPrincipal().getAttribute("email");
+        Optional<User> user = userRepository.findByEmail(userEmail);
+        if(user.isPresent()){
+            User getUser = user.get();
+            var jwtToken = generateToken(getUser);
+            return AuthenticationResponse.builder()
+                    .token(jwtToken)
+                    .authenticated(true)
+                    .build();
+        }
+        User newUser = new User().builder()
+                .email(userEmail)
+                .firstName(token.getPrincipal().getAttribute("family_name"))
+                .lastName(token.getPrincipal().getAttribute("given_name"))
+                .profileAvatar(token.getPrincipal().getAttribute("picture"))
+                .account_verified(true)
+                .profileName(userEmail)
+                .signupDate(LocalDate.now())
+                .build();
+        Role userRole = roleRepository.findById("USER").orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
+        HashSet<Role> userRoles = new HashSet<>();
+
+        userRoles.add(userRole);
+        newUser.setRoles(userRoles);
+        userRepository.save(newUser);
+        var jwtToken = generateToken(newUser);
+        return AuthenticationResponse.builder()
+                .token(jwtToken)
+                .authenticated(true)
+                .build();
+    }
+
     public AuthenticationResponse authenticate(AuthenticationReq authenticationReq) {
         PasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
         var user = userRepository.findByEmail(authenticationReq.getEmail())
@@ -81,6 +116,8 @@ public class AuthenticationService {
                 .authenticated(true)
                 .build();
     }
+
+
     public void logout(LogoutRequest request) throws JOSEException, ParseException  {
         var signToken = verifyToken(request.getToken());
 
