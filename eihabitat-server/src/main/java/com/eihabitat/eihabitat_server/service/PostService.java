@@ -155,14 +155,17 @@ public class PostService {
         for (UserFollow userFollow : followeds) {
             followedIds.add(userFollow.getFollowedId());
         }
-        log.info("followed ids: " + followedIds.toString());
+        followedIds.add(rootUserId);
         Set<Post> listPost = postRepository.findAllByAuthorIdIn(followedIds);
-
-        log.info("list posts: " + listPost.toString());
         Set<PostResponse> listPostResponse = new HashSet<>();
         for (Post post : listPost) {
-            listPostResponse.add(findPostById(post.getId()));
+            PostResponse postResponse = findPostById(post.getId());
+
+            postResponse.setLikeByUser(likePostRepo.existsByUserIdAndPostId(rootUserId, post.getId()));
+            
+            listPostResponse.add(postResponse);
         }
+
         return listPostResponse;
     }
 

@@ -25,7 +25,8 @@ public class UserLikePostService {
 
     public String likePost(UserLikePostReq request) {
         if (userLikePostRepository.existsByUserIdAndPostId(request.getUserId(), request.getPostId())) {
-            throw new RuntimeException("User has already liked this post");
+            unlikePost(request);
+            return "Post unliked successfully!";
         }
 
         UserLikePost userLikePost = userLikePostMapper.toUserLikePost(request);
@@ -36,8 +37,8 @@ public class UserLikePostService {
         return "Post liked successfully!";
     }
 
-    public UserLikePostResponse unlikePost(String userId, String postId) {
-        return userLikePostRepository.deleteByUserIdAndPostId(userId, postId);
+    public void unlikePost(UserLikePostReq request) {
+        userLikePostRepository.deleteByUserIdAndPostId(request.getUserId(), request.getPostId());
     }
 
     public List<UserLikePostResponse> getLikesForPost(String postId) {

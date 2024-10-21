@@ -19,18 +19,10 @@ public class UserLikePostController {
     UserLikePostService userLikeService;
 
     @PostMapping
-    public ApiResponse<UserLikePostResponse> likePost(@Valid @RequestBody UserLikePostReq request) {
+    public ApiResponse<String> likePost(@Valid @RequestBody UserLikePostReq request) {
         ApiResponse resp = new ApiResponse();
         resp.setCode(1000);
         resp.setData(userLikeService.likePost(request));
-        return resp;
-    }
-
-    @DeleteMapping("/{userId}/{postId}")
-    public ApiResponse<UserLikePostResponse> unlikePost(@PathVariable String userId, @PathVariable String postId) {
-        ApiResponse resp = new ApiResponse();
-        resp.setCode(1000);
-        resp.setData(userLikeService.unlikePost(userId, postId));
         return resp;
     }
 
