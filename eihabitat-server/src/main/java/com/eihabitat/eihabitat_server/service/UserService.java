@@ -2,6 +2,7 @@ package com.eihabitat.eihabitat_server.service;
 
 import com.eihabitat.eihabitat_server.dto.request.UserCreationReq;
 import com.eihabitat.eihabitat_server.dto.request.UserUpdateReq;
+import com.eihabitat.eihabitat_server.dto.response.UserDemoResponse;
 import com.eihabitat.eihabitat_server.dto.response.UserFollowerResponse;
 import com.eihabitat.eihabitat_server.dto.response.UserResponse;
 import com.eihabitat.eihabitat_server.entity.EmailConfirmationToken;
@@ -140,6 +141,10 @@ public class UserService {
             userResponses.add(userMapper.toUserResponse(user));
         });
         return userResponses;
+    }
+
+    public UserDemoResponse getUserDemo(String email) {
+        return userMapper.toUserDemoResponse(userRepository.findByEmail(email).orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND)));
     }
 
     @PostAuthorize("returnObject.email == authentication.name")

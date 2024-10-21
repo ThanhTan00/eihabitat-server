@@ -48,6 +48,7 @@ public class UserController {
         return resp;
     }
 
+
     @PutMapping()
     ApiResponse<UserResponse> updateUser(@RequestBody UserUpdateReq req) {
         ApiResponse<UserResponse> resp = new ApiResponse<>();
