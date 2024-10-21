@@ -3,6 +3,7 @@ package com.eihabitat.eihabitat_server.controller;
 import com.eihabitat.eihabitat_server.dto.request.ApiResponse;
 import com.eihabitat.eihabitat_server.dto.request.UserCreationReq;
 import com.eihabitat.eihabitat_server.dto.request.UserUpdateReq;
+import com.eihabitat.eihabitat_server.dto.response.UserDemoResponse;
 import com.eihabitat.eihabitat_server.dto.response.UserResponse;
 import com.eihabitat.eihabitat_server.entity.User;
 import com.eihabitat.eihabitat_server.service.UserService;
@@ -29,25 +30,25 @@ public class UserController {
     @PostMapping
     ApiResponse<UserResponse> createUser(@RequestBody @Valid UserCreationReq req) {
         ApiResponse<UserResponse> resp = new ApiResponse<>();
+        resp.setCode(1000);
         resp.setData(userService.createUser(req));
         return resp;
     }
 
-    @GetMapping
-    ApiResponse<List<UserResponse>>  getUsers() {
-        var authentication = SecurityContextHolder.getContext().getAuthentication();
-
-        log.info("email : {}", authentication.getName());
-        authentication.getAuthorities().forEach(grantedAuthority -> log.info(grantedAuthority.getAuthority()));
-
-        ApiResponse<List<UserResponse>> resp = new ApiResponse<>();
-        resp.setData(userService.getUsers());
-        return resp;
-    }
+//    @GetMapping
+//    ApiResponse<List<UserResponse>>  getUsers() {
+//        var authentication = SecurityContextHolder.getContext().getAuthentication();
+//        authentication.getAuthorities().forEach(grantedAuthority -> log.info(grantedAuthority.getAuthority()));
+//        ApiResponse<List<UserResponse>> resp = new ApiResponse<>();
+//        resp.setCode(1000);
+//        resp.setData(userService.getUsers());
+//        return resp;
+//    }
 
     @PutMapping()
     ApiResponse<UserResponse> updateUser(@RequestBody UserUpdateReq req) {
         ApiResponse<UserResponse> resp = new ApiResponse<>();
+        resp.setCode(1000);
         resp.setData(userService.updateUser( req));
         return resp;
     }
@@ -61,6 +62,7 @@ public class UserController {
     @GetMapping("/myInfo")
     ApiResponse<UserResponse> getMyInfo() {
         ApiResponse<UserResponse> resp = new ApiResponse<>();
+        resp.setCode(1000);
         resp.setData(userService.getMyInfo());
         return resp;
     }
@@ -68,7 +70,16 @@ public class UserController {
     @GetMapping("/{userProfileName}")
     ApiResponse<UserResponse> getUserProfile(@PathVariable String userProfileName) {
         ApiResponse<UserResponse> resp = new ApiResponse<>();
+        resp.setCode(1000);
         resp.setData(userService.getUserInfo(userProfileName));
+        return resp;
+    }
+
+    @GetMapping("demo/{email}")
+    ApiResponse<UserDemoResponse> getDemoUserInfo(@PathVariable String email) {
+        ApiResponse<UserDemoResponse> resp = new ApiResponse<>();
+        resp.setCode(1000);
+        resp.setData(userService.getUserDemo(email));
         return resp;
     }
 

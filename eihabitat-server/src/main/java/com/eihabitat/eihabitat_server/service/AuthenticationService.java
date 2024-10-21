@@ -37,6 +37,7 @@ import java.time.Instant;
 import java.time.LocalDate;
 import java.time.temporal.ChronoUnit;
 import java.util.*;
+import java.util.regex.Pattern;
 
 @Service
 @RequiredArgsConstructor
@@ -44,13 +45,22 @@ import java.util.*;
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 public class AuthenticationService {
     UserRepository userRepository;
-    RoleRepository roleRepository;
     UserMapper  userMapper;
 
     InvalidatedTokenRepository invalidatedTokenRepository;
     @NonFinal
     @Value("${jwt.signerKey}")
     protected String SIGNER_KEY;
+
+    private static final String EMAIL_REGEX = "^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$";
+    private static final Pattern EMAIL_PATTERN = Pattern.compile(EMAIL_REGEX);
+
+    public static boolean isValidEmail(String email) {
+        if (email == null) {
+            return false;
+        }
+        return EMAIL_PATTERN.matcher(email).matches();
+    }
 
     public IntrospectResponse introspect(IntrospectReq request) throws JOSEException, ParseException {
         var token = request.getToken();
@@ -67,47 +77,47 @@ public class AuthenticationService {
                 .build();
     }
 
-    public AuthenticationResponse loginWithGoogle(OAuth2AuthenticationToken token) {
-        String userEmail = token.getPrincipal().getAttribute("email");
-        Optional<User> user = userRepository.findByEmail(userEmail);
-        if(user.isPresent()){
-            User getUser = user.get();
-            var jwtToken = generateToken(getUser);
-            return AuthenticationResponse.builder()
-                    .token(jwtToken)
-                    .authenticated(true)
-                    .build();
-        }
-        User newUser = new User().builder()
-                .email(userEmail)
-                .firstName(token.getPrincipal().getAttribute("family_name"))
-                .lastName(token.getPrincipal().getAttribute("given_name"))
-                .profileAvatar(token.getPrincipal().getAttribute("picture"))
-                .account_verified(true)
-                .profileName(userEmail)
-                .signupDate(LocalDate.now())
-                .build();
-        Role userRole = roleRepository.findById("USER").orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
-        HashSet<Role> userRoles = new HashSet<>();
-
-        userRoles.add(userRole);
-        newUser.setRoles(userRoles);
-        userRepository.save(newUser);
-        var jwtToken = generateToken(newUser);
-        return AuthenticationResponse.builder()
-                .token(jwtToken)
-                .authenticated(true)
-                .build();
-    }
+//    public String loginWithGoogle(OAuth2AuthenticationToken token) {
+//        String userEmail = token.getPrincipal().getAttribute("email");
+//        Optional<User> user = userRepository.findByEmail(userEmail);
+//        if(user.isPresent()){
+//            User getUser = user.get();
+//            return generateToken(getUser);
+//        }
+//        User newUser = new User().builder()
+//                .email(userEmail)
+//                .firstName(token.getPrincipal().getAttribute("family_name"))
+//                .lastName(token.getPrincipal().getAttribute("given_name"))
+//                .profileAvatar(token.getPrincipal().getAttribute("picture"))
+//                .account_verified(true)
+//                .profileName(userEmail)
+//                .signupDate(LocalDate.now())
+//                .build();
+//        Role userRole = roleRepository.findById("USER").orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
+//        HashSet<Role> userRoles = new HashSet<>();
+//
+//        userRoles.add(userRole);
+//        newUser.setRoles(userRoles);
+//        userRepository.save(newUser);
+//        return generateToken(newUser);
+//    }
 
     public AuthenticationResponse authenticate(AuthenticationReq authenticationReq) {
+
         PasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
-        var user = userRepository.findByEmail(authenticationReq.getEmail())
-                .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_EXISTED));
+        var user = new User();
+        if (isValidEmail(authenticationReq.getEmail())) {
+            user = userRepository.findByEmail(authenticationReq.getEmail())
+                    .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_EXISTED));
+        } else {
+            user = userRepository.findByProfileName(authenticationReq.getEmail())
+                    .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_EXISTED));
+        }
+
         boolean authenticated = passwordEncoder.matches(authenticationReq.getPassword(), user.getPassword());
 
         if (!authenticated)
-            throw new AppException(ErrorCode.UNAUTHENTICATED);
+            throw new AppException(ErrorCode.WRONG_USERNAME_OR_PASSWORD);
 
         var token = generateToken(user);
 

@@ -18,6 +18,7 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.security.oauth2.client.authentication.OAuth2AuthenticationToken;
 import org.springframework.web.bind.annotation.*;
 
+import java.net.http.HttpResponse;
 import java.security.Principal;
 import java.text.ParseException;
 
@@ -28,14 +29,6 @@ import java.text.ParseException;
 public class AuthenticationController {
 
     AuthenticationService authenticationService;
-
-    @GetMapping("/loginWithGoogle")
-    ApiResponse<AuthenticationResponse> getUserProfileByGoogle(OAuth2AuthenticationToken token) {
-        ApiResponse<AuthenticationResponse> resp = new ApiResponse<>();
-        resp.setCode(1000);
-        resp.setData(authenticationService.loginWithGoogle(token));
-        return resp;
-    }
 
     @PostMapping("/token")
     ApiResponse<AuthenticationResponse> authenticate(@RequestBody AuthenticationReq request){
