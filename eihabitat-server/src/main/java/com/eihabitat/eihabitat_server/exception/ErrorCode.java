@@ -21,8 +21,8 @@ public enum ErrorCode {
     COMMENT_NOT_EXISTED(1011, "Comment not exists", HttpStatus.NOT_FOUND),
     USERNAME_EXISTED(1012, "Username already exists", HttpStatus.CONFLICT),
     FOLLOW_RELATIONSHIP_NOT_FOUND(1013, "Follow relationship not found", HttpStatus.NOT_FOUND),
-    TOKEN_NOT_VALID(1014, "Token not valid", HttpStatus.UNAUTHORIZED),
-    EMAIL_CONFIRM_TOKEN_INVALID(1015, "Email confirm token is invalid", HttpStatus.BAD_REQUEST),
+    WRONG_USERNAME_OR_PASSWORD(1014, "Wrong username or password", HttpStatus.NOT_FOUND),
+    EMAIL_EXISTED(1015, "Email already exists", HttpStatus.CONFLICT),
     ;
 
     ErrorCode(int code, String message, HttpStatusCode statusCode) {
