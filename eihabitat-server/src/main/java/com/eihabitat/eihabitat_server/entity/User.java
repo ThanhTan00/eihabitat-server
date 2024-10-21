@@ -31,7 +31,8 @@ public class User {
     String gender;
     LocalDate dateOfBirth;
     String nationality;
-    boolean account_verified = false;
+    boolean accountVerified = false;
     @ManyToMany
     Set<Role> roles;
+    boolean enabled = false;
 }
