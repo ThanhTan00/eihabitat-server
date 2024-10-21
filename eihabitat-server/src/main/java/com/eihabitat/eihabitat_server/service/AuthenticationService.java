@@ -1,16 +1,16 @@
 package com.eihabitat.eihabitat_server.service;
 
-import com.eihabitat.eihabitat_server.dto.request.AuthenticationReq;
-import com.eihabitat.eihabitat_server.dto.request.IntrospectReq;
-import com.eihabitat.eihabitat_server.dto.request.LogoutRequest;
-import com.eihabitat.eihabitat_server.dto.request.RefreshRequest;
+import com.eihabitat.eihabitat_server.dto.request.*;
 import com.eihabitat.eihabitat_server.dto.response.AuthenticationResponse;
 import com.eihabitat.eihabitat_server.dto.response.IntrospectResponse;
 import com.eihabitat.eihabitat_server.entity.InvalidatedToken;
+import com.eihabitat.eihabitat_server.entity.Role;
 import com.eihabitat.eihabitat_server.entity.User;
 import com.eihabitat.eihabitat_server.exception.AppException;
 import com.eihabitat.eihabitat_server.exception.ErrorCode;
+import com.eihabitat.eihabitat_server.mapper.UserMapper;
 import com.eihabitat.eihabitat_server.repository.InvalidatedTokenRepository;
+import com.eihabitat.eihabitat_server.repository.RoleRepository;
 import com.eihabitat.eihabitat_server.repository.UserRepository;
 import com.nimbusds.jose.*;
 import com.nimbusds.jose.crypto.MACSigner;
@@ -22,19 +22,22 @@ import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import lombok.experimental.NonFinal;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.oauth2.client.authentication.OAuth2AuthenticationToken;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 
 import java.text.ParseException;
 import java.time.Instant;
+import java.time.LocalDate;
 import java.time.temporal.ChronoUnit;
-import java.util.Date;
-import java.util.StringJoiner;
-import java.util.UUID;
+import java.util.*;
+import java.util.regex.Pattern;
 
 @Service
 @RequiredArgsConstructor
@@ -42,11 +45,22 @@ import java.util.UUID;
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 public class AuthenticationService {
     UserRepository userRepository;
+    UserMapper  userMapper;
 
     InvalidatedTokenRepository invalidatedTokenRepository;
     @NonFinal
     @Value("${jwt.signerKey}")
     protected String SIGNER_KEY;
+
+    private static final String EMAIL_REGEX = "^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$";
+    private static final Pattern EMAIL_PATTERN = Pattern.compile(EMAIL_REGEX);
+
+    public static boolean isValidEmail(String email) {
+        if (email == null) {
+            return false;
+        }
+        return EMAIL_PATTERN.matcher(email).matches();
+    }
 
     public IntrospectResponse introspect(IntrospectReq request) throws JOSEException, ParseException {
         var token = request.getToken();
@@ -63,17 +77,47 @@ public class AuthenticationService {
                 .build();
     }
 
+//    public String loginWithGoogle(OAuth2AuthenticationToken token) {
+//        String userEmail = token.getPrincipal().getAttribute("email");
+//        Optional<User> user = userRepository.findByEmail(userEmail);
+//        if(user.isPresent()){
+//            User getUser = user.get();
+//            return generateToken(getUser);
+//        }
+//        User newUser = new User().builder()
+//                .email(userEmail)
+//                .firstName(token.getPrincipal().getAttribute("family_name"))
+//                .lastName(token.getPrincipal().getAttribute("given_name"))
+//                .profileAvatar(token.getPrincipal().getAttribute("picture"))
+//                .account_verified(true)
+//                .profileName(userEmail)
+//                .signupDate(LocalDate.now())
+//                .build();
+//        Role userRole = roleRepository.findById("USER").orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
+//        HashSet<Role> userRoles = new HashSet<>();
+//
+//        userRoles.add(userRole);
+//        newUser.setRoles(userRoles);
+//        userRepository.save(newUser);
+//        return generateToken(newUser);
+//    }
 
     public AuthenticationResponse authenticate(AuthenticationReq authenticationReq) {
-        PasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
 
-        var user = userRepository.findByEmail(authenticationReq.getEmail())
-                .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_EXISTED));
+        PasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
+        var user = new User();
+        if (isValidEmail(authenticationReq.getEmail())) {
+            user = userRepository.findByEmail(authenticationReq.getEmail())
+                    .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_EXISTED));
+        } else {
+            user = userRepository.findByProfileName(authenticationReq.getEmail())
+                    .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_EXISTED));
+        }
 
         boolean authenticated = passwordEncoder.matches(authenticationReq.getPassword(), user.getPassword());
 
         if (!authenticated)
-            throw new AppException(ErrorCode.UNAUTHENTICATED);
+            throw new AppException(ErrorCode.WRONG_USERNAME_OR_PASSWORD);
 
         var token = generateToken(user);
 
@@ -82,6 +126,8 @@ public class AuthenticationService {
                 .authenticated(true)
                 .build();
     }
+
+
     public void logout(LogoutRequest request) throws JOSEException, ParseException  {
         var signToken = verifyToken(request.getToken());
 

@@ -1,4 +1,0 @@
-aws.s3.bucket-name = user-post
-aws.s3.access-key = AKIAZI2LC3EA33ZFFFYK
-aws.s3.secret-key = 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
-aws.s3.region = ap-south-1

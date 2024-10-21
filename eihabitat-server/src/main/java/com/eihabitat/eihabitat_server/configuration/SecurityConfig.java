@@ -1,50 +1,85 @@
 package com.eihabitat.eihabitat_server.configuration;
 
-
-import com.eihabitat.eihabitat_server.enums.Role;
-
+import com.eihabitat.eihabitat_server.service.AuthenticationService;
+import jakarta.servlet.ServletException;
+import jakarta.servlet.http.Cookie;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.core.annotation.Order;
 import org.springframework.http.HttpMethod;
 import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.security.oauth2.jose.jws.MacAlgorithm;
-import org.springframework.security.oauth2.jwt.JwtDecoder;
-import org.springframework.security.oauth2.jwt.NimbusJwtDecoder;
+import org.springframework.security.oauth2.client.authentication.OAuth2AuthenticationToken;
+import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationConverter;
 import org.springframework.security.oauth2.server.resource.authentication.JwtGrantedAuthoritiesConverter;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
+import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.cors.CorsConfiguration;
+import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 import org.springframework.web.filter.CorsFilter;
 
-import javax.crypto.spec.SecretKeySpec;
+import java.io.IOException;
+import java.util.Arrays;
 
 @Configuration
 @EnableWebSecurity
 @EnableMethodSecurity
 public class SecurityConfig {
 
-    private final String[] PUBLIC_ENDPOINT = {"/users","/auth/token","/auth/introspect", "/auth/logout", "/auth/refresh", "/ws/**"};
+    private final String[] PUBLIC_ENDPOINT = {"/login/oauth2/code/google","/oauth2/authorization/google","/users","/auth/token","/auth/introspect", "/auth/logout", "/auth/refresh", "/auth/loginWithGoogle", "/ws/**","/users/demo/**"};
 
     private CustomJwtDecoder customJwtDecoder;
 
-    @Bean
+    @Autowired
+    private AuthenticationService authenticationService;
+
+    @Bean(name = "securityFilterChainOauth2")
+    @Order(1)
+    public SecurityFilterChain securityFilterChainOauth2(HttpSecurity http) throws Exception {
+        http.securityMatcher("/login/**", "/oauth2/**")
+            .authorizeHttpRequests(registry->{
+                    registry.requestMatchers("/").permitAll();
+                    registry.requestMatchers("/oauth2/**").permitAll();
+                    registry.anyRequest().authenticated();
+                })
+                .oauth2Login(oauth2login->{
+                    oauth2login.successHandler(new AuthenticationSuccessHandler() {
+                        @Override
+                        public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response, Authentication authentication) throws IOException, ServletException {
+                            OAuth2AuthenticationToken authToken = (OAuth2AuthenticationToken) authentication;
+                            String email = authToken.getPrincipal().getAttribute("email");
+                            response.sendRedirect("http://localhost:3000/loginWithGoogle?email="+email);
+                        }
+                    });
+                })
+                .formLogin(Customizer.withDefaults());
+        return http.build();
+    }
+
+    @Bean(name = "securityFilterChainJwt")
+    @Order(2)
     public SecurityFilterChain securityFilterChain(HttpSecurity httpSecurity) throws Exception {
         httpSecurity
+                .securityMatcher("/auth/**", "/users/**")
                 .authorizeHttpRequests(authorize -> authorize
                         .requestMatchers(HttpMethod.POST, PUBLIC_ENDPOINT).permitAll()
                         .requestMatchers(HttpMethod.GET, PUBLIC_ENDPOINT).permitAll()
                         .anyRequest().authenticated());
         httpSecurity.oauth2ResourceServer(oauth2 ->
                 oauth2.jwt(jwtConfigurer -> jwtConfigurer.decoder(customJwtDecoder)
+
                         .jwtAuthenticationConverter(jwtConverter()))
                         .authenticationEntryPoint(new JwtAuthenticationEntryPoint())
         );
@@ -59,6 +94,7 @@ public class SecurityConfig {
         corsConfiguration.addAllowedOrigin("http://localhost:3000/");
         corsConfiguration.addAllowedMethod("*");
         corsConfiguration.addAllowedHeader("*");
+        corsConfiguration.setAllowCredentials(true);
 
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         source.registerCorsConfiguration("/**", corsConfiguration);
