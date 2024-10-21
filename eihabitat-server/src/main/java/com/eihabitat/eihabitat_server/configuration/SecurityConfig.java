@@ -76,6 +76,7 @@ public class SecurityConfig {
                 .authorizeHttpRequests(authorize -> authorize
                         .requestMatchers(HttpMethod.POST, PUBLIC_ENDPOINT).permitAll()
                         .requestMatchers(HttpMethod.GET, PUBLIC_ENDPOINT).permitAll()
+                        .requestMatchers("/auth/confirm-email").permitAll()
                         .anyRequest().authenticated());
         httpSecurity.oauth2ResourceServer(oauth2 ->
                 oauth2.jwt(jwtConfigurer -> jwtConfigurer.decoder(customJwtDecoder)
