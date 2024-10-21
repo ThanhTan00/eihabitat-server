@@ -3,6 +3,7 @@ package com.eihabitat.eihabitat_server.controller;
 import com.eihabitat.eihabitat_server.dto.request.ApiResponse;
 import com.eihabitat.eihabitat_server.dto.request.UserCreationReq;
 import com.eihabitat.eihabitat_server.dto.request.UserUpdateReq;
+import com.eihabitat.eihabitat_server.dto.response.UserDemoResponse;
 import com.eihabitat.eihabitat_server.dto.response.UserResponse;
 import com.eihabitat.eihabitat_server.entity.User;
 import com.eihabitat.eihabitat_server.service.EmailService;
@@ -71,6 +72,14 @@ public class UserController {
     ApiResponse<UserResponse> getUserProfile(@PathVariable String userProfileName) {
         ApiResponse<UserResponse> resp = new ApiResponse<>();
         resp.setData(userService.getUserInfo(userProfileName));
+        return resp;
+    }
+
+    @GetMapping("demo/{email}")
+    ApiResponse<UserDemoResponse> getDemoUserInfo(@PathVariable String email) {
+        ApiResponse<UserDemoResponse> resp = new ApiResponse<>();
+        resp.setCode(1000);
+        resp.setData(userService.getUserDemo(email));
         return resp;
     }
 
