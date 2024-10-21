@@ -26,4 +26,5 @@ public class PostResponse {
     int numberOfLikes;
     String latestUserLike;
     String latestUserLikeAvatar;
+    boolean isLikeByUser;
 }

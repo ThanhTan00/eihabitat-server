@@ -12,6 +12,7 @@ public interface UserLikePostMapper {
 
     UserLikePostResponse toUserLikePostResponse(UserLikePost userLikePost);
 
+
     // ignore null value in the DTO
     @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
     void updateUserLikePostFromDto(UserLikePostReq dto, @MappingTarget UserLikePost entity);
