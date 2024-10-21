@@ -6,10 +6,7 @@ import org.springframework.web.multipart.MultipartFile;
 import software.amazon.awssdk.core.ResponseInputStream;
 import software.amazon.awssdk.core.sync.RequestBody;
 import software.amazon.awssdk.services.s3.S3Client;
-import software.amazon.awssdk.services.s3.model.GetObjectRequest;
-import software.amazon.awssdk.services.s3.model.PutObjectRequest;
-import software.amazon.awssdk.services.s3.model.S3Object;
-import software.amazon.awssdk.services.s3.model.S3Exception;
+import software.amazon.awssdk.services.s3.model.*;
 
 import java.io.IOException;
 import java.nio.file.Paths;
@@ -20,37 +17,36 @@ public class S3Service {
 
     private final S3Client s3Client;
 
-    private final String bucketName = "eihabitat-bucket";
-
     public String uploadFile(MultipartFile file) throws IOException {
-        String fileName = System.currentTimeMillis() + "_" + file.getOriginalFilename();
+        String keyName = file.getOriginalFilename();  // Set file name as the key
 
-        try {
-            PutObjectRequest putObjectRequest = PutObjectRequest.builder()
-                    .bucket(bucketName)
-                    .key(fileName)
-                    .build();
+        // Create a PutObjectRequest
+        String bucketName = "user-post";
+        PutObjectRequest putObjectRequest = PutObjectRequest.builder()
+                .bucket(bucketName)
+                .key(keyName)
+                .build();
 
-            s3Client.putObject(putObjectRequest, RequestBody.fromBytes(file.getBytes()));
-        } catch (S3Exception e) {
-            throw new RuntimeException("Error while uploading file to S3", e);
-        }
+        // Upload the file
+        PutObjectResponse response = s3Client.putObject(putObjectRequest,
+                software.amazon.awssdk.core.sync.RequestBody.fromBytes(file.getBytes()));
 
-        return fileName;
+        // Optionally, return the file URL
+        return String.format("https://%s.s3.amazonaws.com/%s", bucketName, keyName);
     }
 
-    public ResponseInputStream downloadFile(String fileName) {
-        try {
-            GetObjectRequest getObjectRequest = GetObjectRequest.builder()
-                    .bucket(bucketName)
-                    .key(fileName)
-                    .build();
-
-            return s3Client.getObject(getObjectRequest);
-        } catch (S3Exception e) {
-            throw new RuntimeException("Error while downloading file from S3", e);
-        }
-    }
+//    public ResponseInputStream downloadFile(String fileName) {
+//        try {
+//            GetObjectRequest getObjectRequest = GetObjectRequest.builder()
+//                    .bucket(bucketName)
+//                    .key(fileName)
+//                    .build();
+//
+//            return s3Client.getObject(getObjectRequest);
+//        } catch (S3Exception e) {
+//            throw new RuntimeException("Error while downloading file from S3", e);
+//        }
+//    }
 }
 
 

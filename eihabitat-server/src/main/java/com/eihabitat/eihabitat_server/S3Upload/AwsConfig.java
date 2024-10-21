@@ -14,15 +14,13 @@ public class AwsConfig {
 
     @Bean
     public S3Client s3Client() {
-        AwsBasicCredentials awsCreds = AwsBasicCredentials.create(
-                "AKIAW3MD6K7IEBEMIRVS",
-                "h9qH0duW7dPzqcM9NCKZinbPISTOLIefWuLo0dYE"
-        );
-
         return S3Client.builder()
-                .region(Region.AP_SOUTHEAST_1)  // Replace with your region
-                .credentialsProvider(StaticCredentialsProvider.create(awsCreds))
+                .region(Region.AP_SOUTHEAST_1)  // Set your region
+                .credentialsProvider(StaticCredentialsProvider.create(
+                        AwsBasicCredentials.create("AKIAZI2LC3EAVAKWQPUG", "fvkFTNLtfEgBspsHMc6dQhOaemxi4OGK+Or7ZOMQ")
+                ))
                 .build();
     }
+
 }
 
