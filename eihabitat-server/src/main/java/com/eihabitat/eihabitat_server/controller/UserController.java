@@ -5,6 +5,7 @@ import com.eihabitat.eihabitat_server.dto.request.UserCreationReq;
 import com.eihabitat.eihabitat_server.dto.request.UserUpdateReq;
 import com.eihabitat.eihabitat_server.dto.response.UserResponse;
 import com.eihabitat.eihabitat_server.entity.User;
+import com.eihabitat.eihabitat_server.service.EmailService;
 import com.eihabitat.eihabitat_server.service.UserService;
 import jakarta.mail.MessagingException;
 import jakarta.validation.Valid;
@@ -25,11 +26,12 @@ import java.util.List;
 public class UserController {
     private static final Logger log = LoggerFactory.getLogger(UserController.class);
     UserService userService;
+    EmailService emailService;
 
     @PostMapping
-    ApiResponse<UserResponse> createUser(@RequestBody @Valid UserCreationReq req) throws MessagingException {
-        ApiResponse<UserResponse> resp = new ApiResponse<>();
-        resp.setData(userService.createUser(req));
+    ApiResponse<String> createUser(@RequestBody @Valid UserCreationReq req) throws MessagingException {
+        ApiResponse<String> resp = new ApiResponse<>();
+        resp.setData(userService.confirmEmail(req));
         return resp;
     }
 

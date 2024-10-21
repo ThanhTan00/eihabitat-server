@@ -23,11 +23,11 @@ public class EmailService {
         try {
             MimeMessage message = sender.createMimeMessage();
             MimeMessageHelper helper = new MimeMessageHelper(message, true);
-            helper.setTo(emailConfirmationToken.getUser().getEmail());  // Use correct email field
+            helper.setTo(emailConfirmationToken.getEmail());  // Use correct email field
             helper.setSubject("Confirm your E-Mail - EIHABITAT Registration");
             helper.setText("<html>" +
                     "<body>" +
-                    "<h2>Dear " + emailConfirmationToken.getUser().getFirstName() + ",</h2>"
+                    "<h2>Dear " + emailConfirmationToken.getFirstName() +" "+emailConfirmationToken.getLastName()+",</h2>"
                     + "<br/> We're excited to have you get started. " +
                     "Please click on the link below to confirm your account."
                     + "<br/> " + generateConfirmationLink(emailConfirmationToken.getToken()) + "" +

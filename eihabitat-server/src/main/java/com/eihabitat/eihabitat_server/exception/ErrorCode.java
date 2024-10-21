@@ -22,6 +22,7 @@ public enum ErrorCode {
     USERNAME_EXISTED(1012, "Username already exists", HttpStatus.CONFLICT),
     FOLLOW_RELATIONSHIP_NOT_FOUND(1013, "Follow relationship not found", HttpStatus.NOT_FOUND),
     TOKEN_NOT_VALID(1014, "Token not valid", HttpStatus.UNAUTHORIZED),
+    EMAIL_CONFIRM_TOKEN_INVALID(1015, "Email confirm token is invalid", HttpStatus.BAD_REQUEST),
     ;
 
     ErrorCode(int code, String message, HttpStatusCode statusCode) {

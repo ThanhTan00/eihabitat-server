@@ -6,6 +6,7 @@ import lombok.experimental.FieldDefaults;
 import org.springframework.cglib.core.Local;
 
 import java.time.Instant;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 @Data
@@ -21,9 +22,11 @@ public class EmailConfirmationToken {
     private String token;
     private LocalDateTime timestamp;
     LocalDateTime expiryTime;
-    @ManyToOne(cascade = CascadeType.PERSIST)
-    @JoinColumn(name = "user_id", nullable = false)
-    User user;
+    String email;
+    String password;
+    LocalDateTime signupDate;
+    String firstName;
+    String lastName;
+    String profileName;
     boolean verified = false;
-
 }

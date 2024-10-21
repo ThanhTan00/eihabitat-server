@@ -64,16 +64,19 @@ public class AuthenticationController {
     public String confirmEmail(@RequestParam("token") String token) {
         try {
             if (userService.verifyUser(token)) {
-                return "Your email has been successfully verified.";
+                return "" +
+                        "Your email has been successfully verified.</a>" +
+                        "<a href='http://localhost:3000'>Login now</a>"
+                        +"";
             } else {
-                return "User details not found. Please log in and regenerate the confirmation link.";
+                return "Something wrong happened. Please try again later.";
             }
         } catch (IllegalArgumentException e) {
             return "Invalid token. Please check the link or request a new one.";
         } catch (IllegalStateException e) {
             return e.getMessage();  // This will either show "Token expired" or "Token already verified"
         } catch (Exception e) {
-            return "An error occurred while verifying your email. Please try again later.";
+            return e.getMessage();
         }
     }
 

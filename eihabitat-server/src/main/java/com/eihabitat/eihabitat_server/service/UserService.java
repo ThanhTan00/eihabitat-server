@@ -49,8 +49,32 @@ public class UserService {
     BytesKeyGenerator DEFAULT_TOKEN_GENERATOR = KeyGenerators.secureRandom(15);
     Charset US_ASCII = StandardCharsets.US_ASCII;
 
+    public String confirmEmail(UserCreationReq request) throws MessagingException {
+        if (userRepository.existsByEmail(request.getEmail())) {
+            throw new AppException(ErrorCode.USER_EXISTED);
+        }
+        if (userRepository.existsByProfileName(request.getProfileName())) {
+            throw new AppException(ErrorCode.USERNAME_EXISTED);
+        }
+        String tokenValue = new String(Base64.getUrlEncoder().encode(DEFAULT_TOKEN_GENERATOR.generateKey()), US_ASCII);
+        EmailConfirmationToken emailConfirmationToken = EmailConfirmationToken.builder()
+                .email(request.getEmail())
+                .profileName(request.getProfileName())
+                .firstName(request.getFirstName())
+                .lastName(request.getLastName())
+                .password(request.getPassword())
+                .expiryTime(LocalDateTime.now().plusHours(24))
+                .token(tokenValue)
+                .signupDate(LocalDateTime.now())
+                .verified(false)
+                .build();
+        emailConfirmationRepository.save(emailConfirmationToken);
+        emailService.sendConfirmationEmail(emailConfirmationToken);
+        return "Please check your email to confirm your email address";
+    }
 
-    public UserResponse createUser(UserCreationReq request) throws MessagingException {
+
+    public boolean createUser(UserCreationReq request) throws MessagingException {
         // Check if email or profile name already exists
         if (userRepository.existsByEmail(request.getEmail())) {
             throw new AppException(ErrorCode.USER_EXISTED);
@@ -63,66 +87,48 @@ public class UserService {
         User user = userMapper.toUser(request);
         user.setPassword(passwordEncoder.encode(user.getPassword()));
         user.setProfileAvatar("asset/images/default-avatar.png");
-        user.setSignupDate(LocalDate.now());
-
         // Retrieve the role and set it to the user
         Role userRole = roleRepository.findById("USER")
                 .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
         HashSet<Role> userRoles = new HashSet<>();
         userRoles.add(userRole);
         user.setRoles(userRoles);
+        user.setSignupDate(LocalDate.now());
 
         // Save the user to the database before sending the email
         user = userRepository.save(user);
 
-        // Now send the registration confirmation email
-        this.sendRegistrationConfirmEmail(user);
-
         // Return the UserResponse object
-        return userMapper.toUserResponse(user);
+        return true;
     }
 
-
-    public void sendRegistrationConfirmEmail(User user) throws MessagingException {
-        // Generate the token
-        String tokenValue = new String(Base64.getUrlEncoder().encode(DEFAULT_TOKEN_GENERATOR.generateKey()), US_ASCII);
-        EmailConfirmationToken emailConfirmationToken = new EmailConfirmationToken();
-        emailConfirmationToken.setToken(tokenValue);
-        emailConfirmationToken.setTimestamp(LocalDateTime.now());
-        emailConfirmationToken.setExpiryTime(LocalDateTime.now().plusHours(24));
-        emailConfirmationToken.setUser(user);
-        emailConfirmationRepository.save(emailConfirmationToken);
-        // Send email
-        emailService.sendConfirmationEmail(emailConfirmationToken);
-    }
-
-    public boolean verifyUser(String token) {
-        EmailConfirmationToken emailToken = emailConfirmationRepository.findByToken(token);
-
-        if (emailToken == null) {
-            throw new IllegalArgumentException("Invalid token.");
-        }
-
+    public boolean verifyUser(String token) throws MessagingException {
+        log.info(token);
+        EmailConfirmationToken emailToken = emailConfirmationRepository.findEmailConfirmationTokenByToken(token).orElseThrow(() -> new AppException(ErrorCode.EMAIL_CONFIRM_TOKEN_INVALID));
+        log.info(emailToken.toString());
         // Check if the token has already been used or verified
         if (emailToken.isVerified()) {
-            throw new IllegalStateException("Token already verified.");
+            return false;
         }
 
         // Check if the token has expired
         if (emailToken.getExpiryTime().isBefore(LocalDateTime.now())) {
-            throw new IllegalStateException("Token expired.");
+            return false;
         }
 
         // Mark the token as verified and save the changes
         emailToken.setVerified(true);
         emailConfirmationRepository.save(emailToken);
 
-        // Mark the associated user as verified
-        User user = emailToken.getUser();
-        user.setAccountVerified(true);
-        userRepository.save(user);
+        UserCreationReq request = UserCreationReq.builder()
+                .email(emailToken.getEmail())
+                .profileName(emailToken.getProfileName())
+                .firstName(emailToken.getFirstName())
+                .lastName(emailToken.getLastName())
+                .password(emailToken.getPassword())
+                .build();
 
-        return true;
+        return createUser(request);
     }
 
 
