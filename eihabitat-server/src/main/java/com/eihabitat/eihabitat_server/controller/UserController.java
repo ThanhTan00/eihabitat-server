@@ -3,6 +3,7 @@ package com.eihabitat.eihabitat_server.controller;
 import com.eihabitat.eihabitat_server.dto.request.ApiResponse;
 import com.eihabitat.eihabitat_server.dto.request.UserCreationReq;
 import com.eihabitat.eihabitat_server.dto.request.UserUpdateReq;
+import com.eihabitat.eihabitat_server.dto.response.SearchResponse;
 import com.eihabitat.eihabitat_server.dto.response.UserDemoResponse;
 import com.eihabitat.eihabitat_server.dto.response.UserResponse;
 import com.eihabitat.eihabitat_server.entity.User;
@@ -19,6 +20,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Set;
 
 @RestController
 @RequiredArgsConstructor
@@ -81,6 +83,13 @@ public class UserController {
         ApiResponse<UserDemoResponse> resp = new ApiResponse<>();
         resp.setCode(1000);
         resp.setData(userService.getUserDemo(email));
+        return resp;
+    }
+
+    @GetMapping("search/{username}")
+    ApiResponse<Set<SearchResponse>> searchUser(@PathVariable String username) {
+        ApiResponse<Set<SearchResponse>> resp = new ApiResponse<>();
+        resp.setData(userService.searchByUsername(username));
         return resp;
     }
 

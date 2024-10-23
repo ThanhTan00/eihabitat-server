@@ -2,6 +2,7 @@ package com.eihabitat.eihabitat_server.service;
 
 import com.eihabitat.eihabitat_server.dto.request.UserCreationReq;
 import com.eihabitat.eihabitat_server.dto.request.UserUpdateReq;
+import com.eihabitat.eihabitat_server.dto.response.SearchResponse;
 import com.eihabitat.eihabitat_server.dto.response.UserDemoResponse;
 import com.eihabitat.eihabitat_server.dto.response.UserFollowerResponse;
 import com.eihabitat.eihabitat_server.dto.response.UserResponse;
@@ -146,6 +147,21 @@ public class UserService {
     public UserDemoResponse getUserDemo(String email) {
         return userMapper.toUserDemoResponse(userRepository.findByEmail(email).orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND)));
     }
+    public Set<SearchResponse> searchByUsername(String username) {
+        Set<User> users = userRepository.findAllByProfileNameContainingIgnoreCase(username);
+        Set<SearchResponse> userResponses = new HashSet<>();
+
+        for (User user : users) {
+            SearchResponse searchResponse = userMapper.toUserSearchResponse(user);
+
+            List<UserFollowerResponse> followers = userFollowService.getFollowers(user.getProfileName());
+            searchResponse.setFollowers(followers.size());
+            userResponses.add(searchResponse);
+        }
+
+        return userResponses;
+    }
+
 
     @PostAuthorize("returnObject.email == authentication.name")
     public UserResponse getUser(String id) {
