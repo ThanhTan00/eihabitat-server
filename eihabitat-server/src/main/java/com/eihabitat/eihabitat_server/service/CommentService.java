@@ -30,7 +30,6 @@ import java.util.Set;
 @Slf4j
 public class CommentService {
     CommentRepository commentRepository;
-    PostRepository postRepository;
     UserRepository userRepository;
     CommentMapper commentMapper;
 
