@@ -55,7 +55,7 @@ public class PostService {
                     .postId(createdPost.getId())
                     .build());
         }
-        return findPostById(createdPost.getId());
+        return findPostById(createdPost.getId(), user.getId());
     }
 
     public Post updatePost(String postId, PostUpdateReq updateRequest) {
@@ -66,7 +66,7 @@ public class PostService {
         return postRepository.save(existingPost);
     }
 
-    public PostResponse findPostById(String postId) throws Exception {
+    public PostResponse findPostById(String postId, String rootUserId) throws Exception {
         Post opt = postRepository.findById(postId).orElseThrow(() -> new AppException(ErrorCode.POST_NOT_FOUND));
 
         List<UserLikePost> userLikePosts = likePostRepo.findByPostId(postId);
@@ -81,6 +81,7 @@ public class PostService {
             postContentResponseSet.add(mapper.toPostContentResponse(postContent));
         }
         PostResponse postResponse = mapper.toPostResponse(opt);
+        postResponse.setLikeByUser(likePostRepo.existsByUserIdAndPostId(rootUserId, postId));
 
         Set<Comment> comments = commentRepo.findAllByPostId(Sort.by(Sort.Direction.DESC, "creationDate"), postId);
 
@@ -115,7 +116,7 @@ public class PostService {
         Set<Post> listPost = postRepository.findAllByAuthorId(userId);
         Set<PostResponse> listPostResponse = new HashSet<>();
         for (Post post : listPost) {
-            listPostResponse.add(findPostById(post.getId()));
+            listPostResponse.add(findPostById(post.getId(), userId));
         }
         return listPostResponse;
     }
@@ -159,10 +160,7 @@ public class PostService {
         Set<Post> listPost = postRepository.findAllByAuthorIdIn(followedIds);
         Set<PostResponse> listPostResponse = new HashSet<>();
         for (Post post : listPost) {
-            PostResponse postResponse = findPostById(post.getId());
-
-            postResponse.setLikeByUser(likePostRepo.existsByUserIdAndPostId(rootUserId, post.getId()));
-            
+            PostResponse postResponse = findPostById(post.getId(), rootUserId);
             listPostResponse.add(postResponse);
         }
 

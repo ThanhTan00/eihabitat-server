@@ -44,11 +44,11 @@ public class PostController {
         return resp;
     }
 
-    @GetMapping("/{postId}")
-    public ApiResponse<PostResponse> findPostById(@PathVariable String postId) throws Exception {
+    @GetMapping("/{postId}/{rootUserId}")
+    public ApiResponse<PostResponse> findPostById(@PathVariable String postId,@PathVariable String rootUserId) throws Exception {
         ApiResponse resp = new ApiResponse();
         resp.setCode(1000);
-        resp.setData(postService.findPostById(postId));
+        resp.setData(postService.findPostById(postId, rootUserId));
         return resp;
     }
 
