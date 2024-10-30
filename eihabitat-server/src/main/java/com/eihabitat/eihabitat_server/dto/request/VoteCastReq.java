@@ -1,5 +1,4 @@
 package com.eihabitat.eihabitat_server.dto.request;
-
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 import java.util.List;
@@ -9,7 +8,7 @@ import java.util.List;
 @AllArgsConstructor
 @Builder
 @FieldDefaults(level = AccessLevel.PRIVATE)
-public class VoteCreationReq {
-    private String topic;
-    private List<OptionCreationReq> options;
+public class VoteCastReq {
+    private String voteId;
+    private String optionId;
 }

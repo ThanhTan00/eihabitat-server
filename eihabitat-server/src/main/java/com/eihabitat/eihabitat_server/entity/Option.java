@@ -5,23 +5,20 @@ import lombok.experimental.FieldDefaults;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
-import java.time.LocalDateTime;
+import java.util.List;
 
 @Data
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE)
-@Document(collection = "vote_records")
-public class VoteRecord {
+@Document(collection = "vote_options")
+public class Option {
     @Id
-    private String id;
-
-    private String voteId;
-
-    private String userId;
-
-    private String selectedOption;
-
-    private LocalDateTime votedAt;
+    String id;
+    String optionTitle;
+    String voteId;
+    List<String> userIds = null;
+    int numberOfChoices = 0;
+    double percentage = 0.0;
 }

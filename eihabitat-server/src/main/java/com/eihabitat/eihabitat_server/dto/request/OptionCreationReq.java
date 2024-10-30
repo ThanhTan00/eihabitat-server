@@ -8,8 +8,8 @@ import lombok.experimental.FieldDefaults;
 @AllArgsConstructor
 @Builder
 @FieldDefaults(level = AccessLevel.PRIVATE)
-public class VoteRecordReq {
-    private String voteId;
-    private String selectedOption;
-    String userId;
+public class OptionCreationReq {
+    String title;
+    String voteId;
+    String optionId;
 }

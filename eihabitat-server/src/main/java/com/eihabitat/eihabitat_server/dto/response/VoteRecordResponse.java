@@ -11,7 +11,8 @@ import java.time.LocalDateTime;
 @Builder
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class VoteRecordResponse {
-    private String userId;
-    private String selectedOption;
-    private LocalDateTime votedAt;
+    private String optionId;
+    private String optionTitle;
+    private int numberOfChoices;
+    private double percentage;
 }

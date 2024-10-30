@@ -17,12 +17,7 @@ import java.util.List;
 public class Vote {
     @Id
     private String id;
-
     private String topic;
-
-    private List<String> options;
-
     private String userId;
-
     private LocalDateTime createdAt;
 }

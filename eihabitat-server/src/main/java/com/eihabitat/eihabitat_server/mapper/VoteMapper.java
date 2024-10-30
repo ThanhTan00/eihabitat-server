@@ -1,11 +1,12 @@
 package com.eihabitat.eihabitat_server.mapper;
 
+import com.eihabitat.eihabitat_server.dto.request.OptionCreationReq;
 import com.eihabitat.eihabitat_server.dto.request.VoteCreationReq;
-import com.eihabitat.eihabitat_server.dto.request.VoteRecordReq;
 import com.eihabitat.eihabitat_server.dto.response.VoteRecordResponse;
 import com.eihabitat.eihabitat_server.dto.response.VoteResponse;
+import com.eihabitat.eihabitat_server.entity.Option;
 import com.eihabitat.eihabitat_server.entity.Vote;
-import com.eihabitat.eihabitat_server.entity.VoteRecord;
+
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 
@@ -21,14 +22,11 @@ public interface VoteMapper {
     @Mapping(target = "userId", source = "vote.userId")
     VoteResponse toVoteResponse(Vote vote);
 
-    // Mapping from VoteRecordRequestDto to VoteRecord entity
-    @Mapping(target = "id", ignore = true)
-    VoteRecord toVoteRecord(VoteRecordReq request, String userId);
+    Option toOption(OptionCreationReq request);
 
     // Mapping from VoteRecord to VoteRecordResponseDto
-    @Mapping(target = "userId", source = "voteRecord.userId")
-    VoteRecordResponse toVoteRecordResponse(VoteRecord voteRecord);
+    VoteRecordResponse toVoteRecordResponse(Option voteRecord);
 
     // Mapping list of VoteRecord to list of VoteRecordResponseDto
-    List<VoteRecordResponse> toVoteRecordResponseList(List<VoteRecord> voteRecords);
+    List<VoteRecordResponse> toVoteRecordResponseList(List<Option> voteRecords);
 }

@@ -1,28 +1,24 @@
 package com.eihabitat.eihabitat_server.service;
 
+import com.eihabitat.eihabitat_server.dto.request.OptionCreationReq;
+import com.eihabitat.eihabitat_server.dto.request.VoteCastReq;
 import com.eihabitat.eihabitat_server.dto.request.VoteCreationReq;
-import com.eihabitat.eihabitat_server.dto.request.VoteRecordReq;
-import com.eihabitat.eihabitat_server.dto.response.VoteRecordResponse;
 import com.eihabitat.eihabitat_server.dto.response.VoteResponse;
-import com.eihabitat.eihabitat_server.entity.User;
+import com.eihabitat.eihabitat_server.entity.Option;
 import com.eihabitat.eihabitat_server.entity.Vote;
-import com.eihabitat.eihabitat_server.entity.VoteRecord;
-import com.eihabitat.eihabitat_server.exception.AppException;
-import com.eihabitat.eihabitat_server.exception.ErrorCode;
 import com.eihabitat.eihabitat_server.mapper.VoteMapper;
-import com.eihabitat.eihabitat_server.repository.UserRepository;
-import com.eihabitat.eihabitat_server.repository.VoteRecordRepository;
+import com.eihabitat.eihabitat_server.repository.VoteOptionRepository;
 import com.eihabitat.eihabitat_server.repository.VoteRepository;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
+
 
 @Service
 @RequiredArgsConstructor
@@ -30,39 +26,49 @@ import java.util.stream.Collectors;
 @Slf4j
 public class VoteService {
     private VoteRepository voteRepository;
-    private VoteRecordRepository voteRecordRepository;
     private VoteMapper voteMapper;
-    UserRepository userRepository;
+    VoteOptionRepository voteOptionRepository;
+    VoteOptionRepository optionRepository;
 
     public VoteResponse createVote(VoteCreationReq voteRequestDto) {
-        Vote vote = voteMapper.toVote(voteRequestDto);
-        vote.setUserId(voteRequestDto.getUserId());
+        Vote vote = voteRepository.save(voteMapper.toVote(voteRequestDto));
         vote.setCreatedAt(LocalDateTime.now());
-        Vote savedVote = voteRepository.save(vote);
-        return voteMapper.toVoteResponse(savedVote);
-    }
-    public void castVote(VoteRecordReq voteRecordRequestDto) {
-        Vote vote = voteRepository.findById(voteRecordRequestDto.getVoteId())
-                .orElseThrow(() -> new IllegalArgumentException("Invalid vote ID"));
-
-        if (voteRecordRepository.existsByVoteIdAndUserId(vote.getId(), voteRecordRequestDto.getUserId())) {
-            throw new IllegalArgumentException("User has already voted for this topic");
+        List<String> options = new ArrayList<>();
+        for (OptionCreationReq optionCreationReq : voteRequestDto.getOptions()) {
+            Option o = voteMapper.toOption(optionCreationReq);
+            o.setVoteId(vote.getId());
+            voteOptionRepository.save(o);
+            options.add(optionCreationReq.getTitle());
         }
-
-        VoteRecord voteRecord = voteMapper.toVoteRecord(voteRecordRequestDto, voteRecordRequestDto.getUserId());
-        voteRecordRepository.save(voteRecord);
+        VoteResponse response = voteMapper.toVoteResponse(vote);
+        response.setOptions(options);
+        return response;
     }
 
-    public List<VoteRecordResponse> getVoteRecords(String voteId) {
-        List<VoteRecord> voteRecords = voteRecordRepository.findByVoteId(voteId);
+    public void castVote(VoteCastReq voteRecordRequestDto, String userId) {
+        Option option = optionRepository.findById(voteRecordRequestDto.getOptionId())
+                .orElseThrow(() -> new IllegalArgumentException("Invalid option ID"));
 
-        // Convert VoteRecord entities to VoteRecordResponseDto and return the list
-        return voteRecords.stream()
-                .map(voteRecord -> new VoteRecordResponse(
-                        voteRecord.getUserId(),
-                        voteRecord.getSelectedOption(),
-                        voteRecord.getVotedAt()
-                ))
-                .collect(Collectors.toList());
+        if (!option.getUserIds().contains(userId)) {
+            option.getUserIds().add(userId);
+            option.setNumberOfChoices(option.getNumberOfChoices() + 1);
+            // Calculate percentage (this might require additional logic depending on the total votes)
+            option.setPercentage(calculatePercentage(option.getNumberOfChoices(), option.getVoteId()));
+            optionRepository.save(option);
+        } else {
+            throw new IllegalArgumentException("User has already voted for this option");
+        }
+    }
+
+    private double calculatePercentage(int optionVotes, String voteId) {
+        // Fetch all options for this vote ID
+        List<Option> options = optionRepository.findByVoteId(voteId);
+
+        // Calculate the total votes across all options
+        int totalVotes = options.stream().mapToInt(Option::getNumberOfChoices).sum();
+
+        // Calculate the percentage for the specific option
+        return totalVotes > 0 ? ((double) optionVotes / totalVotes) * 100 : 0.0;
     }
 }
+
