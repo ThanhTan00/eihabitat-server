@@ -173,13 +173,22 @@ public class UserService {
         return userMapper.toUserResponse(user);
     }
 
-    public UserResponse getUserInfo(String userProfileName) {
+    public UserResponse getUserInfo(String userProfileName, String rootUser) {
         User user = userRepository.findByProfileName(userProfileName).orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
         List<UserFollowerResponse> listFollowers = userFollowService.getFollowers(user.getProfileName());
         List<UserFollowerResponse> listFollowing = userFollowService.getFollowing(user.getProfileName());
         UserResponse userResponse = userMapper.toUserResponse(user);
         userResponse.setFollowers(listFollowers.size());
         userResponse.setFollowing(listFollowing.size());
+        if (listFollowers.stream()
+                .anyMatch(person -> person.getProfileName().equalsIgnoreCase(rootUser)))
+        {
+            userResponse.setFollowedByMe(true);
+        }
+        if (listFollowing.stream().anyMatch(person -> person.getProfileName().equalsIgnoreCase(rootUser)))
+        {
+            userResponse.setFollowMe(true);
+        }
         return userResponse;
     }
 }

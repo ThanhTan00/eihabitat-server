@@ -69,10 +69,10 @@ public class UserController {
         return resp;
     }
 
-    @GetMapping("/{userProfileName}")
-    ApiResponse<UserResponse> getUserProfile(@PathVariable String userProfileName) {
+    @GetMapping("/{userProfileName}/{rootUser}")
+    ApiResponse<UserResponse> getUserProfile(@PathVariable String userProfileName, @PathVariable String rootUser) {
         ApiResponse<UserResponse> resp = new ApiResponse<>();
-        resp.setData(userService.getUserInfo(userProfileName));
+        resp.setData(userService.getUserInfo(userProfileName, rootUser));
         return resp;
     }
 

@@ -29,4 +29,6 @@ public class UserResponse {
     Set<Role> roles;
     int followers;
     int following;
+    boolean followMe=false;
+    boolean isFollowedByMe=false;
 }
