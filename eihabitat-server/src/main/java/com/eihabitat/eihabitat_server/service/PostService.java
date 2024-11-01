@@ -1,5 +1,6 @@
 package com.eihabitat.eihabitat_server.service;
 
+import com.eihabitat.eihabitat_server.S3Upload.S3Service;
 import com.eihabitat.eihabitat_server.dto.request.PostContentReq;
 import com.eihabitat.eihabitat_server.dto.request.PostCreationReq;
 import com.eihabitat.eihabitat_server.dto.request.PostUpdateReq;
@@ -16,15 +17,15 @@ import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Sort;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -38,21 +39,25 @@ public class PostService {
     UserLikePostRepository likePostRepo;
     UserFollowRepository userFollowRepo;
     PostMapper mapper;
+    S3Service s3Service;
 
-    public PostResponse createPost(PostCreationReq postRequest) throws Exception {
-        String email = SecurityContextHolder.getContext().getAuthentication().getName();
-
-        User user = userRepo.findByEmail(email).orElseThrow(() -> new AppException(ErrorCode.USER_NOT_EXISTED));
+    public PostResponse createPost(PostCreationReq postRequest, String userId) throws Exception {
+        User user = userRepo.findById(userId).orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
         Post post = mapper.toPost(postRequest);
-
         post.setAuthor(user);
         post.setCreatedAt(LocalDateTime.now());
 
         Post createdPost = postRepository.save(post);
-        for(PostContentReq p : postRequest.getPostContentReq()) {
+
+        for (MultipartFile p : postRequest.getPostContentReq()) {
+            // Upload image to S3 and get the URL
+            String s3Url = s3Service.uploadFile(p);
+
+            // Save PostContent with S3 URL
             postContentRepo.save(PostContent.builder()
-                    .imageId(p.getImageId())
+                    .imageId(p.getOriginalFilename())
                     .postId(createdPost.getId())
+                    .s3Url(s3Url)  // Set the S3 URL here
                     .build());
         }
         return findPostById(createdPost.getId(), user.getId());
@@ -77,7 +82,7 @@ public class PostService {
 
         Set<PostContentResponse> postContentResponseSet = new HashSet<>();
 
-        for(PostContent postContent : postContentSet) {
+        for (PostContent postContent : postContentSet) {
             postContentResponseSet.add(mapper.toPostContentResponse(postContent));
         }
         PostResponse postResponse = mapper.toPostResponse(opt);

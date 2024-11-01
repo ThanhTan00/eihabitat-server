@@ -20,11 +20,11 @@ import java.util.Set;
 public class PostController {
     PostService postService;
 
-    @PostMapping
-    public ApiResponse<PostResponse> createPost(@RequestBody PostCreationReq postRequest) throws Exception {
-        ApiResponse resp = new ApiResponse();
+    @PostMapping("/{userId}")
+    public ApiResponse<PostResponse> createPost(@PathVariable String userId, @ModelAttribute PostCreationReq postRequest) throws Exception {
+        ApiResponse<PostResponse> resp = new ApiResponse<>();
         resp.setCode(1000);
-        resp.setData(postService.createPost(postRequest));
+        resp.setData(postService.createPost(postRequest, userId));
         return resp;
     }
     @PutMapping("/update/{postId}")

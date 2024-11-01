@@ -1,7 +1,9 @@
 package com.eihabitat.eihabitat_server.dto.request;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.util.List;
 import java.util.Set;
 
 @Data
@@ -11,4 +13,7 @@ import java.util.Set;
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class PostContentReq {
     String imageId;
+    private MultipartFile imageFile;
 }
+
+

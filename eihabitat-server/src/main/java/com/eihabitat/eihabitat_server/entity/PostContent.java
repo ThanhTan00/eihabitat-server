@@ -13,8 +13,7 @@ public class PostContent {
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
     String id;
-
     String imageId;
-
     String postId;
+    private String s3Url;
 }
