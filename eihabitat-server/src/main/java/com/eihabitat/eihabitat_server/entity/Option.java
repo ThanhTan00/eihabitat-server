@@ -5,6 +5,7 @@ import lombok.experimental.FieldDefaults;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Data
@@ -18,7 +19,7 @@ public class Option {
     String id;
     String optionTitle;
     String voteId;
-    List<String> userIds = null;
+    List<String> userIds = new ArrayList<>();
     int numberOfChoices = 0;
     double percentage = 0.0;
 }

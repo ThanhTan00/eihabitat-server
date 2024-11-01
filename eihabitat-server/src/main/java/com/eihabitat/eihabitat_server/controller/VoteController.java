@@ -18,11 +18,11 @@ import org.springframework.web.bind.annotation.*;
 public class VoteController {
     private VoteService voteService;
 
-    @PostMapping("/create")
-    public ApiResponse<VoteResponse> createVote(@RequestBody VoteCreationReq voteRequestDto) {
+    @PostMapping("/create/{userId}")
+    public ApiResponse<VoteResponse> createVote(@RequestBody VoteCreationReq voteRequestDto, @PathVariable String userId) {
         ApiResponse resp = new ApiResponse();
         resp.setCode(1000);
-        resp.setData(voteService.createVote(voteRequestDto));
+        resp.setData(voteService.createVote(voteRequestDto, userId));
         return resp;
     }
 
@@ -31,4 +31,11 @@ public class VoteController {
         voteService.castVote(voteCastRequestDto, userId);
         return "Vote successfully cast!";
     }
+
+    @DeleteMapping("/delete")
+    public String deleteVoteCast(@RequestBody VoteCastReq voteCastRequestDto, @RequestParam String userId) {
+        voteService.deleteVoteCast(voteCastRequestDto, userId);
+        return "Vote successfully deleted!";
+    }
+
 }

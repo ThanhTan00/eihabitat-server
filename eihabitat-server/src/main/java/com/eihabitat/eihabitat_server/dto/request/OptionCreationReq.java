@@ -11,5 +11,4 @@ import lombok.experimental.FieldDefaults;
 public class OptionCreationReq {
     String title;
     String voteId;
-    String optionId;
 }
