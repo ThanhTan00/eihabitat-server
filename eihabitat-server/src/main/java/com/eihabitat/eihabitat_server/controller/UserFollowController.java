@@ -26,7 +26,7 @@ public class UserFollowController {
         return resp;
     }
 
-    @DeleteMapping
+    @PostMapping("/unfollow")
     public ApiResponse<String> unfollowUser(@RequestBody UserFollowReq requestDto) {
         ApiResponse resp = new ApiResponse();
         resp.setCode(1000);

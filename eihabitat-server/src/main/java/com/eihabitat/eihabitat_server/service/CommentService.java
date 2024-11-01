@@ -34,10 +34,9 @@ public class CommentService {
     UserRepository userRepository;
     CommentMapper commentMapper;
 
-    public CommentResponse addComment(CommentCreationReq data) {
+    public CommentResponse addComment(CommentCreationReq data, String userID) {
         var context = SecurityContextHolder.getContext();
-        String email = context.getAuthentication().getName();
-        User user = userRepository.findByEmail(email).orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
+        User user = userRepository.findById(userID).orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
 
         Comment comment = commentMapper.toComment(data);
         comment.setPostId(data.getPostId());

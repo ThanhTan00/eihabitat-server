@@ -1,5 +1,6 @@
 package com.eihabitat.eihabitat_server.service;
 
+import com.eihabitat.eihabitat_server.S3Upload.S3Service;
 import com.eihabitat.eihabitat_server.dto.request.PostContentReq;
 import com.eihabitat.eihabitat_server.dto.request.PostCreationReq;
 import com.eihabitat.eihabitat_server.dto.request.PostUpdateReq;
@@ -18,6 +19,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Sort;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -38,20 +40,23 @@ public class PostService {
     UserLikePostRepository likePostRepo;
     UserFollowRepository userFollowRepo;
     PostMapper mapper;
+    S3Service s3Service;
 
-    public PostResponse createPost(PostCreationReq postRequest) throws Exception {
-        String email = SecurityContextHolder.getContext().getAuthentication().getName();
+    public PostResponse createPost(String caption, String userId, List<MultipartFile> files) throws Exception {
+        User user = userRepo.findById(userId).orElseThrow(() -> new AppException(ErrorCode.USER_NOT_EXISTED));
 
-        User user = userRepo.findByEmail(email).orElseThrow(() -> new AppException(ErrorCode.USER_NOT_EXISTED));
-        Post post = mapper.toPost(postRequest);
-
-        post.setAuthor(user);
-        post.setCreatedAt(LocalDateTime.now());
+        Post post = new Post().builder()
+                .caption(caption)
+                .type("image")
+                .createdAt(LocalDateTime.now())
+                .author(user)
+                .build();
 
         Post createdPost = postRepository.save(post);
-        for(PostContentReq p : postRequest.getPostContentReq()) {
+        for(MultipartFile image : files) {
+            String link = s3Service.uploadFile(image, createdPost.getId()+image.getOriginalFilename());
             postContentRepo.save(PostContent.builder()
-                    .imageId(p.getImageId())
+                    .imageId(link)
                     .postId(createdPost.getId())
                     .build());
         }
@@ -133,6 +138,7 @@ public class PostService {
             listPostResponse.add(
                     PostOnPersonalWallResponse.builder()
                             .id(post.getId())
+                            .createdAt(post.getCreatedAt())
                             .representImage(postContents.getFirst().getImageId())
                             .numberOfLikes(userLikePosts.size())
                             .numberOfComments(comments.size())

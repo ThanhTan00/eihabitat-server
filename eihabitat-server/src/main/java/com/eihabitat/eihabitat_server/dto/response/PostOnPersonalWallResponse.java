@@ -11,6 +11,7 @@ import java.time.LocalDateTime;
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class PostOnPersonalWallResponse {
     String id;
+    LocalDateTime createdAt;
     String representImage;
     int numberOfLikes;
     int numberOfComments;

@@ -17,7 +17,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.File;
+import java.io.IOException;
 import java.util.List;
 
 @RestController
@@ -53,6 +56,14 @@ public class UserController {
     ApiResponse<UserResponse> updateUser(@RequestBody UserUpdateReq req) {
         ApiResponse<UserResponse> resp = new ApiResponse<>();
         resp.setData(userService.updateUser( req));
+        return resp;
+    }
+
+    @PostMapping("avatar/{userId}")
+    ApiResponse<String> updateUserAvatar(@PathVariable String userId, @RequestBody MultipartFile image) throws IOException {
+        ApiResponse<String> resp = new ApiResponse<>();
+        resp.setCode(1000);
+        resp.setMessage(userService.updateAvatar(userId, image));
         return resp;
     }
 

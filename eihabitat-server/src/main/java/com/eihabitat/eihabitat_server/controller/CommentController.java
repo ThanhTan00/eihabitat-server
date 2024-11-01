@@ -25,11 +25,11 @@ import java.util.UUID;
 public class CommentController {
     CommentService commentService;
 
-    @PostMapping()
-    public ApiResponse<CommentResponse> addComment(@RequestBody CommentCreationReq commentCreationReq) {
+    @PostMapping("/{userId}")
+    public ApiResponse<CommentResponse> addComment(@PathVariable String userId, @RequestBody CommentCreationReq commentCreationReq) {
         ApiResponse resp = new ApiResponse();
         resp.setCode(1000);
-        resp.setData(commentService.addComment(commentCreationReq));
+        resp.setData(commentService.addComment(commentCreationReq, userId));
         return resp;
     }
 

@@ -17,8 +17,7 @@ public class S3Service {
 
     private final S3Client s3Client;
 
-    public String uploadFile(MultipartFile file) throws IOException {
-        String keyName = file.getOriginalFilename();  // Set file name as the key
+    public String uploadFile(MultipartFile file, String keyName) throws IOException {
 
         // Create a PutObjectRequest
         String bucketName = "user-post";

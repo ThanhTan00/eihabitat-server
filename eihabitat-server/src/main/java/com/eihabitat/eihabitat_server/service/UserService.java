@@ -1,5 +1,6 @@
 package com.eihabitat.eihabitat_server.service;
 
+import com.eihabitat.eihabitat_server.S3Upload.S3Service;
 import com.eihabitat.eihabitat_server.dto.request.UserCreationReq;
 import com.eihabitat.eihabitat_server.dto.request.UserUpdateReq;
 import com.eihabitat.eihabitat_server.dto.response.UserDemoResponse;
@@ -15,10 +16,13 @@ import com.eihabitat.eihabitat_server.repository.EmailConfirmationRepository;
 import com.eihabitat.eihabitat_server.repository.RoleRepository;
 import com.eihabitat.eihabitat_server.repository.UserRepository;
 
+import java.io.File;
+import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.*;
 
 import jakarta.mail.MessagingException;
+import jakarta.mail.Multipart;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
@@ -30,6 +34,7 @@ import org.springframework.security.crypto.keygen.BytesKeyGenerator;
 import org.springframework.security.crypto.keygen.KeyGenerators;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.nio.charset.Charset;
 import java.time.LocalDate;
@@ -47,6 +52,7 @@ public class UserService {
     RoleRepository roleRepository;
     UserFollowService userFollowService;
     EmailService emailService;
+    S3Service s3Service;
     BytesKeyGenerator DEFAULT_TOKEN_GENERATOR = KeyGenerators.secureRandom(15);
     Charset US_ASCII = StandardCharsets.US_ASCII;
 
@@ -191,4 +197,13 @@ public class UserService {
         }
         return userResponse;
     }
+
+    public String updateAvatar(String userId, MultipartFile image) throws IOException {
+        User user = userRepository.findById(userId).orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
+        String date = LocalDate.now().toString();
+        user.setProfileAvatar(s3Service.uploadFile(image, userId+date+".jpg"));
+        userRepository.save(user);
+        return user.getProfileAvatar();
+    }
+
 }

@@ -18,16 +18,16 @@ public class S3Controller {
 
     private final S3Service s3Service;
 
-    @PostMapping("/upload")
-    public ResponseEntity<String> uploadFile(@RequestParam("file") MultipartFile file) {
-        try {
-            // Upload file and return the URL
-            String fileUrl = s3Service.uploadFile(file);
-            return ResponseEntity.ok(fileUrl);
-        } catch (Exception e) {
-            return ResponseEntity.status(500).body("Failed to upload file: " + e.getMessage());
-        }
-    }
+//    @PostMapping("/upload")
+//    public ResponseEntity<String> uploadFile(@RequestParam("file") MultipartFile file) {
+//        try {
+//            // Upload file and return the URL
+//            String fileUrl = s3Service.uploadFile(file);
+//            return ResponseEntity.ok(fileUrl);
+//        } catch (Exception e) {
+//            return ResponseEntity.status(500).body("Failed to upload file: " + e.getMessage());
+//        }
+//    }
 
 //    @GetMapping("/download/{fileName}")
 //    public ResponseEntity<byte[]> downloadFile(@PathVariable String fileName) throws IOException {

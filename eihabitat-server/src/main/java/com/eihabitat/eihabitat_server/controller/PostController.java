@@ -10,7 +10,9 @@ import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.util.List;
 import java.util.Set;
 
 @RestController
@@ -20,11 +22,12 @@ import java.util.Set;
 public class PostController {
     PostService postService;
 
-    @PostMapping
-    public ApiResponse<PostResponse> createPost(@RequestBody PostCreationReq postRequest) throws Exception {
+    @PostMapping("/{userId}")
+    public ApiResponse<PostResponse> createPost(@PathVariable String userId, @RequestParam("caption") String caption,
+                                                @RequestParam("images") List<MultipartFile> files) throws Exception {
         ApiResponse resp = new ApiResponse();
         resp.setCode(1000);
-        resp.setData(postService.createPost(postRequest));
+        resp.setData(postService.createPost(caption, userId, files));
         return resp;
     }
     @PutMapping("/update/{postId}")
