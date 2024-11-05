@@ -4,6 +4,7 @@ import com.eihabitat.eihabitat_server.entity.Post;
 import com.eihabitat.eihabitat_server.entity.User;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
 import java.util.List;
@@ -14,6 +15,9 @@ public interface PostRepository extends JpaRepository<Post, String> {
     public Set<Post> findAllByAuthorId(String authorId);
     public Set<Post> findAllByAuthorProfileName(Sort sort, String authorId);
     public Set<Post> findAllByAuthorIdIn(Set<String> authorIds);
+
+//    @Query("SELECT p.id FROM Post p WHERE p.author.id IN :authorIds")
+//    List<String> findPostIdsByAuthorIdIn()
 //
 //    public List<Post> findAllPostByUserIds(@Param("users") List<String> userIds);
 //

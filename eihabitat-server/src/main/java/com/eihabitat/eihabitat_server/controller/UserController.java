@@ -38,6 +38,16 @@ public class UserController {
         resp.setData(userService.confirmEmail(req));
         return resp;
     }
+    @PostMapping("/testCreateUser")
+    ApiResponse<UserResponse> createTestUser(@RequestBody @Valid UserCreationReq req) throws MessagingException {
+        ApiResponse<UserResponse> resp = new ApiResponse<>();
+        resp.setCode(2000);
+        if (userService.createUser(req)) {
+            resp.setCode(1000);
+            resp.setData(userService.getUserInfo(req.getProfileName(), "lnt.Tan00"));
+        }
+        return resp;
+    }
 
     @GetMapping
     ApiResponse<List<UserResponse>>  getUsers() {

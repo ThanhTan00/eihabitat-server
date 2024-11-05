@@ -38,7 +38,7 @@ import java.util.Arrays;
 @EnableMethodSecurity
 public class SecurityConfig {
 
-    private final String[] PUBLIC_ENDPOINT = {"/login/oauth2/code/google","/oauth2/authorization/google","/users","/auth/token","/auth/introspect", "/auth/logout", "/auth/refresh", "/auth/loginWithGoogle", "/ws/**","/users/demo/**"};
+    private final String[] PUBLIC_ENDPOINT = {"/login/oauth2/code/google","/oauth2/authorization/google","/users","/auth/token","/auth/introspect", "/auth/logout", "/auth/refresh", "/auth/loginWithGoogle", "/ws/**","/users/demo/**", "/users/testCreateUser"};
 
     private CustomJwtDecoder customJwtDecoder;
 

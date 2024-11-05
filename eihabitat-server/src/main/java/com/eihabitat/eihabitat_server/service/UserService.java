@@ -103,7 +103,7 @@ public class UserService {
         user.setSignupDate(LocalDate.now());
 
         // Save the user to the database before sending the email
-        user = userRepository.save(user);
+        userRepository.save(user);
 
         // Return the UserResponse object
         return true;
