@@ -30,5 +30,5 @@ public class UserResponse {
     int followers;
     int following;
     boolean followMe=false;
-    boolean isFollowedByMe=false;
+    boolean followedByMe=false;
 }

@@ -181,8 +181,8 @@ public class UserService {
 
     public UserResponse getUserInfo(String userProfileName, String rootUser) {
         User user = userRepository.findByProfileName(userProfileName).orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
-        List<UserFollowerResponse> listFollowers = userFollowService.getFollowers(user.getProfileName());
-        List<UserFollowerResponse> listFollowing = userFollowService.getFollowing(user.getProfileName());
+        List<UserFollowerResponse> listFollowers = userFollowService.getFollowers(user.getProfileName(), rootUser);
+        List<UserFollowerResponse> listFollowing = userFollowService.getFollowing(user.getProfileName(), rootUser);
         UserResponse userResponse = userMapper.toUserResponse(user);
         userResponse.setFollowers(listFollowers.size());
         userResponse.setFollowing(listFollowing.size());

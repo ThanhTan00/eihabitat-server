@@ -2,6 +2,7 @@ package com.eihabitat.eihabitat_server.controller;
 
 import com.eihabitat.eihabitat_server.dto.request.ApiResponse;
 import com.eihabitat.eihabitat_server.dto.request.UserFollowReq;
+import com.eihabitat.eihabitat_server.dto.response.UserFollowerResponse;
 import com.eihabitat.eihabitat_server.dto.response.UserResponse;
 import com.eihabitat.eihabitat_server.service.UserFollowService;
 import lombok.AccessLevel;
@@ -34,19 +35,19 @@ public class UserFollowController {
         return resp;
     }
 
-    @GetMapping("/{username}/followers")
-    public ApiResponse<List<UserResponse>> getFollowers(@PathVariable String username) {
+    @GetMapping("/{username}/followers/{rootUserId}")
+    public ApiResponse<List<UserFollowerResponse>> getFollowers(@PathVariable String username, @PathVariable String rootUserId) {
         ApiResponse resp = new ApiResponse();
         resp.setCode(1000);
-        resp.setData(followService.getFollowers(username));
+        resp.setData(followService.getFollowers(username, rootUserId));
         return resp;
     }
 
-    @GetMapping("/{username}/following")
-    public ApiResponse<List<UserResponse>> getFollowing(@PathVariable String username) {
+    @GetMapping("/{username}/following/{rootUserId}")
+    public ApiResponse<List<UserResponse>> getFollowing(@PathVariable String username, @PathVariable String rootUserId) {
         ApiResponse resp = new ApiResponse();
         resp.setCode(1000);
-        resp.setData(followService.getFollowing(username));
+        resp.setData(followService.getFollowing(username, rootUserId));
         return resp;
     }
 }

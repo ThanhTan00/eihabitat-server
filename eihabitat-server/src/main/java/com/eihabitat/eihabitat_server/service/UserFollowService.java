@@ -49,7 +49,7 @@ public class UserFollowService {
         return "User: " + requestDto.getFollowedId() +"successfully unfollowed by " + userFollow.getFollowerId();
     }
 
-    public List<UserFollowerResponse> getFollowers(String profileName) {
+    public List<UserFollowerResponse> getFollowers(String profileName, String rootUserId) {
         User user = userRepository.findByProfileName(profileName)
                 .orElseThrow(() -> new RuntimeException("User not found"));
         List<UserFollow> follows = userFollowRepository.findByFollowedId(user.getId());
@@ -57,12 +57,19 @@ public class UserFollowService {
         for (UserFollow userFollow : follows) {
             User follower = userRepository.findById(userFollow.getFollowerId())
                     .orElseThrow(() -> new RuntimeException("User not found"));
-            userFollowerResponses.add(userFollowMapper.toUserFollowerResponse(follower));
+            UserFollowerResponse u = userFollowMapper.toUserFollowerResponse(follower);
+            if (userFollowRepository.existsByFollowerIdAndFollowedId(rootUserId, follower.getId())){
+                u.setFollowedByMe(true);
+            }
+            if (userFollowRepository.existsByFollowerIdAndFollowedId(follower.getId(), rootUserId)) {
+                u.setFollowMe(true);
+            }
+            userFollowerResponses.add(u);
         }
         return userFollowerResponses;
     }
 
-    public List<UserFollowerResponse> getFollowing(String profileName) {
+    public List<UserFollowerResponse> getFollowing(String profileName, String rootUserId) {
         User user = userRepository.findByProfileName(profileName)
                 .orElseThrow(() -> new RuntimeException("User not found"));
         List<UserFollow> follows = userFollowRepository.findByFollowerId(user.getId());
@@ -70,7 +77,14 @@ public class UserFollowService {
         for (UserFollow userFollow : follows) {
             User follower = userRepository.findById(userFollow.getFollowedId())
                     .orElseThrow(() -> new RuntimeException("User not found"));
-            userFollowingResponses.add(userFollowMapper.toUserFollowerResponse(follower));
+            UserFollowerResponse u = userFollowMapper.toUserFollowerResponse(follower);
+            if (userFollowRepository.existsByFollowerIdAndFollowedId(rootUserId, follower.getId())){
+                u.setFollowedByMe(true);
+            }
+            if (userFollowRepository.existsByFollowerIdAndFollowedId(follower.getId(), rootUserId)) {
+                u.setFollowMe(true);
+            }
+            userFollowingResponses.add(u);
         }
         return userFollowingResponses;
     }
