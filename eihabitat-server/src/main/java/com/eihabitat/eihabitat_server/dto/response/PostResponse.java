@@ -21,6 +21,7 @@ public class PostResponse {
     LocalDateTime createdAt;
     String authorProfileName;
     String authorProfileAvatar;
+    String authorUrl;
     Set<PostContentResponse> postContentSet;
     int numberOfComments;
     int numberOfLikes;

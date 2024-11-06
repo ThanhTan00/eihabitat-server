@@ -22,10 +22,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -112,6 +109,7 @@ public class PostService {
         postResponse.setPostContentSet(postContentResponseSet);
         postResponse.setAuthorProfileName(author.getProfileName());
         postResponse.setAuthorProfileAvatar(author.getProfileAvatar());
+        postResponse.setAuthorUrl(author.getUserUrl());
 //        postResponse.setCommentSet(commentResponseSet);
         postResponse.setNumberOfLikes(userLikePosts.size());
         return postResponse;
@@ -156,19 +154,20 @@ public class PostService {
         return "Deleted post successfully";
     }
 
-    public Set<PostResponse> findAllNewsFeedPosts(String rootUserId) throws Exception {
+    public List<PostResponse> findAllNewsFeedPosts(String rootUserId) throws Exception {
         List<UserFollow> followeds = userFollowRepo.findByFollowerId(rootUserId);
         Set<String> followedIds = new HashSet<>();
         for (UserFollow userFollow : followeds) {
             followedIds.add(userFollow.getFollowedId());
         }
         followedIds.add(rootUserId);
-        Set<Post> listPost = postRepository.findAllByAuthorIdIn(followedIds);
-        Set<PostResponse> listPostResponse = new HashSet<>();
+        List<Post> listPost = postRepository.findAllByAuthorIdIn(followedIds);
+        List<PostResponse> listPostResponse = new ArrayList<>();
         for (Post post : listPost) {
             PostResponse postResponse = findPostById(post.getId(), rootUserId);
             listPostResponse.add(postResponse);
         }
+        listPostResponse.sort((post1, post2) -> post2.getCreatedAt().compareTo(post1.getCreatedAt()));
 
         return listPostResponse;
     }

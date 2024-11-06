@@ -24,6 +24,7 @@ public class UserResponse {
     String address;
     String gender;
     String bio;
+    String userUrl;
     LocalDate dateOfBirth;
     String nationality;
     Set<Role> roles;

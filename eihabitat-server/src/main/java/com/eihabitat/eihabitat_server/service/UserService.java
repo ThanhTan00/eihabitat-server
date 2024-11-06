@@ -94,6 +94,7 @@ public class UserService {
         User user = userMapper.toUser(request);
         user.setPassword(passwordEncoder.encode(user.getPassword()));
         user.setProfileAvatar("asset/images/default-avatar.png");
+        user.setUserUrl("http://localhost:3000/"+request.getProfileName());
         // Retrieve the role and set it to the user
         Role userRole = roleRepository.findById("USER")
                 .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
@@ -163,6 +164,7 @@ public class UserService {
         var context = SecurityContextHolder.getContext();
         String email = context.getAuthentication().getName();
         User user = userRepository.findByEmail(email).orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
+        user.setUserUrl("http://localhost:3000/"+req.getProfileName());
         userMapper.updateUser(user, req);
         return userMapper.toUserResponse(userRepository.save(user));
     }

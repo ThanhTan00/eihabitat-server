@@ -16,6 +16,7 @@ public class UserFollowerResponse {
     String profileAvatar;
     String firstName;
     String lastName;
+    String userUrl;
     int followers;
     int following;
     boolean followMe=false;

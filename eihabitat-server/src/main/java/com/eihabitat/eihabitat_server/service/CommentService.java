@@ -47,6 +47,7 @@ public class CommentService {
         CommentResponse commentResponse = commentMapper.toCommentResponse(commentRepository.save(comment));
         commentResponse.setOwnerProfileName(user.getProfileName());
         commentResponse.setOwnerAvatar(user.getProfileAvatar());
+        commentResponse.setOwnerUrl(user.getUserUrl());
 
         return commentResponse;
     }
@@ -66,6 +67,7 @@ public class CommentService {
             User u = userRepository.findById(comment.getOwnerId()).orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
             commentResponse.setOwnerAvatar(u.getProfileAvatar());
             commentResponse.setOwnerProfileName(u.getProfileName());
+            commentResponse.setOwnerUrl(u.getUserUrl());
             commentResponses.add(commentResponse);
         }
         return commentResponses;

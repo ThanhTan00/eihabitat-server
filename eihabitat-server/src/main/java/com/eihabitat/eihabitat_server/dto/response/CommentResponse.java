@@ -22,5 +22,6 @@ public class CommentResponse {
     String content;
     String ownerProfileName;
     String ownerAvatar;
+    String ownerUrl;
     LocalDateTime creationDate;
 }
