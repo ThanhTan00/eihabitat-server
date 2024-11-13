@@ -64,6 +64,7 @@ public class UserFollowService {
             if (userFollowRepository.existsByFollowerIdAndFollowedId(follower.getId(), rootUserId)) {
                 u.setFollowMe(true);
             }
+            u.setUserUrl(follower.getUserUrl());
             userFollowerResponses.add(u);
         }
         return userFollowerResponses;
@@ -84,6 +85,7 @@ public class UserFollowService {
             if (userFollowRepository.existsByFollowerIdAndFollowedId(follower.getId(), rootUserId)) {
                 u.setFollowMe(true);
             }
+            u.setUserUrl(follower.getUserUrl());
             userFollowingResponses.add(u);
         }
         return userFollowingResponses;
