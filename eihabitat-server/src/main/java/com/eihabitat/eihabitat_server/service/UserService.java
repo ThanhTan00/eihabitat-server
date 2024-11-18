@@ -154,12 +154,6 @@ public class UserService {
         return userMapper.toUserDemoResponse(userRepository.findByEmail(email).orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND)));
     }
 
-    @PostAuthorize("returnObject.email == authentication.name")
-    public UserResponse getUser(String id) {
-        log.info("Getting user with id {}", id);
-        return userMapper.toUserResponse(userRepository.findById(id).orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND)));
-    }
-
     public UserResponse updateUser(UserUpdateReq req) {
         var context = SecurityContextHolder.getContext();
         String email = context.getAuthentication().getName();

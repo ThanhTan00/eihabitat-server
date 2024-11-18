@@ -2,8 +2,10 @@ package com.eihabitat.eihabitat_server.mapper;
 
 import com.eihabitat.eihabitat_server.dto.request.CommentCreationReq;
 import com.eihabitat.eihabitat_server.dto.request.CommentUpdateReq;
+import com.eihabitat.eihabitat_server.dto.request.LikeCommentRequest;
 import com.eihabitat.eihabitat_server.dto.response.CommentResponse;
 import com.eihabitat.eihabitat_server.entity.Comment;
+import com.eihabitat.eihabitat_server.entity.LikeComment;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.MappingTarget;
@@ -17,4 +19,6 @@ public interface CommentMapper {
     void updateComment(@MappingTarget Comment comment, CommentUpdateReq request);
 
     CommentResponse toCommentResponse(Comment comment);
+
+    LikeComment toLikeComment(LikeCommentRequest comment);
 }

@@ -2,6 +2,7 @@ package com.eihabitat.eihabitat_server.service;
 
 import com.eihabitat.eihabitat_server.dto.request.CommentCreationReq;
 import com.eihabitat.eihabitat_server.dto.request.CommentUpdateReq;
+import com.eihabitat.eihabitat_server.dto.request.LikeCommentRequest;
 import com.eihabitat.eihabitat_server.dto.response.CommentResponse;
 import com.eihabitat.eihabitat_server.entity.Comment;
 import com.eihabitat.eihabitat_server.entity.Post;
@@ -10,6 +11,7 @@ import com.eihabitat.eihabitat_server.exception.AppException;
 import com.eihabitat.eihabitat_server.exception.ErrorCode;
 import com.eihabitat.eihabitat_server.mapper.CommentMapper;
 import com.eihabitat.eihabitat_server.repository.CommentRepository;
+import com.eihabitat.eihabitat_server.repository.LikeCommentRepository;
 import com.eihabitat.eihabitat_server.repository.PostRepository;
 import com.eihabitat.eihabitat_server.repository.UserRepository;
 import lombok.AccessLevel;
@@ -30,7 +32,7 @@ import java.util.Set;
 @Slf4j
 public class CommentService {
     CommentRepository commentRepository;
-    PostRepository postRepository;
+    LikeCommentRepository likeCommentRepository;
     UserRepository userRepository;
     CommentMapper commentMapper;
 
@@ -71,5 +73,18 @@ public class CommentService {
             commentResponses.add(commentResponse);
         }
         return commentResponses;
+    }
+
+    public String likeComment(LikeCommentRequest  request){
+        if (likeCommentRepository.existsByCommentIdAndUserId(request.getCommentId(), request.getUserId())) {
+            unlikeComment(request);
+            return "Comment unliked!";
+        }
+        likeCommentRepository.save(commentMapper.toLikeComment(request));
+        return "Comment liked!";
+    }
+
+    public void unlikeComment(LikeCommentRequest  request){
+        likeCommentRepository.deleteAllByCommentIdAndUserId(request.getCommentId(), request.getUserId());
     }
 }

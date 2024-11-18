@@ -77,31 +77,6 @@ public class AuthenticationService {
                 .build();
     }
 
-//    public String loginWithGoogle(OAuth2AuthenticationToken token) {
-//        String userEmail = token.getPrincipal().getAttribute("email");
-//        Optional<User> user = userRepository.findByEmail(userEmail);
-//        if(user.isPresent()){
-//            User getUser = user.get();
-//            return generateToken(getUser);
-//        }
-//        User newUser = new User().builder()
-//                .email(userEmail)
-//                .firstName(token.getPrincipal().getAttribute("family_name"))
-//                .lastName(token.getPrincipal().getAttribute("given_name"))
-//                .profileAvatar(token.getPrincipal().getAttribute("picture"))
-//                .account_verified(true)
-//                .profileName(userEmail)
-//                .signupDate(LocalDate.now())
-//                .build();
-//        Role userRole = roleRepository.findById("USER").orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
-//        HashSet<Role> userRoles = new HashSet<>();
-//
-//        userRoles.add(userRole);
-//        newUser.setRoles(userRoles);
-//        userRepository.save(newUser);
-//        return generateToken(newUser);
-//    }
-
     public AuthenticationResponse authenticate(AuthenticationReq authenticationReq) {
 
         PasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
@@ -163,6 +138,36 @@ public class AuthenticationService {
         return signedJWT;
     }
 
+    public AuthenticationResponse authenticateWithGG(String email, String token) throws JOSEException, ParseException {
+        boolean isValid = true;
+        SignedJWT signToken=null;
+        try {
+            signToken = verifyToken(token);
+        } catch (AppException e) {
+            isValid = false;
+        }
+
+        if (isValid) {
+            String jit = signToken.getJWTClaimsSet().getJWTID();
+            Date expiryTime = signToken.getJWTClaimsSet().getExpirationTime();
+
+            InvalidatedToken invalidatedToken = InvalidatedToken.builder()
+                    .id(jit)
+                    .expiryTime(expiryTime)
+                    .build();
+
+            invalidatedTokenRepository.save(invalidatedToken);
+
+            User user = userRepository.findByEmail(email).orElseThrow(() -> new AppException(ErrorCode.USER_NOT_EXISTED));
+            var newToken = generateToken(user);
+            return AuthenticationResponse.builder()
+                    .token(newToken)
+                    .authenticated(true)
+                    .build();
+        }
+        return null;
+    }
+
     public AuthenticationResponse refreshToken(RefreshRequest request) 
             throws JOSEException, ParseException {
 
@@ -192,7 +197,7 @@ public class AuthenticationService {
 
     }
 
-    private String generateToken(User user) {
+    public String generateToken(User user) {
         JWSHeader header = new JWSHeader(JWSAlgorithm.HS512);
 
         JWTClaimsSet jwtClaimsSet = new JWTClaimsSet.Builder()

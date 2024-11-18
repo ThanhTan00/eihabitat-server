@@ -41,6 +41,15 @@ public class AuthenticationController {
                .build();
     }
 
+    @PostMapping("/loginWithGG/{email}/{token}")
+    ApiResponse<AuthenticationResponse> loginWithGG(@PathVariable String email, @PathVariable String token) throws ParseException, JOSEException {
+        var result =  authenticationService.authenticateWithGG(email,token);
+        return ApiResponse.<AuthenticationResponse>builder()
+                .code(1000)
+                .data(result)
+                .build();
+    }
+
     @PostMapping("/introspect")
     ApiResponse<IntrospectResponse> introspect(@RequestBody IntrospectReq request) throws ParseException, JOSEException {
         var result = authenticationService.introspect(request);

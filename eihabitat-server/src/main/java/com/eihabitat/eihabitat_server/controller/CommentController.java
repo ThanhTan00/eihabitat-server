@@ -1,9 +1,6 @@
 package com.eihabitat.eihabitat_server.controller;
 
-import com.eihabitat.eihabitat_server.dto.request.ApiResponse;
-import com.eihabitat.eihabitat_server.dto.request.CommentCreationReq;
-import com.eihabitat.eihabitat_server.dto.request.CommentUpdateReq;
-import com.eihabitat.eihabitat_server.dto.request.PostUpdateReq;
+import com.eihabitat.eihabitat_server.dto.request.*;
 import com.eihabitat.eihabitat_server.dto.response.CommentResponse;
 import com.eihabitat.eihabitat_server.dto.response.PostResponse;
 import com.eihabitat.eihabitat_server.service.CommentService;
@@ -49,6 +46,14 @@ public class CommentController {
         ApiResponse resp = new ApiResponse();
         resp.setCode(1000);
         resp.setData(commentService.updateComment(commentId, commentRequest));
+        return resp;
+    }
+
+    @PostMapping("/like")
+    public ApiResponse<String> like(@RequestBody LikeCommentRequest request) {
+        ApiResponse resp = new ApiResponse();
+        resp.setCode(1000);
+        resp.setData(commentService.likeComment(request));
         return resp;
     }
 }

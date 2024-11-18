@@ -1,11 +1,21 @@
 package com.eihabitat.eihabitat_server.configuration;
 
+import com.eihabitat.eihabitat_server.dto.response.UserResponse;
+import com.eihabitat.eihabitat_server.entity.User;
+import com.eihabitat.eihabitat_server.exception.AppException;
+import com.eihabitat.eihabitat_server.exception.ErrorCode;
+import com.eihabitat.eihabitat_server.repository.UserRepository;
 import com.eihabitat.eihabitat_server.service.AuthenticationService;
+import com.nimbusds.jose.*;
+import com.nimbusds.jose.crypto.MACSigner;
+import com.nimbusds.jwt.JWTClaimsSet;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.annotation.Order;
@@ -31,19 +41,24 @@ import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 import org.springframework.web.filter.CorsFilter;
 
 import java.io.IOException;
+import java.time.Instant;
+import java.time.temporal.ChronoUnit;
 import java.util.Arrays;
+import java.util.Date;
+import java.util.UUID;
 
 @Configuration
 @EnableWebSecurity
 @EnableMethodSecurity
+@Slf4j
 public class SecurityConfig {
 
-    private final String[] PUBLIC_ENDPOINT = {"/login/oauth2/code/google","/oauth2/authorization/google","/users","/auth/token","/auth/introspect", "/auth/logout", "/auth/refresh", "/auth/loginWithGoogle", "/ws/**","/users/demo/**", "/users/testCreateUser"};
+    private final String[] PUBLIC_ENDPOINT = {"/login/oauth2/code/google","/oauth2/authorization/google","/users","/auth/token","/auth/introspect", "/auth/logout", "/auth/refresh", "/auth/loginWithGG/**", "/ws/**","/users/demo/**", "/users/testCreateUser"};
 
     private CustomJwtDecoder customJwtDecoder;
 
-    @Autowired
-    private AuthenticationService authenticationService;
+    @Value("${jwt.signerKey}")
+    protected String SIGNER_KEY;
 
     @Bean(name = "securityFilterChainOauth2")
     @Order(1)
@@ -52,6 +67,8 @@ public class SecurityConfig {
             .authorizeHttpRequests(registry->{
                     registry.requestMatchers("/").permitAll();
                     registry.requestMatchers("/oauth2/**").permitAll();
+                    registry.requestMatchers(HttpMethod.POST, PUBLIC_ENDPOINT).permitAll();
+                    registry.requestMatchers(HttpMethod.GET, PUBLIC_ENDPOINT).permitAll();
                     registry.anyRequest().authenticated();
                 })
                 .oauth2Login(oauth2login->{
@@ -60,7 +77,29 @@ public class SecurityConfig {
                         public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response, Authentication authentication) throws IOException, ServletException {
                             OAuth2AuthenticationToken authToken = (OAuth2AuthenticationToken) authentication;
                             String email = authToken.getPrincipal().getAttribute("email");
-                            response.sendRedirect("http://localhost:3000/loginWithGoogle?email="+email);
+                            JWSHeader header = new JWSHeader(JWSAlgorithm.HS512);
+
+                            JWTClaimsSet jwtClaimsSet = new JWTClaimsSet.Builder()
+                                    .subject(email)
+                                    .issuer("eihabitat")
+                                    .issueTime(new java.util.Date())
+                                    .expirationTime(new Date(
+                                            Instant.now().plus(24, ChronoUnit.HOURS).toEpochMilli()
+                                    ))
+                                    .jwtID(UUID.randomUUID().toString())
+                                    .build();
+                            Payload payload = new Payload(jwtClaimsSet.toJSONObject());
+
+                            JWSObject jwsObject = new JWSObject(header, payload);
+                            String token="";
+                            try {
+                                jwsObject.sign(new MACSigner(SIGNER_KEY.getBytes()));
+                                token = jwsObject.serialize();
+                            } catch (JOSEException e) {
+                                log.error("Cannot sign JWT object", e);
+                                throw new RuntimeException(e);
+                            }
+                            response.sendRedirect("http://localhost:3000/loginWithGoogle?email="+email+"&token="+token);
                         }
                     });
                 })
