@@ -16,10 +16,9 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer  {
         config.enableSimpleBroker("/topic"); // Enable broadcasting on /topic
         config.setApplicationDestinationPrefixes("/app"); // Prefix for message mappings
     }
-
     @Override
     public void registerStompEndpoints(StompEndpointRegistry registry) {
-        registry.addEndpoint("/ws").setAllowedOriginPatterns("*");
+        registry.addEndpoint("/ws").setAllowedOriginPatterns("*").withSockJS();
     }
 }
 
