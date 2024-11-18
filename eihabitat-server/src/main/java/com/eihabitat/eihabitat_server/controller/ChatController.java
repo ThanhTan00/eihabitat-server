@@ -4,6 +4,7 @@ import com.eihabitat.eihabitat_server.entity.ChatMessage;
 import com.eihabitat.eihabitat_server.repository.ChatMessageRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
@@ -12,14 +13,26 @@ import java.util.List;
 
 @Controller
 @RequestMapping("/api/chat")
-@RequiredArgsConstructor
 public class ChatController {
     private final ChatMessageRepository chatMessageRepository;
+    private final SimpMessagingTemplate messagingTemplate;
+
+    public ChatController(ChatMessageRepository chatMessageRepository, SimpMessagingTemplate messagingTemplate) {
+        this.chatMessageRepository = chatMessageRepository;
+        this.messagingTemplate = messagingTemplate;
+    }
 
     @PostMapping("/send")
     public ResponseEntity<ChatMessage> testSendMessage(@RequestBody ChatMessage message) {
         message.setTimestamp(LocalDateTime.now());
-        return ResponseEntity.ok(chatMessageRepository.save(message));
+
+        // Save message to the database
+        ChatMessage savedMessage = chatMessageRepository.save(message);
+
+        // Broadcast the message to WebSocket clients
+        messagingTemplate.convertAndSend("/topic/messages", savedMessage);
+
+        return ResponseEntity.ok(savedMessage);
     }
 
     // Get all messages for testing
@@ -34,7 +47,7 @@ public class ChatController {
             @PathVariable String senderId,
             @PathVariable String recipientId) {
         List<ChatMessage> messages = chatMessageRepository
-                .findBySenderIdAndReceiverIdOrReceiverIdAndSenderIdOrderByTimestampDesc(
+                .findBySenderIdAndRecipientIdOrRecipientIdAndSenderIdOrderByTimestampDesc(
                         senderId, recipientId, senderId, recipientId);
         return ResponseEntity.ok(messages);
     }

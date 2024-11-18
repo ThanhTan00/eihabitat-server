@@ -1,21 +1,25 @@
 package com.eihabitat.eihabitat_server.configuration;
 
-import com.eihabitat.eihabitat_server.socketHandler.WebSocketEventListener;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.messaging.simp.config.MessageBrokerRegistry;
 import org.springframework.web.socket.config.annotation.*;
 
 @Configuration
-@EnableWebSocket
+@EnableWebSocketMessageBroker
 @RequiredArgsConstructor
-public class WebSocketConfig implements WebSocketConfigurer {
-    private final ObjectMapper objectMapper;
+public class WebSocketConfig implements WebSocketMessageBrokerConfigurer  {
 
     @Override
-    public void registerWebSocketHandlers(WebSocketHandlerRegistry registry) {
-        registry.addHandler(new WebSocketEventListener(objectMapper), "/chat")
-                .setAllowedOrigins("*");
+    public void configureMessageBroker(MessageBrokerRegistry config) {
+        config.enableSimpleBroker("/topic"); // Enable broadcasting on /topic
+        config.setApplicationDestinationPrefixes("/app"); // Prefix for message mappings
+    }
+
+    @Override
+    public void registerStompEndpoints(StompEndpointRegistry registry) {
+        registry.addEndpoint("/ws").setAllowedOriginPatterns("*");
     }
 }
 
