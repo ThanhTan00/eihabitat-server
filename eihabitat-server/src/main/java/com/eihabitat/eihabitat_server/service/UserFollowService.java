@@ -15,10 +15,7 @@ import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -29,6 +26,61 @@ public class UserFollowService {
     private final UserRepository userRepository;
     private final UserFollowRepository userFollowRepository;
     private final UserFollowMapper userFollowMapper;
+
+    public List<UserFollowerResponse> suggestFollowers(String profileName, String rootUserId) {
+        // Step 1: Find the user by profile name
+        User user = userRepository.findByProfileName(profileName)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+
+        // Step 2: Get the list of users the current user is following
+        List<UserFollow> follows = userFollowRepository.findByFollowerId(user.getId());
+        List<String> followingIds = follows.stream()
+                .map(UserFollow::getFollowedId)
+                .toList();
+
+        // Step 3: Find users followed by the user's followings (two-hop connection)
+        List<UserFollowerResponse> suggestedFollowers = new ArrayList<>();
+        Set<String> suggestedUserIds = new HashSet<>(); // To avoid duplicates
+
+        for (String followingId : followingIds) {
+            // Find users that B (followingId) follows
+            List<UserFollow> secondHopFollows = userFollowRepository.findByFollowerId(followingId);
+
+            for (UserFollow secondHopFollow : secondHopFollows) {
+                String suggestedUserId = secondHopFollow.getFollowedId();
+
+                // Skip if the suggested user is already followed by A, is A themselves, or is B
+                if (followingIds.contains(suggestedUserId) || suggestedUserId.equals(user.getId()) || suggestedUserIds.contains(suggestedUserId)) {
+                    continue;
+                }
+
+                // Fetch the suggested user
+                User suggestedUser = userRepository.findById(suggestedUserId)
+                        .orElseThrow(() -> new RuntimeException("Suggested user not found"));
+
+                // Map to UserFollowerResponse
+                UserFollowerResponse response = userFollowMapper.toUserFollowerResponse(suggestedUser);
+
+                // Check mutual follow status
+                if (userFollowRepository.existsByFollowerIdAndFollowedId(rootUserId, suggestedUserId)) {
+                    response.setFollowedByMe(true);
+                }
+                if (userFollowRepository.existsByFollowerIdAndFollowedId(suggestedUserId, rootUserId)) {
+                    response.setFollowMe(true);
+                }
+
+                // Set additional fields
+                response.setUserUrl(suggestedUser.getUserUrl());
+                suggestedFollowers.add(response);
+
+                // Track processed users
+                suggestedUserIds.add(suggestedUserId);
+            }
+        }
+
+        return suggestedFollowers;
+    }
+
 
     public String followUser(UserFollowReq requestDto) {
         if (requestDto.getFollowerId().equals(requestDto.getFollowedId())) {

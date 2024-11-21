@@ -27,7 +27,7 @@ public class UserFollowController {
         return resp;
     }
 
-    @PostMapping("/unfollow")
+    @DeleteMapping
     public ApiResponse<String> unfollowUser(@RequestBody UserFollowReq requestDto) {
         ApiResponse resp = new ApiResponse();
         resp.setCode(1000);
@@ -48,6 +48,14 @@ public class UserFollowController {
         ApiResponse resp = new ApiResponse();
         resp.setCode(1000);
         resp.setData(followService.getFollowing(username, rootUserId));
+        return resp;
+    }
+
+    @GetMapping("/{username}/suggestions/{rootUserId}")
+    public ApiResponse<List<UserResponse>> getSuggestions(@PathVariable String username, @PathVariable String rootUserId) {
+        ApiResponse resp = new ApiResponse();
+        resp.setCode(1000);
+        resp.setData(followService.suggestFollowers(username, rootUserId));
         return resp;
     }
 }

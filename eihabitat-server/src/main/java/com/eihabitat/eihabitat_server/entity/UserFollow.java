@@ -19,5 +19,4 @@ public class UserFollow {
     private String followerId;
     private String followedId;
     Date followedAt;
-
 }
