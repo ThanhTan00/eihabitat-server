@@ -26,7 +26,7 @@ public class UserLikePostService {
     public String likePost(UserLikePostReq request) {
         if (userLikePostRepository.existsByUserIdAndPostId(request.getUserId(), request.getPostId())) {
             unlikePost(request);
-            return "Post unliked successfully!";
+            return "Post unsaved successfully!";
         }
 
         UserLikePost userLikePost = userLikePostMapper.toUserLikePost(request);

@@ -9,6 +9,6 @@ import lombok.experimental.FieldDefaults;
 @Builder
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class UserSavePostReq {
-    private String userId;
-    private String postId;
+     String userId;
+     String postId;
 }

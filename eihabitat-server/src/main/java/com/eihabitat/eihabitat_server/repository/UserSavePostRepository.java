@@ -10,9 +10,13 @@ import java.util.List;
 import java.util.Optional;
 
 @Repository
-public interface UserSavePostRepository extends JpaRepository<UserSavePost, Long> {
+public interface UserSavePostRepository extends MongoRepository<UserSavePost, String> {
     List<UserSavePost> findByPostId(String postId);
+
     Long countByPostId(String postId);
+
     Boolean existsByUserIdAndPostId(String userId, String postId);
+
+//    void unSaveByUserIdAndPostId(String userId, String postId);
 }
 

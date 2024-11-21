@@ -25,11 +25,16 @@ import java.util.stream.Collectors;
 public class UserSavePostService {
 
     private final UserSavePostRepository userSavePostRepository;
-    private final UserSavePostMapper userSavePostMapper = UserSavePostMapper.INSTANCE;
+    private final UserSavePostMapper userSavePostMapper;
 
     public String savePost(UserSavePostReq request) {
+//        if (userSavePostRepository.existsByUserIdAndPostId(request.getUserId(), request.getPostId())) {
+//            unSavePost(request);
+//            return "Post unliked successfully!";
+//        }
         // Use mapper to convert request DTO to entity
-        UserSavePost savePost = userSavePostMapper.toEntity(request);
+        UserSavePost savePost = userSavePostMapper.toUserSavePost(request);
+
         userSavePostRepository.save(savePost);
         return "Post saved successfully!";
     }
@@ -37,9 +42,13 @@ public class UserSavePostService {
     public List<UserSavePostResponse> getSavedPostsForPost(String postId) {
         // Use mapper to convert entity to response DTO
         return userSavePostRepository.findByPostId(postId).stream()
-                .map(userSavePostMapper::toResponse)
+                .map(userSavePostMapper::toUserSavePostResponse)
                 .collect(Collectors.toList());
     }
+
+//    public void unSavePost(UserSavePostReq request) {
+//        userSavePostRepository.unSaveByUserIdAndPostId(request.getUserId(), request.getPostId());
+//    }
 
     public Long getSaveCountForPost(String postId) {
         return userSavePostRepository.countByPostId(postId);
