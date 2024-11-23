@@ -20,7 +20,6 @@ public class EmailConfirmationToken {
     @GeneratedValue(strategy = GenerationType.UUID)
     private String id;
     private String token;
-    private LocalDateTime timestamp;
     LocalDateTime expiryTime;
     String email;
     String password;
