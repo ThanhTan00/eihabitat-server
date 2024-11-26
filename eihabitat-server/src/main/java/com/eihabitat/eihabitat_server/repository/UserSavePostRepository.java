@@ -17,6 +17,6 @@ public interface UserSavePostRepository extends MongoRepository<UserSavePost, St
 
     Boolean existsByUserIdAndPostId(String userId, String postId);
 
-//    void unSaveByUserIdAndPostId(String userId, String postId);
+    void deleteUserSavePostByUserIdAndPostId(String userId, String postId);
 }
 

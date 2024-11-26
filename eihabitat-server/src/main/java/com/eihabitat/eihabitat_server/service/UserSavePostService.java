@@ -28,10 +28,10 @@ public class UserSavePostService {
     private final UserSavePostMapper userSavePostMapper;
 
     public String savePost(UserSavePostReq request) {
-//        if (userSavePostRepository.existsByUserIdAndPostId(request.getUserId(), request.getPostId())) {
-//            unSavePost(request);
-//            return "Post unliked successfully!";
-//        }
+        if (userSavePostRepository.existsByUserIdAndPostId(request.getUserId(), request.getPostId())) {
+            unSavePost(request);
+            return "Post unsaved successfully!";
+        }
         // Use mapper to convert request DTO to entity
         UserSavePost savePost = userSavePostMapper.toUserSavePost(request);
 
@@ -46,9 +46,9 @@ public class UserSavePostService {
                 .collect(Collectors.toList());
     }
 
-//    public void unSavePost(UserSavePostReq request) {
-//        userSavePostRepository.unSaveByUserIdAndPostId(request.getUserId(), request.getPostId());
-//    }
+    public void unSavePost(UserSavePostReq request) {
+        userSavePostRepository.deleteUserSavePostByUserIdAndPostId(request.getUserId(), request.getPostId());
+    }
 
     public Long getSaveCountForPost(String postId) {
         return userSavePostRepository.countByPostId(postId);
