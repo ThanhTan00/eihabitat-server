@@ -1,6 +1,7 @@
 package com.eihabitat.eihabitat_server.dto.request;
 
 import com.eihabitat.eihabitat_server.entity.PostContent;
+import com.eihabitat.eihabitat_server.entity.PrivacyLevel;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 import org.springframework.web.multipart.MultipartFile;
@@ -19,4 +20,5 @@ public class PostCreationReq {
     String type;
     LocalDateTime createdAt;
     List<MultipartFile> images;
+    PrivacyLevel privacyLevel;
 }

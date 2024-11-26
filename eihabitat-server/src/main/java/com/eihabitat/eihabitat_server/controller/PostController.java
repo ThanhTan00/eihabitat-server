@@ -4,6 +4,7 @@ import com.eihabitat.eihabitat_server.dto.request.ApiResponse;
 import com.eihabitat.eihabitat_server.dto.request.PostCreationReq;
 import com.eihabitat.eihabitat_server.dto.request.PostUpdateReq;
 import com.eihabitat.eihabitat_server.dto.response.PostResponse;
+import com.eihabitat.eihabitat_server.entity.PrivacyLevel;
 import com.eihabitat.eihabitat_server.service.PostService;
 import jakarta.validation.Valid;
 import lombok.AccessLevel;
@@ -24,10 +25,11 @@ public class PostController {
 
     @PostMapping("/{userId}")
     public ApiResponse<PostResponse> createPost(@PathVariable String userId, @RequestParam("caption") String caption,
+                                                @RequestParam("privacy") PrivacyLevel privacyLevel,
                                                 @RequestParam("images") List<MultipartFile> files) throws Exception {
         ApiResponse resp = new ApiResponse();
         resp.setCode(1000);
-        resp.setData(postService.createPost(caption, userId, files));
+        resp.setData(postService.createPost(caption, userId, privacyLevel, files));
         return resp;
     }
     @PutMapping("/update/{postId}")
@@ -64,10 +66,10 @@ public class PostController {
     }
 
     @GetMapping("/username/{userProfileName}")
-    public ApiResponse<Set<PostResponse>> findAllPostByUserProfileName(@PathVariable String userProfileName) throws Exception {
+    public ApiResponse<Set<PostResponse>> findAllPostByUserProfileName(@PathVariable String userProfileName, @RequestParam("privacy") PrivacyLevel privacyLevel) throws Exception {
         ApiResponse resp = new ApiResponse();
         resp.setCode(1000);
-        resp.setData(postService.findAllPostByUserProfileName(userProfileName));
+        resp.setData(postService.findAllPostByUserProfileName(userProfileName, privacyLevel));
         return resp;
     }
 

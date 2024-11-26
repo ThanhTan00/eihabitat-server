@@ -24,5 +24,8 @@ public class Post {
     @ManyToOne
     @JoinColumn(name="user_id", nullable=false)
     User author;
+
+    @Enumerated(EnumType.STRING)
+    PrivacyLevel privacyLevel;
 }
 

@@ -39,7 +39,7 @@ public class PostService {
     PostMapper mapper;
     S3Service s3Service;
 
-    public PostResponse createPost(String caption, String userId, List<MultipartFile> files) throws Exception {
+    public PostResponse createPost(String caption, String userId, PrivacyLevel privacyLevel, List<MultipartFile> files) throws Exception {
         User user = userRepo.findById(userId).orElseThrow(() -> new AppException(ErrorCode.USER_NOT_EXISTED));
 
         Post post = new Post().builder()
@@ -47,6 +47,7 @@ public class PostService {
                 .type("image")
                 .createdAt(LocalDateTime.now())
                 .author(user)
+                .privacyLevel(privacyLevel)
                 .build();
 
         Post createdPost = postRepository.save(post);
@@ -124,7 +125,7 @@ public class PostService {
         return listPostResponse;
     }
 
-    public Set<PostOnPersonalWallResponse> findAllPostByUserProfileName(String userProfileName) throws Exception {
+    public Set<PostOnPersonalWallResponse> findAllPostByUserProfileName(String userProfileName, PrivacyLevel privacyLevel) throws Exception {
         Set<Post> listPost = postRepository.findAllByAuthorProfileName(Sort.by(Sort.Direction.DESC, "createdAt"), userProfileName);
         Set<PostOnPersonalWallResponse> listPostResponse = new HashSet<>();
 
@@ -140,6 +141,7 @@ public class PostService {
                             .representImage(postContents.getFirst().getImageId())
                             .numberOfLikes(userLikePosts.size())
                             .numberOfComments(comments.size())
+                            .privacyLevel(privacyLevel)
                             .build()
             );
         }

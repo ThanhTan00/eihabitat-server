@@ -1,6 +1,7 @@
 package com.eihabitat.eihabitat_server.dto.response;
 
 import com.eihabitat.eihabitat_server.entity.PostContent;
+import com.eihabitat.eihabitat_server.entity.PrivacyLevel;
 import com.eihabitat.eihabitat_server.entity.User;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
@@ -28,4 +29,5 @@ public class PostResponse {
     String latestUserLike;
     String latestUserLikeAvatar;
     boolean isLikeByUser;
+    PrivacyLevel privacyLevel;
 }

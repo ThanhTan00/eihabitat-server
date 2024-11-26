@@ -6,6 +6,7 @@ import lombok.*;
 import lombok.experimental.FieldDefaults;
 
 import java.time.LocalDateTime;
+import java.util.Set;
 
 @Data
 @Builder
@@ -14,8 +15,9 @@ import java.time.LocalDateTime;
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class StoryResponse {
     String id;
-    String imageUrl;
+    Set<StoryContentResponse> storyContentSet;
     LocalDateTime createdAt;
+    LocalDateTime expiredAt;
     String authorAvatar;
     String authorProfileName;
 }

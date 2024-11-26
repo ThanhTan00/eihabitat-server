@@ -1,13 +1,16 @@
 package com.eihabitat.eihabitat_server.controller;
 
 import com.eihabitat.eihabitat_server.dto.request.ApiResponse;
-import com.eihabitat.eihabitat_server.dto.request.StoryCreationReq;
 import com.eihabitat.eihabitat_server.dto.response.StoryResponse;
 import com.eihabitat.eihabitat_server.service.StoryService;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
+
+import java.io.IOException;
+import java.util.List;
 
 
 @RestController
@@ -17,33 +20,29 @@ import org.springframework.web.bind.annotation.*;
 public class StoryController {
     StoryService storyService;
 
-    @PostMapping
-    public ApiResponse<StoryResponse> createStory(@RequestBody StoryCreationReq storyRequest) {
+    @PostMapping("/{authorId}")
+    public ApiResponse<StoryResponse> createStory(@PathVariable String authorId, @RequestParam("images") List<MultipartFile> files) throws IOException {
         ApiResponse resp = new ApiResponse();
         resp.setCode(1000);
-        resp.setData(storyService.createStory(storyRequest));
+        resp.setData(storyService.createStory(authorId, files));
         return resp;
     }
 
-    @GetMapping("/{authorId}")
-    public ApiResponse<StoryResponse> findAllByAuthorId(@PathVariable String authorId) throws Exception {
+    @GetMapping("/{storyId}")
+    public ApiResponse<StoryResponse> findStoryById(@PathVariable String storyId) throws Exception {
+        ApiResponse resp = new ApiResponse();
+        resp.setCode(1000);
+        resp.setData(storyService.findStoryById(storyId));
+        return resp;
+    }
+
+    @GetMapping("/active/{authorId}")
+    public ApiResponse<StoryResponse> getActiveStory(@PathVariable String authorId) throws Exception {
         ApiResponse resp = new ApiResponse();
         resp.setCode(1000);
         resp.setData(storyService.getActiveStories(authorId));
         return resp;
     }
-
-//    @GetMapping
-//    public ResponseEntity<List<Story>> getAllStories() {
-//        List<Story> stories = storyService.getAllStories();
-//        return ResponseEntity.ok(stories);
-//    }
-//
-//    @GetMapping("/author/{author}")
-//    public ResponseEntity<List<Story>> getStoriesByAuthor(@PathVariable String author) {
-//        List<Story> stories = storyService.getStoriesByAuthor(author);
-//        return ResponseEntity.ok(stories);
-//    }
 
     @DeleteMapping("/{storyId}")
     public ApiResponse<StoryResponse> deleteStory(@PathVariable String storyId) throws Exception {

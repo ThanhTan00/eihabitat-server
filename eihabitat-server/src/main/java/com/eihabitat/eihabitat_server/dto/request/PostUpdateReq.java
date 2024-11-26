@@ -1,5 +1,6 @@
 package com.eihabitat.eihabitat_server.dto.request;
 
+import com.eihabitat.eihabitat_server.entity.PrivacyLevel;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 
@@ -15,4 +16,5 @@ public class PostUpdateReq {
     String type;
     LocalDateTime updatedAt;
     String author;
+    PrivacyLevel privacyLevel;
 }
