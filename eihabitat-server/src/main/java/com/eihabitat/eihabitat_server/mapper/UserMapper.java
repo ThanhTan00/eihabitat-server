@@ -2,6 +2,7 @@ package com.eihabitat.eihabitat_server.mapper;
 
 import com.eihabitat.eihabitat_server.dto.request.UserCreationReq;
 import com.eihabitat.eihabitat_server.dto.request.UserUpdateReq;
+import com.eihabitat.eihabitat_server.dto.response.SearchUserResponse;
 import com.eihabitat.eihabitat_server.dto.response.UserDemoResponse;
 import com.eihabitat.eihabitat_server.dto.response.UserResponse;
 import com.eihabitat.eihabitat_server.entity.User;
@@ -22,4 +23,6 @@ public interface UserMapper {
     void updateUser (@MappingTarget User user, UserUpdateReq req);
 
     UserDemoResponse toUserDemoResponse (User user);
+
+    SearchUserResponse toSearchUserResponse (User user);
 }

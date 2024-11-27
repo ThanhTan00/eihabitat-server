@@ -3,6 +3,7 @@ package com.eihabitat.eihabitat_server.controller;
 import com.eihabitat.eihabitat_server.dto.request.ApiResponse;
 import com.eihabitat.eihabitat_server.dto.request.UserCreationReq;
 import com.eihabitat.eihabitat_server.dto.request.UserUpdateReq;
+import com.eihabitat.eihabitat_server.dto.response.SearchUserResponse;
 import com.eihabitat.eihabitat_server.dto.response.UserDemoResponse;
 import com.eihabitat.eihabitat_server.dto.response.UserResponse;
 import com.eihabitat.eihabitat_server.entity.User;
@@ -38,6 +39,7 @@ public class UserController {
         resp.setData(userService.confirmEmail(req));
         return resp;
     }
+
     @PostMapping("/testCreateUser")
     ApiResponse<UserResponse> createTestUser(@RequestBody @Valid UserCreationReq req) throws MessagingException {
         ApiResponse<UserResponse> resp = new ApiResponse<>();
@@ -104,5 +106,13 @@ public class UserController {
         resp.setData(userService.getUserDemo(email));
         return resp;
     }
+
+    @GetMapping("search/{username}")
+    ApiResponse<List<SearchUserResponse>> searchUser(@PathVariable String username) {
+        ApiResponse<List<SearchUserResponse>> resp = new ApiResponse<>();
+        resp.setData(userService.searchByUsername(username));
+        return resp;
+    }
+
 
 }

@@ -3,6 +3,7 @@ package com.eihabitat.eihabitat_server.service;
 import com.eihabitat.eihabitat_server.S3Upload.S3Service;
 import com.eihabitat.eihabitat_server.dto.request.UserCreationReq;
 import com.eihabitat.eihabitat_server.dto.request.UserUpdateReq;
+import com.eihabitat.eihabitat_server.dto.response.SearchUserResponse;
 import com.eihabitat.eihabitat_server.dto.response.UserDemoResponse;
 import com.eihabitat.eihabitat_server.dto.response.UserFollowerResponse;
 import com.eihabitat.eihabitat_server.dto.response.UserResponse;
@@ -16,18 +17,19 @@ import com.eihabitat.eihabitat_server.repository.EmailConfirmationRepository;
 import com.eihabitat.eihabitat_server.repository.RoleRepository;
 import com.eihabitat.eihabitat_server.repository.UserRepository;
 
-import java.io.File;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.*;
 
 import jakarta.mail.MessagingException;
-import jakarta.mail.Multipart;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.security.access.prepost.PostAuthorize;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.keygen.BytesKeyGenerator;
@@ -79,7 +81,6 @@ public class UserService {
         emailService.sendConfirmationEmail(emailConfirmationToken);
         return "Please check your email to confirm your email address";
     }
-
 
     public boolean createUser(UserCreationReq request) throws MessagingException {
         // Check if email or profile name already exists
@@ -139,7 +140,6 @@ public class UserService {
         return createUser(request);
     }
 
-
     @PreAuthorize("hasRole('ADMIN')")
     public List<UserResponse> getUsers() {
         log.info("Getting users");
@@ -177,20 +177,12 @@ public class UserService {
 
     public UserResponse getUserInfo(String userProfileName, String rootUser) {
         User user = userRepository.findByProfileName(userProfileName).orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
-        List<UserFollowerResponse> listFollowers = userFollowService.getFollowers(user.getProfileName(), rootUser);
-        List<UserFollowerResponse> listFollowing = userFollowService.getFollowing(user.getProfileName(), rootUser);
+        User root = userRepository.findByProfileName(rootUser).orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
         UserResponse userResponse = userMapper.toUserResponse(user);
-        userResponse.setFollowers(listFollowers.size());
-        userResponse.setFollowing(listFollowing.size());
-        if (listFollowers.stream()
-                .anyMatch(person -> person.getProfileName().equalsIgnoreCase(rootUser)))
-        {
-            userResponse.setFollowedByMe(true);
-        }
-        if (listFollowing.stream().anyMatch(person -> person.getProfileName().equalsIgnoreCase(rootUser)))
-        {
-            userResponse.setFollowMe(true);
-        }
+        userResponse.setFollowers(userFollowService.getNumberOfFollowers(user.getId()));
+        userResponse.setFollowing(userFollowService.getNumberOfFollowing(user.getId()));
+        userResponse.setFollowedByMe(userFollowService.getIsFollowing(root.getId(), user.getId()));
+        userResponse.setFollowMe(userFollowService.getIsFollowing(user.getId(), root.getId()));
         return userResponse;
     }
 
@@ -201,5 +193,19 @@ public class UserService {
         userRepository.save(user);
         return user.getProfileAvatar();
     }
+
+    public List<SearchUserResponse> searchByUsername(String username) {
+        Pageable pageable = PageRequest.of(0, 5);
+        Page<User> users = userRepository.findAllByProfileNameContainingIgnoreCase(pageable, username);
+
+        List<SearchUserResponse> userResponses = new ArrayList<>();
+        users.forEach(user -> {
+            SearchUserResponse userResponse = userMapper.toSearchUserResponse(user);
+            userResponse.setFollowers(userFollowService.getNumberOfFollowers(user.getId()));
+            userResponses.add(userResponse);
+        });
+        return userResponses;
+    }
+
 
 }

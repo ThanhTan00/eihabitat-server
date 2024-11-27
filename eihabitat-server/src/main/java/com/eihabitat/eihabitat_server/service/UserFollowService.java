@@ -49,6 +49,20 @@ public class UserFollowService {
         return "User: " + requestDto.getFollowedId() +"successfully unfollowed by " + userFollow.getFollowerId();
     }
 
+    public int getNumberOfFollowers(String userId) {
+        List<UserFollow> follows = userFollowRepository.findByFollowedId(userId);
+        return follows.size();
+    }
+
+    public int getNumberOfFollowing(String userId) {
+        List<UserFollow> follows = userFollowRepository.findByFollowerId(userId);
+        return follows.size();
+    }
+
+    public boolean getIsFollowing(String followerId, String userId) {
+        return userFollowRepository.existsByFollowerIdAndFollowedId(followerId, userId);
+    }
+
     public List<UserFollowerResponse> getFollowers(String profileName, String rootUserId) {
         User user = userRepository.findByProfileName(profileName)
                 .orElseThrow(() -> new RuntimeException("User not found"));
@@ -58,12 +72,8 @@ public class UserFollowService {
             User follower = userRepository.findById(userFollow.getFollowerId())
                     .orElseThrow(() -> new RuntimeException("User not found"));
             UserFollowerResponse u = userFollowMapper.toUserFollowerResponse(follower);
-            if (userFollowRepository.existsByFollowerIdAndFollowedId(rootUserId, follower.getId())){
-                u.setFollowedByMe(true);
-            }
-            if (userFollowRepository.existsByFollowerIdAndFollowedId(follower.getId(), rootUserId)) {
-                u.setFollowMe(true);
-            }
+            u.setFollowedByMe(getIsFollowing(rootUserId, u.getId()));
+            u.setFollowMe(getIsFollowing(u.getId(),rootUserId));
             u.setUserUrl(follower.getUserUrl());
             userFollowerResponses.add(u);
         }
@@ -79,12 +89,8 @@ public class UserFollowService {
             User follower = userRepository.findById(userFollow.getFollowedId())
                     .orElseThrow(() -> new RuntimeException("User not found"));
             UserFollowerResponse u = userFollowMapper.toUserFollowerResponse(follower);
-            if (userFollowRepository.existsByFollowerIdAndFollowedId(rootUserId, follower.getId())){
-                u.setFollowedByMe(true);
-            }
-            if (userFollowRepository.existsByFollowerIdAndFollowedId(follower.getId(), rootUserId)) {
-                u.setFollowMe(true);
-            }
+            u.setFollowedByMe(getIsFollowing(rootUserId, u.getId()));
+            u.setFollowMe(getIsFollowing(u.getId(),rootUserId));
             u.setUserUrl(follower.getUserUrl());
             userFollowingResponses.add(u);
         }
