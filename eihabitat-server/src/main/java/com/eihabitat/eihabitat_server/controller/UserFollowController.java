@@ -50,4 +50,21 @@ public class UserFollowController {
         resp.setData(followService.getFollowing(username, rootUserId));
         return resp;
     }
+
+    @GetMapping("/suggestions/{rootUserId}")
+    public ApiResponse<List<UserResponse>> getSuggestions(@PathVariable String rootUserId) {
+        ApiResponse resp = new ApiResponse();
+        resp.setCode(1000);
+        resp.setData(followService.suggestByUserId(rootUserId));
+        return resp;
+    }
+
+    @GetMapping("/followedMeSuggestions/{rootUserId}")
+    public ApiResponse<List<UserResponse>> getFollowedMeSuggestions(@PathVariable String rootUserId) {
+        ApiResponse resp = new ApiResponse();
+        resp.setCode(1000);
+        resp.setData(followService.suggestByFollowedMe(rootUserId));
+        return resp;
+    }
+
 }

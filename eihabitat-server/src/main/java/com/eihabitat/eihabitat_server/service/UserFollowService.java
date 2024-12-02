@@ -1,6 +1,7 @@
 package com.eihabitat.eihabitat_server.service;
 
 import com.eihabitat.eihabitat_server.dto.request.UserFollowReq;
+import com.eihabitat.eihabitat_server.dto.response.SuggestFollowResponse;
 import com.eihabitat.eihabitat_server.dto.response.UserFollowerResponse;
 import com.eihabitat.eihabitat_server.entity.User;
 import com.eihabitat.eihabitat_server.entity.UserFollow;
@@ -18,8 +19,6 @@ import org.springframework.stereotype.Service;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
-import java.util.Objects;
-import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -65,7 +64,7 @@ public class UserFollowService {
 
     public List<UserFollowerResponse> getFollowers(String profileName, String rootUserId) {
         User user = userRepository.findByProfileName(profileName)
-                .orElseThrow(() -> new RuntimeException("User not found"));
+                .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
         List<UserFollow> follows = userFollowRepository.findByFollowedId(user.getId());
         List<UserFollowerResponse> userFollowerResponses =new ArrayList<>();
         for (UserFollow userFollow : follows) {
@@ -82,7 +81,7 @@ public class UserFollowService {
 
     public List<UserFollowerResponse> getFollowing(String profileName, String rootUserId) {
         User user = userRepository.findByProfileName(profileName)
-                .orElseThrow(() -> new RuntimeException("User not found"));
+                .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
         List<UserFollow> follows = userFollowRepository.findByFollowerId(user.getId());
         List<UserFollowerResponse> userFollowingResponses =new ArrayList<>();
         for (UserFollow userFollow : follows) {
@@ -95,5 +94,71 @@ public class UserFollowService {
             userFollowingResponses.add(u);
         }
         return userFollowingResponses;
+    }
+
+    public List<UserFollow> getMyFollowing(String userId) {
+        return userFollowRepository.findByFollowerId(userId);
+    }
+
+    public List<UserFollow> getMyFollowers(String userId) {
+        return userFollowRepository.findByFollowedId(userId);
+    }
+
+    public List<SuggestFollowResponse> suggestByUserId(String userId) {
+        List<UserFollow> follows = getMyFollowing(userId);
+        List<String> followingIds = follows.stream()
+                .map(UserFollow::getFollowedId)
+                .toList();
+
+        List<UserFollow> folowingsOfFollowing = userFollowRepository.findAllByFollowerIdIn(followingIds);
+        List<String> suggestedUserIds = new ArrayList<String>();
+        List<SuggestFollowResponse> result = new ArrayList<>();
+
+        for (UserFollow secondHopFollow : folowingsOfFollowing) {
+            String suggestedUserId = secondHopFollow.getFollowedId();
+
+            // Skip if the suggested user is already followed by A, is A themselves, or is B
+            if (followingIds.contains(suggestedUserId) || suggestedUserId.equals(userId) || suggestedUserIds.contains(suggestedUserId)) {
+                continue;
+            }
+
+            if (userFollowRepository.existsByFollowerIdAndFollowedId(suggestedUserId, userId)) {
+                continue;
+            }
+
+            SuggestFollowResponse suggestFollowUser = userFollowMapper.toSuggestFollowResponse(userRepository.findById(suggestedUserId)
+                    .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND)));
+
+            User relativeUser = userRepository.findById(secondHopFollow.getFollowerId()).orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
+            suggestFollowUser.setFollowedBy(relativeUser.getProfileName());
+            suggestedUserIds.add(suggestedUserId);
+            result.add(suggestFollowUser);
+
+            if (result.size()==5) {
+                break;
+            }
+        }
+        return result;
+    }
+
+    public List<SuggestFollowResponse> suggestByFollowedMe(String userId) {
+        List<UserFollow> follows = getMyFollowers(userId);
+        List<String> followerIds = follows.stream()
+                .map(UserFollow::getFollowerId)
+                .toList();
+        List<SuggestFollowResponse> result = new ArrayList<>();
+
+        for (String followerId : followerIds) {
+           if (userFollowRepository.existsByFollowerIdAndFollowedId(userId, followerId)){
+               continue;
+           }
+            SuggestFollowResponse suggestFollowUser = userFollowMapper.toSuggestFollowResponse(userRepository.findById(followerId)
+                    .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND)));
+            result.add(suggestFollowUser);
+            if (result.size()==5) {
+                break;
+            }
+        }
+        return result;
     }
 }

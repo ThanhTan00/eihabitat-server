@@ -13,5 +13,6 @@ public interface UserFollowRepository extends MongoRepository<UserFollow, String
     List<UserFollow> findByFollowerId(String followerId);
     List<UserFollow> findByFollowedId(String followedId);
     Optional<UserFollow> findByFollowerIdAndFollowedId(String followerId, String followedId);
+    List<UserFollow> findAllByFollowerIdIn(List<String> followerIds);
     boolean existsByFollowerIdAndFollowedId(String followerId, String followedId);
 }

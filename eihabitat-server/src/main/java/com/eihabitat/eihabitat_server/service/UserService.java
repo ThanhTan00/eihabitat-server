@@ -3,13 +3,11 @@ package com.eihabitat.eihabitat_server.service;
 import com.eihabitat.eihabitat_server.S3Upload.S3Service;
 import com.eihabitat.eihabitat_server.dto.request.UserCreationReq;
 import com.eihabitat.eihabitat_server.dto.request.UserUpdateReq;
-import com.eihabitat.eihabitat_server.dto.response.SearchUserResponse;
-import com.eihabitat.eihabitat_server.dto.response.UserDemoResponse;
-import com.eihabitat.eihabitat_server.dto.response.UserFollowerResponse;
-import com.eihabitat.eihabitat_server.dto.response.UserResponse;
+import com.eihabitat.eihabitat_server.dto.response.*;
 import com.eihabitat.eihabitat_server.entity.EmailConfirmationToken;
 import com.eihabitat.eihabitat_server.entity.Role;
 import com.eihabitat.eihabitat_server.entity.User;
+import com.eihabitat.eihabitat_server.entity.UserFollow;
 import com.eihabitat.eihabitat_server.exception.AppException;
 import com.eihabitat.eihabitat_server.exception.ErrorCode;
 import com.eihabitat.eihabitat_server.mapper.UserMapper;
@@ -206,6 +204,4 @@ public class UserService {
         });
         return userResponses;
     }
-
-
 }
