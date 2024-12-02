@@ -1,61 +1,53 @@
 package com.eihabitat.eihabitat_server.controller;
 
+import com.eihabitat.eihabitat_server.dto.response.ChatConversationResponse;
 import com.eihabitat.eihabitat_server.entity.ChatMessage;
-import com.eihabitat.eihabitat_server.repository.ChatMessageRepository;
+import com.eihabitat.eihabitat_server.service.ChatService;
+import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
+import lombok.experimental.FieldDefaults;
 import org.springframework.http.ResponseEntity;
-import org.springframework.messaging.simp.SimpMessagingTemplate;
-import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
-import java.time.LocalDateTime;
-import java.util.List;
+import java.util.*;
 
-@Controller
+@RestController
+@RequiredArgsConstructor
+@FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 @RequestMapping("/api/chat")
 public class ChatController {
-    private final ChatMessageRepository chatMessageRepository;
-    private final SimpMessagingTemplate messagingTemplate;
+    ChatService chatService;
 
-    public ChatController(ChatMessageRepository chatMessageRepository, SimpMessagingTemplate messagingTemplate) {
-        this.chatMessageRepository = chatMessageRepository;
-        this.messagingTemplate = messagingTemplate;
+    @GetMapping("/conversations/{userId}")
+    public ResponseEntity<List<ChatConversationResponse>> getConversations(@PathVariable String userId) {
+        return ResponseEntity.ok(chatService.getConversations(userId));
+    }
+
+    @GetMapping("/history/{senderId}/{recipientId}")
+    public ResponseEntity<List<ChatMessage>> getChatHistory(
+            @PathVariable String senderId, @PathVariable String recipientId) {
+        return ResponseEntity.ok(chatService.getChatHistory(senderId, recipientId));
     }
 
     @PostMapping("/send")
     public ResponseEntity<ChatMessage> testSendMessage(@RequestBody ChatMessage message) {
-        message.setTimestamp(LocalDateTime.now());
-
-        // Save message to the database
-        ChatMessage savedMessage = chatMessageRepository.save(message);
-
-        // Broadcast the message to WebSocket clients
-        messagingTemplate.convertAndSend("/topic/messages", savedMessage);
-
-        return ResponseEntity.ok(savedMessage);
+        return ResponseEntity.ok(chatService.sendMessage(message));
     }
 
-    // Get all messages for testing
     @GetMapping("/messages")
     public ResponseEntity<List<ChatMessage>> getAllMessages() {
-        return ResponseEntity.ok(chatMessageRepository.findAll());
+        return ResponseEntity.ok(chatService.getAllMessages());
     }
 
-    // Get messages between two users
     @GetMapping("/messages/{senderId}/{recipientId}")
     public ResponseEntity<List<ChatMessage>> getMessagesBetweenUsers(
-            @PathVariable String senderId,
-            @PathVariable String recipientId) {
-        List<ChatMessage> messages = chatMessageRepository
-                .findBySenderIdAndRecipientIdOrRecipientIdAndSenderIdOrderByTimestampDesc(
-                        senderId, recipientId, senderId, recipientId);
-        return ResponseEntity.ok(messages);
+            @PathVariable String senderId, @PathVariable String recipientId) {
+        return ResponseEntity.ok(chatService.getMessagesBetweenUsers(senderId, recipientId));
     }
 
-    // Clear all messages (for testing)
     @DeleteMapping("/messages")
     public ResponseEntity<Void> clearAllMessages() {
-        chatMessageRepository.deleteAll();
+        chatService.clearAllMessages();
         return ResponseEntity.ok().build();
     }
 }
