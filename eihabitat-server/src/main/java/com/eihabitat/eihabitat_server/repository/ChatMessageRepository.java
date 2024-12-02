@@ -1,6 +1,7 @@
 package com.eihabitat.eihabitat_server.repository;
 
 import com.eihabitat.eihabitat_server.entity.ChatMessage;
+import org.springframework.data.domain.Sort;
 import org.springframework.data.mongodb.repository.MongoRepository;
 import org.springframework.data.mongodb.repository.Query;
 import org.springframework.stereotype.Repository;
@@ -20,6 +21,7 @@ public interface ChatMessageRepository extends MongoRepository<ChatMessage, Stri
     List<ChatMessage> findChatHistory(String senderId, String recipientId);
 
     @Query("{$or: [ {'senderId': ?0, 'recipientId': ?1}, {'senderId': ?1, 'recipientId': ?0} ] }")
-    ChatMessage findTopBySenderIdAndRecipientIdOrRecipientIdAndSenderIdOrderByTimestampDesc(
-            String senderId, String recipientId);
+    List<ChatMessage> findMessagesBySenderIdAndRecipientIdOrRecipientIdAndSenderId(
+            String senderId, String recipientId, Sort sort);
+
 }
