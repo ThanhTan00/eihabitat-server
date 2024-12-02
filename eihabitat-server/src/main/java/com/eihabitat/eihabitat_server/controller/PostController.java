@@ -9,6 +9,7 @@ import jakarta.validation.Valid;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
+import org.springframework.data.domain.Page;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -71,11 +72,19 @@ public class PostController {
         return resp;
     }
 
-    @GetMapping("/newsFeedPosts/{rootUserId}")
-    public ApiResponse<Set<PostResponse>> findAllNewsFeedPosts(@PathVariable String rootUserId) throws Exception {
+//    @GetMapping("/newsFeedPosts/{rootUserId}")
+//    public ApiResponse<Set<PostResponse>> findAllNewsFeedPosts(@PathVariable String rootUserId) throws Exception {
+//        ApiResponse resp = new ApiResponse();
+//        resp.setCode(1000);
+//        resp.setData(postService.findAllNewsFeedPosts(rootUserId));
+//        return resp;
+//    }
+
+    @GetMapping("/newsFeedPosts/{page}/{size}/{rootUserId}")
+    public ApiResponse<Page<PostResponse>> findAllNewsFeedPosts(@PathVariable int page, @PathVariable int size ,@PathVariable String rootUserId) throws Exception {
         ApiResponse resp = new ApiResponse();
         resp.setCode(1000);
-        resp.setData(postService.findAllNewsFeedPosts(rootUserId));
+        resp.setData(postService.findAllNewsFeedPosts(page, size, rootUserId));
         return resp;
     }
 
