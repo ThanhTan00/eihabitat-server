@@ -114,5 +114,12 @@ public class UserController {
         return resp;
     }
 
+    @GetMapping("chatRoom/{userId}")
+    ApiResponse<UserDemoResponse> getDemoUserChatRoom(@PathVariable String userId) {
+        ApiResponse<UserDemoResponse> resp = new ApiResponse<>();
+        resp.setCode(1000);
+        resp.setData(userService.getUserDemoForChatRoom(userId));
+        return resp;
+    }
 
 }

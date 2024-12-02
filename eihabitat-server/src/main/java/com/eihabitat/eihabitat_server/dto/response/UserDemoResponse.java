@@ -14,7 +14,11 @@ import java.util.Set;
 @AllArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class UserDemoResponse {
+    String id;
     String email;
     String profileName;
     String profileAvatar;
+    String firstName;
+    String lastName;
+    String userUrl;
 }
