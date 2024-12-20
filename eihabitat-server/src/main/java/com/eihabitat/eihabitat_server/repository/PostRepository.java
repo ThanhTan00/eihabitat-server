@@ -16,7 +16,8 @@ public interface PostRepository extends JpaRepository<Post, String> {
 
     public Set<Post> findAllByAuthorId(String authorId);
     public Set<Post> findAllByAuthorProfileName(Sort sort, String authorId);
-    public Page<Post> findAllByAuthorIdIn(Pageable pageable, Set<String> authorIds);
+    public List<Post> findAllByAuthorIdIn(Set<String> authorIds);
+    //public Page<Post> findAllByAuthorIdIn(Pageable pageable, Set<String> authorIds);
 
 //    @Query("SELECT p.id FROM Post p WHERE p.author.id IN :authorIds")
 //    List<String> findPostIdsByAuthorIdIn()
