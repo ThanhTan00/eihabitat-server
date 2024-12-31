@@ -5,6 +5,7 @@ import com.eihabitat.eihabitat_server.dto.request.CommentUpdateReq;
 import com.eihabitat.eihabitat_server.dto.request.LikeCommentRequest;
 import com.eihabitat.eihabitat_server.dto.response.CommentResponse;
 import com.eihabitat.eihabitat_server.entity.Comment;
+import com.eihabitat.eihabitat_server.entity.LikeComment;
 import com.eihabitat.eihabitat_server.entity.Post;
 import com.eihabitat.eihabitat_server.entity.User;
 import com.eihabitat.eihabitat_server.exception.AppException;
@@ -77,14 +78,12 @@ public class CommentService {
 
     public String likeComment(LikeCommentRequest  request){
         if (likeCommentRepository.existsByCommentIdAndUserId(request.getCommentId(), request.getUserId())) {
-            unlikeComment(request);
+            likeCommentRepository.deleteAllByCommentIdAndUserId(request.getCommentId(), request.getUserId());
             return "Comment unliked!";
         }
-        likeCommentRepository.save(commentMapper.toLikeComment(request));
+        LikeComment likeComment = commentMapper.toLikeComment(request);
+        likeComment.setLikedAt(LocalDateTime.now());
+        likeCommentRepository.save(likeComment);
         return "Comment liked!";
-    }
-
-    public void unlikeComment(LikeCommentRequest  request){
-        likeCommentRepository.deleteAllByCommentIdAndUserId(request.getCommentId(), request.getUserId());
     }
 }

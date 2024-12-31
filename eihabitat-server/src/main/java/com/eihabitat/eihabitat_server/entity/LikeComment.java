@@ -18,4 +18,5 @@ public class LikeComment {
     String id;
     String commentId;
     String userId;
+    LocalDateTime likedAt;
 }
