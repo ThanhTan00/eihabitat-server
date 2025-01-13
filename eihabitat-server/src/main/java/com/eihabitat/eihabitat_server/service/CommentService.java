@@ -25,6 +25,7 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 @Service
@@ -51,6 +52,8 @@ public class CommentService {
         commentResponse.setOwnerProfileName(user.getProfileName());
         commentResponse.setOwnerAvatar(user.getProfileAvatar());
         commentResponse.setOwnerUrl(user.getUserUrl());
+        commentResponse.setNumberOfLike(0);
+        commentResponse.setLikedByMe(false);
 
         return commentResponse;
     }
@@ -68,9 +71,12 @@ public class CommentService {
         for (Comment comment : comments) {
             CommentResponse commentResponse = commentMapper.toCommentResponse(comment);
             User u = userRepository.findById(comment.getOwnerId()).orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
+            List<LikeComment> likeCommentList = likeCommentRepository.findAllByCommentId(comment.getId());
             commentResponse.setOwnerAvatar(u.getProfileAvatar());
             commentResponse.setOwnerProfileName(u.getProfileName());
             commentResponse.setOwnerUrl(u.getUserUrl());
+            commentResponse.setNumberOfLike(likeCommentList.size());
+            //commentResponse.setLikedByMe(likeCommentRepository.existsByCommentIdAndUserId(comment.getId(), u.getId()));
             commentResponses.add(commentResponse);
         }
         return commentResponses;

@@ -23,5 +23,7 @@ public class CommentResponse {
     String ownerProfileName;
     String ownerAvatar;
     String ownerUrl;
+    int numberOfLike;
+    boolean isLikedByMe;
     LocalDateTime creationDate;
 }
