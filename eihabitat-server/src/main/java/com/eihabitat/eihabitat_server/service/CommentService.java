@@ -65,7 +65,7 @@ public class CommentService {
         return commentRepository.save(comment);
     }
 
-    public Set<CommentResponse> getAllCommentByPostId(String postId) {
+    public Set<CommentResponse> getAllCommentByPostId(String postId, String rootUserID) {
         Set<Comment> comments = commentRepository.findAllByPostId(Sort.by(Sort.Direction.DESC, "creationDate"), postId);
         Set<CommentResponse> commentResponses = new HashSet<>();
         for (Comment comment : comments) {
@@ -76,7 +76,7 @@ public class CommentService {
             commentResponse.setOwnerProfileName(u.getProfileName());
             commentResponse.setOwnerUrl(u.getUserUrl());
             commentResponse.setNumberOfLike(likeCommentList.size());
-            //commentResponse.setLikedByMe(likeCommentRepository.existsByCommentIdAndUserId(comment.getId(), u.getId()));
+            commentResponse.setLikedByMe(likeCommentRepository.existsByCommentIdAndUserId(comment.getId(), rootUserID));
             commentResponses.add(commentResponse);
         }
         return commentResponses;

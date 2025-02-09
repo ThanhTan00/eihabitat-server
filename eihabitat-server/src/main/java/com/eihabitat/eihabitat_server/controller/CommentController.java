@@ -30,11 +30,11 @@ public class CommentController {
         return resp;
     }
 
-    @GetMapping("/{postId}")
-    public ApiResponse<Set<CommentResponse>> getComment(@PathVariable String postId) {
+    @GetMapping("/{postId}/{rootUserId}")
+    public ApiResponse<Set<CommentResponse>> getComment(@PathVariable String postId, @PathVariable String rootUserId) {
         ApiResponse resp = new ApiResponse();
         resp.setCode(1000);
-        resp.setData(commentService.getAllCommentByPostId(postId));
+        resp.setData(commentService.getAllCommentByPostId(postId, rootUserId));
         return resp;
     }
 
