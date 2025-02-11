@@ -20,4 +20,5 @@ public class Comment {
     LocalDateTime creationDate;
     String ownerId;
     String postId;
+    String replyTo;
 }

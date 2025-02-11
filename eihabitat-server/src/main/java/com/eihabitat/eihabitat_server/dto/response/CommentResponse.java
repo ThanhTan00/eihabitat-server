@@ -25,5 +25,6 @@ public class CommentResponse {
     String ownerUrl;
     int numberOfLike;
     boolean isLikedByMe;
+    String replyTo;
     LocalDateTime creationDate;
 }

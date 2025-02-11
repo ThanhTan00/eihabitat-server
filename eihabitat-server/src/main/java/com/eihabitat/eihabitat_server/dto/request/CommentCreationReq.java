@@ -16,6 +16,6 @@ public class CommentCreationReq {
     @NotBlank(message = "Required content")
     @Length(min = 1, message = "Content minimum is 1 character")
     String content;
-
     String postId;
+    String replyTo;
 }

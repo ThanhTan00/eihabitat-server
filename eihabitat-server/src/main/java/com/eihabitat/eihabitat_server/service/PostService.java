@@ -85,7 +85,7 @@ public class PostService {
         PostResponse postResponse = mapper.toPostResponse(opt);
         postResponse.setLikeByUser(likePostRepo.existsByUserIdAndPostId(rootUserId, postId));
 
-        Set<Comment> comments = commentRepo.findAllByPostId(Sort.by(Sort.Direction.DESC, "creationDate"), postId);
+        Set<Comment> comments = commentRepo.findAllByPostIdAndReplyTo(Sort.by(Sort.Direction.DESC, "creationDate"), postId, null);
 
 
 //        Set<CommentResponse> commentResponseSet = new HashSet<>();
@@ -131,7 +131,7 @@ public class PostService {
         for (Post post : listPost) {
             List<PostContent> postContents = postContentRepo.findAllByPostId(post.getId()).stream().toList();
             List<UserLikePost> userLikePosts = likePostRepo.findByPostId(post.getId());
-            List<Comment> comments = commentRepo.findAllByPostId(Sort.by(Sort.Direction.DESC, "creationDate"), post.getId()).stream().toList();
+            List<Comment> comments = commentRepo.findAllByPostIdAndReplyTo(Sort.by(Sort.Direction.DESC, "creationDate"), post.getId(), null).stream().toList();
             new PostOnPersonalWallResponse();
             listPostResponse.add(
                     PostOnPersonalWallResponse.builder()

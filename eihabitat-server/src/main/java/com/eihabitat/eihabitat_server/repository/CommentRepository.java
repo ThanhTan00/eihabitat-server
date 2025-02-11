@@ -7,5 +7,5 @@ import org.springframework.data.mongodb.repository.MongoRepository;
 import java.util.Set;
 
 public interface CommentRepository extends MongoRepository<Comment, String> {
-    Set<Comment> findAllByPostId(Sort sort, String postId);
+    Set<Comment> findAllByPostIdAndReplyTo(Sort sort, String postId, String replyTo);
 }

@@ -2,18 +2,14 @@ package com.eihabitat.eihabitat_server.controller;
 
 import com.eihabitat.eihabitat_server.dto.request.*;
 import com.eihabitat.eihabitat_server.dto.response.CommentResponse;
-import com.eihabitat.eihabitat_server.dto.response.PostResponse;
 import com.eihabitat.eihabitat_server.service.CommentService;
 import jakarta.validation.Valid;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
-import java.security.Principal;
 import java.util.Set;
-import java.util.UUID;
 
 @RestController
 @RequiredArgsConstructor
@@ -30,11 +26,11 @@ public class CommentController {
         return resp;
     }
 
-    @GetMapping("/{postId}/{rootUserId}")
-    public ApiResponse<Set<CommentResponse>> getComment(@PathVariable String postId, @PathVariable String rootUserId) {
+    @PostMapping("/replyComment")
+    public ApiResponse<Set<CommentResponse>> getComment(@RequestBody GetCommentReq commentReq) {
         ApiResponse resp = new ApiResponse();
         resp.setCode(1000);
-        resp.setData(commentService.getAllCommentByPostId(postId, rootUserId));
+        resp.setData(commentService.getAllComment(commentReq));
         return resp;
     }
 

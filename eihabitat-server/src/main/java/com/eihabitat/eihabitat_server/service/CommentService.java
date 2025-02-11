@@ -2,25 +2,23 @@ package com.eihabitat.eihabitat_server.service;
 
 import com.eihabitat.eihabitat_server.dto.request.CommentCreationReq;
 import com.eihabitat.eihabitat_server.dto.request.CommentUpdateReq;
+import com.eihabitat.eihabitat_server.dto.request.GetCommentReq;
 import com.eihabitat.eihabitat_server.dto.request.LikeCommentRequest;
 import com.eihabitat.eihabitat_server.dto.response.CommentResponse;
 import com.eihabitat.eihabitat_server.entity.Comment;
 import com.eihabitat.eihabitat_server.entity.LikeComment;
-import com.eihabitat.eihabitat_server.entity.Post;
 import com.eihabitat.eihabitat_server.entity.User;
 import com.eihabitat.eihabitat_server.exception.AppException;
 import com.eihabitat.eihabitat_server.exception.ErrorCode;
 import com.eihabitat.eihabitat_server.mapper.CommentMapper;
 import com.eihabitat.eihabitat_server.repository.CommentRepository;
 import com.eihabitat.eihabitat_server.repository.LikeCommentRepository;
-import com.eihabitat.eihabitat_server.repository.PostRepository;
 import com.eihabitat.eihabitat_server.repository.UserRepository;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Sort;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -39,7 +37,6 @@ public class CommentService {
     CommentMapper commentMapper;
 
     public CommentResponse addComment(CommentCreationReq data, String userID) {
-        var context = SecurityContextHolder.getContext();
         User user = userRepository.findById(userID).orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
 
         Comment comment = commentMapper.toComment(data);
@@ -65,8 +62,8 @@ public class CommentService {
         return commentRepository.save(comment);
     }
 
-    public Set<CommentResponse> getAllCommentByPostId(String postId, String rootUserID) {
-        Set<Comment> comments = commentRepository.findAllByPostId(Sort.by(Sort.Direction.DESC, "creationDate"), postId);
+    public Set<CommentResponse> getAllComment(GetCommentReq replyCommentReq) {
+        Set<Comment> comments = commentRepository.findAllByPostIdAndReplyTo(Sort.by(Sort.Direction.DESC, "creationDate"), replyCommentReq.getPostId(), replyCommentReq.getReplyTo());
         Set<CommentResponse> commentResponses = new HashSet<>();
         for (Comment comment : comments) {
             CommentResponse commentResponse = commentMapper.toCommentResponse(comment);
@@ -76,7 +73,7 @@ public class CommentService {
             commentResponse.setOwnerProfileName(u.getProfileName());
             commentResponse.setOwnerUrl(u.getUserUrl());
             commentResponse.setNumberOfLike(likeCommentList.size());
-            commentResponse.setLikedByMe(likeCommentRepository.existsByCommentIdAndUserId(comment.getId(), rootUserID));
+            commentResponse.setLikedByMe(likeCommentRepository.existsByCommentIdAndUserId(comment.getId(), replyCommentReq.getRootUserID()));
             commentResponses.add(commentResponse);
         }
         return commentResponses;
