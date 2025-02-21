@@ -26,7 +26,7 @@ public class CommentController {
         return resp;
     }
 
-    @PostMapping("/replyComment")
+    @PostMapping("/getComment")
     public ApiResponse<Set<CommentResponse>> getComment(@RequestBody GetCommentReq commentReq) {
         ApiResponse resp = new ApiResponse();
         resp.setCode(1000);
