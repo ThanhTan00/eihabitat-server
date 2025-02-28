@@ -3,8 +3,11 @@ package com.eihabitat.eihabitat_server.controller;
 import com.eihabitat.eihabitat_server.dto.request.ApiResponse;
 import com.eihabitat.eihabitat_server.dto.request.PostCreationReq;
 import com.eihabitat.eihabitat_server.dto.request.PostUpdateReq;
+import com.eihabitat.eihabitat_server.dto.response.AuthenticationResponse;
 import com.eihabitat.eihabitat_server.dto.response.PostResponse;
+import com.eihabitat.eihabitat_server.entity.SavedPost;
 import com.eihabitat.eihabitat_server.service.PostService;
+import com.eihabitat.eihabitat_server.service.SavedPostService;
 import jakarta.validation.Valid;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
@@ -22,6 +25,7 @@ import java.util.Set;
 @RequestMapping("/post")
 public class PostController {
     PostService postService;
+    SavedPostService savedPostService;
 
     @PostMapping("/{userId}")
     public ApiResponse<PostResponse> createPost(@PathVariable String userId, @RequestParam("caption") String caption,
@@ -78,6 +82,15 @@ public class PostController {
         resp.setCode(1000);
         resp.setData(postService.findAllNewsFeedPosts(rootUserId));
         return resp;
+    }
+
+    @PostMapping("/saved")
+    public ApiResponse<String> savePost(@Valid @RequestBody SavedPost SavePost) throws Exception {
+        String result = savedPostService.savePost(SavePost);
+        return ApiResponse.<String>builder()
+                .code(1000)
+                .data(result)
+                .build();
     }
 
 //    @GetMapping("/newsFeedPosts/{page}/{size}/{rootUserId}")

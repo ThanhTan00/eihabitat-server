@@ -24,6 +24,7 @@ public enum ErrorCode {
     WRONG_USERNAME_OR_PASSWORD(1014, "Wrong username or password", HttpStatus.NOT_FOUND),
     EMAIL_EXISTED(1015, "Email already exists", HttpStatus.CONFLICT),
     EMAIL_CONFIRM_TOKEN_INVALID(1016, "Email confirmation token is invalid", HttpStatus.CONFLICT),
+    ALBUM_NOT_FOUND(1017, "Album not found", HttpStatus.NOT_FOUND),
     ;
 
     ErrorCode(int code, String message, HttpStatusCode statusCode) {
