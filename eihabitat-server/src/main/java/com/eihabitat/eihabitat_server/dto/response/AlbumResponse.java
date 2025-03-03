@@ -1,6 +1,6 @@
 package com.eihabitat.eihabitat_server.dto.response;
 
-import com.eihabitat.eihabitat_server.entity.Album;
+import com.eihabitat.eihabitat_server.entity.PostContent;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 
@@ -12,6 +12,5 @@ import java.util.List;
 @AllArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class AlbumResponse {
-    Album album;
-    List<String> representImages;
+    List<PostContent> representImages;
 }

@@ -7,4 +7,5 @@ import java.util.Set;
 
 public interface PostContentRepository extends JpaRepository<PostContent, String> {
     Set<PostContent> findAllByPostId(String postId);
+    PostContent findFirstByPostId(String postId);
 }

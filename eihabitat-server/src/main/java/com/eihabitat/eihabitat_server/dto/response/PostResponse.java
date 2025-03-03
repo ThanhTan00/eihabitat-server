@@ -28,4 +28,5 @@ public class PostResponse {
     String latestUserLike;
     String latestUserLikeAvatar;
     boolean isLikeByUser;
+    boolean isSavedByUser;
 }

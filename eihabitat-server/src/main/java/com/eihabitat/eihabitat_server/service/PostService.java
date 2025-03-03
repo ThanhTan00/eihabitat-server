@@ -36,6 +36,7 @@ public class PostService {
     PostRepository postRepository;
     UserLikePostRepository likePostRepo;
     UserFollowRepository userFollowRepo;
+    SavedPostRepository savedPostRepo;
     PostMapper mapper;
     S3Service s3Service;
 
@@ -84,33 +85,21 @@ public class PostService {
         }
         PostResponse postResponse = mapper.toPostResponse(opt);
         postResponse.setLikeByUser(likePostRepo.existsByUserIdAndPostId(rootUserId, postId));
+        postResponse.setSavedByUser(savedPostRepo.existsByPostIdAndUserId(postId, rootUserId));
 
-        Set<Comment> comments = commentRepo.findAllByPostIdAndReplyTo(Sort.by(Sort.Direction.DESC, "creationDate"), postId, null);
-
-
-//        Set<CommentResponse> commentResponseSet = new HashSet<>();
-//        for (Comment comment : comments) {
-//            User u = userRepo.findById(comment.getOwnerId()).orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
-//            CommentResponse commentResponse = commentMapper.toCommentResponse(comment);
-//            commentResponse.setOwnerProfileName(u.getProfileName());
-//            commentResponse.setOwnerAvatar(u.getProfileAvatar());
-//            commentResponseSet.add(commentResponse);
-//        }
         if (userLikePosts.isEmpty()) {
             postResponse.setLatestUserLike(null);
             postResponse.setLatestUserLikeAvatar(null);
         } else {
             User latestUserLike = userRepo.findById(userLikePosts.getLast().getUserId()).orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
-            log.info("latest liked by: " + latestUserLike.toString());
             postResponse.setLatestUserLike(latestUserLike.getProfileName());
             postResponse.setLatestUserLikeAvatar(latestUserLike.getProfileAvatar());
         }
-        postResponse.setNumberOfComments(comments.size());
+        postResponse.setNumberOfComments(commentRepo.findAllByPostId(postId).size());
         postResponse.setPostContentSet(postContentResponseSet);
         postResponse.setAuthorProfileName(author.getProfileName());
         postResponse.setAuthorProfileAvatar(author.getProfileAvatar());
         postResponse.setAuthorUrl(author.getUserUrl());
-//        postResponse.setCommentSet(commentResponseSet);
         postResponse.setNumberOfLikes(userLikePosts.size());
         return postResponse;
     }
@@ -129,16 +118,14 @@ public class PostService {
         Set<PostOnPersonalWallResponse> listPostResponse = new HashSet<>();
 
         for (Post post : listPost) {
-            List<PostContent> postContents = postContentRepo.findAllByPostId(post.getId()).stream().toList();
-            List<UserLikePost> userLikePosts = likePostRepo.findByPostId(post.getId());
             List<Comment> comments = commentRepo.findAllByPostIdAndReplyTo(Sort.by(Sort.Direction.DESC, "creationDate"), post.getId(), null).stream().toList();
             new PostOnPersonalWallResponse();
             listPostResponse.add(
                     PostOnPersonalWallResponse.builder()
                             .id(post.getId())
                             .createdAt(post.getCreatedAt())
-                            .representImage(postContents.getFirst().getImageId())
-                            .numberOfLikes(userLikePosts.size())
+                            .representImage(postContentRepo.findFirstByPostId(post.getId()).getImageId())
+                            .numberOfLikes(likePostRepo.findByPostId(post.getId()).size())
                             .numberOfComments(comments.size())
                             .build()
             );
@@ -161,7 +148,7 @@ public class PostService {
             followedIds.add(userFollow.getFollowedId());
         }
         followedIds.add(rootUserId);
-        List<Post> listPost = postRepository.findAllByAuthorIdIn(followedIds);
+        List<Post> listPost = postRepository.findAllByAuthorIdIn(Sort.by(Sort.Direction.DESC, "createdAt"), followedIds);
         List<PostResponse> listPostResponse = new ArrayList<>();
         for (Post post : listPost) {
             PostResponse postResponse = findPostById(post.getId(), rootUserId);
