@@ -45,7 +45,7 @@ public class SavedPostService {
     }
 
     public AlbumResponse getTop4(String userId) {
-        List<SavedPost> top4 =  savedPostRepository.findTop4ByUserId(userId);
+        List<SavedPost> top4 =  savedPostRepository.findTop4ByUserId(Sort.by(Sort.Direction.DESC, "savedAt"), userId);
         AlbumResponse alResponse = new AlbumResponse();
         List<PostContent> represents = new ArrayList<>();
         for (SavedPost savedPost : top4) {
