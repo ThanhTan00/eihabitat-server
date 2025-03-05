@@ -25,9 +25,10 @@ import java.util.List;
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 @Slf4j
 public class UserFollowService {
-    private final UserRepository userRepository;
-    private final UserFollowRepository userFollowRepository;
-    private final UserFollowMapper userFollowMapper;
+    UserRepository userRepository;
+    UserFollowRepository userFollowRepository;
+    UserFollowMapper userFollowMapper;
+    NotificationService notificationService;
 
     public String followUser(UserFollowReq requestDto) {
         if (requestDto.getFollowerId().equals(requestDto.getFollowedId())) {
@@ -38,7 +39,7 @@ public class UserFollowService {
         userFollow.setFollowedAt(new Date());
 
         userFollow = userFollowRepository.save(userFollow);
-
+        notificationService.createNotification(requestDto.getFollowedId(), requestDto.getFollowerId(), "FOLLOW", null);
         return "Follow user successfully followed by " + userFollow.getFollowedId();
     }
 

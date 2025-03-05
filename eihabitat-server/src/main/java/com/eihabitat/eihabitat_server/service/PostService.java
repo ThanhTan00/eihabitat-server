@@ -110,8 +110,25 @@ public class PostService {
         postResponse.setAuthorProfileName(author.getProfileName());
         postResponse.setAuthorProfileAvatar(author.getProfileAvatar());
         postResponse.setAuthorUrl(author.getUserUrl());
+        postResponse.setAuthorId(author.getId());
 //        postResponse.setCommentSet(commentResponseSet);
         postResponse.setNumberOfLikes(userLikePosts.size());
+        return postResponse;
+    }
+
+    public PostResponse findUserByPostId(String postId) throws Exception {
+        Post opt = postRepository.findById(postId).orElseThrow(() -> new AppException(ErrorCode.POST_NOT_FOUND));
+
+        List<UserLikePost> userLikePosts = likePostRepo.findByPostId(postId);
+
+        User author = opt.getAuthor();
+
+        PostResponse postResponse = mapper.toPostResponse(opt);
+
+        postResponse.setAuthorProfileName(author.getProfileName());
+        postResponse.setAuthorProfileAvatar(author.getProfileAvatar());
+        postResponse.setAuthorUrl(author.getUserUrl());
+        postResponse.setAuthorId(author.getId());
         return postResponse;
     }
 

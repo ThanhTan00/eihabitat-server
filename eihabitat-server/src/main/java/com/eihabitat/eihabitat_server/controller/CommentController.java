@@ -23,7 +23,7 @@ public class CommentController {
     CommentService commentService;
 
     @PostMapping("/{userId}")
-    public ApiResponse<CommentResponse> addComment(@PathVariable String userId, @RequestBody CommentCreationReq commentCreationReq) {
+    public ApiResponse<CommentResponse> addComment(@PathVariable String userId, @RequestBody CommentCreationReq commentCreationReq) throws Exception {
         ApiResponse resp = new ApiResponse();
         resp.setCode(1000);
         resp.setData(commentService.addComment(commentCreationReq, userId));

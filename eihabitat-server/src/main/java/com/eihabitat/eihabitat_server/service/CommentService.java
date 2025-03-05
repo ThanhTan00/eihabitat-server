@@ -36,9 +36,11 @@ public class CommentService {
     CommentRepository commentRepository;
     LikeCommentRepository likeCommentRepository;
     UserRepository userRepository;
+    NotificationService notificationService;
+    PostService postService;
     CommentMapper commentMapper;
 
-    public CommentResponse addComment(CommentCreationReq data, String userID) {
+    public CommentResponse addComment(CommentCreationReq data, String userID) throws Exception {
         var context = SecurityContextHolder.getContext();
         User user = userRepository.findById(userID).orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
 
@@ -54,6 +56,8 @@ public class CommentService {
         commentResponse.setOwnerUrl(user.getUserUrl());
         commentResponse.setNumberOfLike(0);
         commentResponse.setLikedByMe(false);
+
+        notificationService.createNotification(postService.findUserByPostId(data.getPostId()).getAuthorId(), userID, "COMMENT", data.getPostId());
 
         return commentResponse;
     }

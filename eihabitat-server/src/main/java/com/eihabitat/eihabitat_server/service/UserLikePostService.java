@@ -22,8 +22,10 @@ import java.util.stream.Collectors;
 public class UserLikePostService {
     UserLikePostRepository userLikePostRepository;
     UserLikePostMapper userLikePostMapper;
+    NotificationService notificationService;
+    PostService postService;
 
-    public String likePost(UserLikePostReq request) {
+    public String likePost(UserLikePostReq request) throws Exception {
         if (userLikePostRepository.existsByUserIdAndPostId(request.getUserId(), request.getPostId())) {
             unlikePost(request);
             return "Post unliked successfully!";
@@ -33,7 +35,7 @@ public class UserLikePostService {
         userLikePost.setLikedAt(LocalDateTime.now());
 
         userLikePostRepository.save(userLikePost);
-
+        notificationService.createNotification(postService.findUserByPostId(request.getPostId()).getAuthorId(), request.getUserId(), "LIKE", request.getPostId());
         return "Post liked successfully!";
     }
 

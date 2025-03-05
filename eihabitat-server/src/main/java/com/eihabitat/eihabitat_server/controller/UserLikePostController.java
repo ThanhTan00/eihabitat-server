@@ -19,7 +19,7 @@ public class UserLikePostController {
     UserLikePostService userLikeService;
 
     @PostMapping
-    public ApiResponse<String> likePost(@Valid @RequestBody UserLikePostReq request) {
+    public ApiResponse<String> likePost(@Valid @RequestBody UserLikePostReq request) throws Exception {
         ApiResponse resp = new ApiResponse();
         resp.setCode(1000);
         resp.setData(userLikeService.likePost(request));
