@@ -1,10 +1,14 @@
 package com.eihabitat.eihabitat_server.service;
 
+import com.eihabitat.eihabitat_server.dto.request.ChatBotMessageReq;
+import com.eihabitat.eihabitat_server.dto.response.ChatBotMessageResponse;
 import com.eihabitat.eihabitat_server.dto.response.ChatConversationResponse;
+import com.eihabitat.eihabitat_server.entity.ChatBot;
 import com.eihabitat.eihabitat_server.entity.ChatMessage;
 import com.eihabitat.eihabitat_server.entity.User;
 import com.eihabitat.eihabitat_server.exception.AppException;
 import com.eihabitat.eihabitat_server.exception.ErrorCode;
+import com.eihabitat.eihabitat_server.repository.ChatBotRepository;
 import com.eihabitat.eihabitat_server.repository.ChatMessageRepository;
 import com.eihabitat.eihabitat_server.repository.UserRepository;
 import lombok.AccessLevel;
@@ -15,6 +19,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Sort;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.RestTemplate;
 
 import java.time.LocalDateTime;
 import java.util.*;
@@ -26,6 +31,7 @@ import java.util.stream.Collectors;
 @Slf4j
 public class ChatService {
     ChatMessageRepository chatMessageRepository;
+    ChatBotRepository chatBotRepository;
     UserRepository userRepo;
     SimpMessagingTemplate messagingTemplate;
 
@@ -91,5 +97,25 @@ public class ChatService {
 
     public void clearAllMessages() {
         chatMessageRepository.deleteAll();
+    }
+
+    public ChatBot chatWithBot(String userId, ChatBotMessageReq chatBotMessageReq){
+        LocalDateTime sendAt = LocalDateTime.now();
+        RestTemplate restTemplate = new RestTemplate();
+        String url = "http://localhost:5000/chat";
+        ChatBotMessageResponse response = restTemplate.postForObject(url, chatBotMessageReq, ChatBotMessageResponse.class);
+        log.info(response.toString());
+        ChatBot chatBot = ChatBot.builder()
+                .userId(userId)
+                .message(chatBotMessageReq.getMessage())
+                .response(response.getResponse())
+                .sendAt(sendAt)
+                .receiveAt(LocalDateTime.now())
+                .build();
+        return chatBotRepository.save(chatBot);
+    }
+
+    public List<ChatBot> getChatBotHistory(String userId) {
+        return chatBotRepository.findAllByUserId(Sort.by(Sort.Direction.ASC, "sendAt"), userId);
     }
 }

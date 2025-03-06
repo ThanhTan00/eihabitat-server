@@ -1,6 +1,11 @@
 package com.eihabitat.eihabitat_server.controller;
 
+import com.eihabitat.eihabitat_server.dto.request.ApiResponse;
+import com.eihabitat.eihabitat_server.dto.request.ChatBotMessageReq;
+import com.eihabitat.eihabitat_server.dto.response.AlbumResponse;
+import com.eihabitat.eihabitat_server.dto.response.ChatBotMessageResponse;
 import com.eihabitat.eihabitat_server.dto.response.ChatConversationResponse;
+import com.eihabitat.eihabitat_server.entity.ChatBot;
 import com.eihabitat.eihabitat_server.entity.ChatMessage;
 import com.eihabitat.eihabitat_server.service.ChatService;
 import lombok.AccessLevel;
@@ -49,6 +54,24 @@ public class ChatController {
     public ResponseEntity<Void> clearAllMessages() {
         chatService.clearAllMessages();
         return ResponseEntity.ok().build();
+    }
+
+    @PostMapping("/chatBot/{userId}")
+    public ApiResponse<ChatBot> chatBot(@PathVariable String userId, @RequestBody ChatBotMessageReq req) {
+        ChatBot result = chatService.chatWithBot(userId, req);
+        return ApiResponse.<ChatBot>builder()
+                .code(1000)
+                .data(result)
+                .build();
+    }
+
+    @GetMapping("/chatBot/{userId}")
+    public ApiResponse<List<ChatBot>> getAllChatBotHistory(@PathVariable String userId) {
+        List<ChatBot> result = chatService.getChatBotHistory(userId);
+        return ApiResponse.<List<ChatBot>>builder()
+                .code(1000)
+                .data(result)
+                .build();
     }
 }
 
