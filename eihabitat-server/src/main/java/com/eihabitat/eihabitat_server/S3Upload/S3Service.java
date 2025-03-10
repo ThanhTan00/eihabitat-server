@@ -16,13 +16,14 @@ import java.nio.file.Paths;
 public class S3Service {
 
     private final S3Client s3Client;
+    private final String POST = "user-post";
+    private final String STORY = "eihabitat-user-story";
 
     public String uploadFile(MultipartFile file, String keyName) throws IOException {
 
         // Create a PutObjectRequest
-        String bucketName = "user-post";
         PutObjectRequest putObjectRequest = PutObjectRequest.builder()
-                .bucket(bucketName)
+                .bucket(POST)
                 .key(keyName)
                 .build();
 
@@ -31,21 +32,25 @@ public class S3Service {
                 software.amazon.awssdk.core.sync.RequestBody.fromBytes(file.getBytes()));
 
         // Optionally, return the file URL
-        return String.format("https://%s.s3.amazonaws.com/%s", bucketName, keyName);
+        return String.format("https://%s.s3.amazonaws.com/%s", POST, keyName);
     }
 
-//    public ResponseInputStream downloadFile(String fileName) {
-//        try {
-//            GetObjectRequest getObjectRequest = GetObjectRequest.builder()
-//                    .bucket(bucketName)
-//                    .key(fileName)
-//                    .build();
-//
-//            return s3Client.getObject(getObjectRequest);
-//        } catch (S3Exception e) {
-//            throw new RuntimeException("Error while downloading file from S3", e);
-//        }
-//    }
+    public String uploadStory(MultipartFile file, String keyName) throws IOException {
+
+        // Create a PutObjectRequest
+        PutObjectRequest putObjectRequest = PutObjectRequest.builder()
+                .bucket(STORY)
+                .key(keyName)
+                .build();
+
+        // Upload the file
+        PutObjectResponse response = s3Client.putObject(putObjectRequest,
+                software.amazon.awssdk.core.sync.RequestBody.fromBytes(file.getBytes()));
+
+        // Optionally, return the file URL
+        return String.format("https://%s.s3.amazonaws.com/%s", STORY, keyName);
+    }
+
 }
 
 

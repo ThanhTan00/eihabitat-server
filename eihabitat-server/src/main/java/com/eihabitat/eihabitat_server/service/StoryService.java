@@ -1,5 +1,6 @@
 package com.eihabitat.eihabitat_server.service;
 
+import com.eihabitat.eihabitat_server.S3Upload.S3Service;
 import com.eihabitat.eihabitat_server.dto.request.StoryCreationReq;
 import com.eihabitat.eihabitat_server.dto.response.StoryResponse;
 import com.eihabitat.eihabitat_server.entity.Story;
@@ -13,10 +14,11 @@ import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.cglib.core.Local;
 import org.springframework.scheduling.annotation.Scheduled;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
+import java.io.IOException;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -31,27 +33,29 @@ public class StoryService {
     StoryMapper mapper;
     UserRepository userRepo;
     private final StoryRepository storyRepository;
+    private final S3Service s3Service;
 
-    public String createStory(StoryCreationReq storyRequest) {
-        Story story = mapper.toStory(storyRequest);
-        story.setAuthorId(storyRequest.getAuthorId());
-        story.setCreatedAt(LocalDateTime.now());
-        story.setExpiresAt(LocalDateTime.now().plusHours(24));
-        story.setImageUrl(storyRequest.getImageUrl());
-        storyRepository.save(story);
-        return "Story created successfully";
+    public StoryResponse createStory(StoryCreationReq storyRequest) throws IOException {
+        Story story = mapper.toStory(storyRequest);;
+        LocalDateTime now = LocalDateTime.now();
+        story.setCreatedAt(now);
+        story.setExpiresAt(now.plusHours(24));
+        story.setSeenId(new ArrayList<String>());
+        String link = s3Service.uploadFile(storyRequest.getImageFile(), LocalDateTime.now()+storyRequest.getImageFile().getOriginalFilename());
+        story.setImageUrl(link);
+        StoryResponse response = mapper.toStoryResponse(storyRepository.save(story));
+        return response;
     }
 
     public List<StoryResponse> getActiveStories(String authorId) {
         User user = userRepo.findById(authorId).orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
         LocalDateTime now = LocalDateTime.now();
         List<Story> activeStories = storyRepository.findAllByAuthorIdAndExpiresAtAfter(authorId, now);
-        log.info("Active stories: {}", activeStories);
         List<StoryResponse> responses = new ArrayList<>();
         for (Story story : activeStories) {
             StoryResponse storyResponse = mapper.toStoryResponse(story);
             storyResponse.setAuthorAvatar(user.getProfileAvatar());
-            storyResponse.setAuthorProfileName(user.getProfileName());
+            storyResponse.setAuthorName(user.getProfileName());
             responses.add(storyResponse);
         }
         return responses;

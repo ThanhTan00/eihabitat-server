@@ -10,4 +10,5 @@ import java.util.Set;
 public interface CommentRepository extends MongoRepository<Comment, String> {
     Set<Comment> findAllByPostIdAndReplyTo(Sort sort, String postId, String replyTo);
     List<Comment> findAllByPostId(String postID);
+    void deleteAllByPostId(String postID);
 }
