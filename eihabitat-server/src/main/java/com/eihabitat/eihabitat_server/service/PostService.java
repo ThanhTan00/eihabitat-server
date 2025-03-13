@@ -37,6 +37,8 @@ public class PostService {
     UserLikePostRepository likePostRepo;
     UserFollowRepository userFollowRepo;
     SavedPostRepository savedPostRepo;
+    StoryRepository storyRepo;
+    UserSeenStoryRepository userSeenStoryRepo;
     PostMapper mapper;
     S3Service s3Service;
 
@@ -84,8 +86,19 @@ public class PostService {
             postContentResponseSet.add(mapper.toPostContentResponse(postContent));
         }
         PostResponse postResponse = mapper.toPostResponse(opt);
+        postResponse.setAuthorId(author.getId());
         postResponse.setLikeByUser(likePostRepo.existsByUserIdAndPostId(rootUserId, postId));
         postResponse.setSavedByUser(savedPostRepo.existsByPostIdAndUserId(postId, rootUserId));
+
+        List<Story> activeStories = storyRepo.findAllByAuthorIdAndExpiresAtAfter(Sort.by(Sort.Direction.ASC, "expiresAt"), author.getId(), LocalDateTime.now());
+        if (activeStories.isEmpty()) {
+            postResponse.setStory(false);
+            postResponse.setNewStory(false);
+        } else {
+            postResponse.setStory(true);
+            Story story = activeStories.getLast();
+            postResponse.setNewStory(!userSeenStoryRepo.existsByUserIdAndStoryId(rootUserId, story.getId()));
+        }
 
         if (userLikePosts.isEmpty()) {
             postResponse.setLatestUserLike(null);

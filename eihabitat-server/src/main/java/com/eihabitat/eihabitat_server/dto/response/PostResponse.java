@@ -19,9 +19,12 @@ public class PostResponse {
     String caption;
     String type;
     LocalDateTime createdAt;
+    String authorId;
     String authorProfileName;
     String authorProfileAvatar;
     String authorUrl;
+    boolean story;
+    boolean newStory;
     Set<PostContentResponse> postContentSet;
     int numberOfComments;
     int numberOfLikes;

@@ -93,7 +93,8 @@ public class UserService {
         User user = userMapper.toUser(request);
         user.setPassword(passwordEncoder.encode(user.getPassword()));
         user.setProfileAvatar("asset/images/default-avatar.png");
-        user.setUserUrl("http://14.225.253.213:3000/"+request.getProfileName());
+        //user.setUserUrl("http://14.225.253.213:3000/"+request.getProfileName());
+        user.setUserUrl("http://localhost:3000/"+request.getProfileName());
         // Retrieve the role and set it to the user
         Role userRole = roleRepository.findById("USER")
                 .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));

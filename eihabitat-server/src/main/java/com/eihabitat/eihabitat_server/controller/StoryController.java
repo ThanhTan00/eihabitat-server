@@ -3,7 +3,9 @@ package com.eihabitat.eihabitat_server.controller;
 import com.eihabitat.eihabitat_server.dto.request.ApiResponse;
 import com.eihabitat.eihabitat_server.dto.request.StoryCreationReq;
 import com.eihabitat.eihabitat_server.dto.response.AlbumResponse;
+import com.eihabitat.eihabitat_server.dto.response.FollowingStoryResponse;
 import com.eihabitat.eihabitat_server.dto.response.StoryResponse;
+import com.eihabitat.eihabitat_server.repository.UserSeenStoryRepository;
 import com.eihabitat.eihabitat_server.service.StoryService;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
@@ -55,13 +57,19 @@ public class StoryController {
 //        List<Story> stories = storyService.getStoriesByAuthor(author);
 //        return ResponseEntity.ok(stories);
 //    }
-
-    @DeleteMapping("/{storyId}")
-    public ApiResponse<StoryResponse> deleteStory(@PathVariable String storyId) throws Exception {
-        ApiResponse resp = new ApiResponse();
-        resp.setCode(1000);
-        resp.setData(storyService.deleteStory(storyId));
-        return resp;
+    @GetMapping("getNew/{userId}")
+    public ApiResponse<List<FollowingStoryResponse>> getNewStory(@PathVariable String userId) throws Exception {
+        return ApiResponse.<List<FollowingStoryResponse>>builder()
+                .code(1000)
+                .data(storyService.getFollowingNewStory(userId))
+                .build();
     }
 
+    @GetMapping("seen/{storyId}/{userId}")
+    public ApiResponse<String> getNewStory(@PathVariable String storyId, @PathVariable String userId) throws Exception {
+        return ApiResponse.<String>builder()
+                .code(1000)
+                .data(storyService.seenStory(storyId, userId))
+                .build();
+    }
 }
