@@ -81,7 +81,7 @@ public class AuthenticationController {
             if (userService.verifyUser(token)) {
                 return "" +
                         "Your email has been successfully verified.</a>" +
-                        "<a href='http://localhost:3000'>Login now</a>"
+                        "<a href='http://14.225.253.213:3000'>Login now</a>"
                         +"";
             } else {
                 return "Something wrong happened. Please try again later.";

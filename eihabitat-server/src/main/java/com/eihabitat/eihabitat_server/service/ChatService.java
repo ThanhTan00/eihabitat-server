@@ -102,8 +102,8 @@ public class ChatService {
     public ChatBot chatWithBot(String userId, ChatBotMessageReq chatBotMessageReq){
         LocalDateTime sendAt = LocalDateTime.now();
         RestTemplate restTemplate = new RestTemplate();
-        //String url = "http://14.225.253.213:5000/chat";
-        String url = "http://localhost:5000/chat";
+        String url = "http://14.225.253.213:5000/chat";
+        //String url = "http://localhost:5000/chat";
         ChatBotMessageResponse response = restTemplate.postForObject(url, chatBotMessageReq, ChatBotMessageResponse.class);
         log.info(response.toString());
         ChatBot chatBot = ChatBot.builder()
