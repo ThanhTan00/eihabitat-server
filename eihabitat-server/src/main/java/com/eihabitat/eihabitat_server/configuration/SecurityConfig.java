@@ -134,6 +134,7 @@ public class SecurityConfig {
         corsConfiguration.addAllowedOrigin("http://14.225.253.213:3000/");
         corsConfiguration.addAllowedOrigin("http://14.225.253.213");
         corsConfiguration.addAllowedOrigin("http://eihabitat.site");
+        corsConfiguration.addAllowedOrigin("http://www.eihabitat.site");
         corsConfiguration.addAllowedOrigin("http://localhost:3000/");
         corsConfiguration.addAllowedMethod("*");
         corsConfiguration.addAllowedHeader("*");
