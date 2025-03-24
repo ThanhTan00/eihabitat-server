@@ -71,38 +71,39 @@ public class SecurityConfig {
                     registry.requestMatchers(HttpMethod.GET, PUBLIC_ENDPOINT).permitAll();
                     registry.anyRequest().authenticated();
                 })
-                .oauth2Login(oauth2login->{
-                    oauth2login.successHandler(new AuthenticationSuccessHandler() {
-                        @Override
-                        public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response, Authentication authentication) throws IOException, ServletException {
-                            OAuth2AuthenticationToken authToken = (OAuth2AuthenticationToken) authentication;
-                            String email = authToken.getPrincipal().getAttribute("email");
-                            JWSHeader header = new JWSHeader(JWSAlgorithm.HS512);
-
-                            JWTClaimsSet jwtClaimsSet = new JWTClaimsSet.Builder()
-                                    .subject(email)
-                                    .issuer("eihabitat")
-                                    .issueTime(new java.util.Date())
-                                    .expirationTime(new Date(
-                                            Instant.now().plus(24, ChronoUnit.HOURS).toEpochMilli()
-                                    ))
-                                    .jwtID(UUID.randomUUID().toString())
-                                    .build();
-                            Payload payload = new Payload(jwtClaimsSet.toJSONObject());
-
-                            JWSObject jwsObject = new JWSObject(header, payload);
-                            String token="";
-                            try {
-                                jwsObject.sign(new MACSigner(SIGNER_KEY.getBytes()));
-                                token = jwsObject.serialize();
-                            } catch (JOSEException e) {
-                                log.error("Cannot sign JWT object", e);
-                                throw new RuntimeException(e);
-                            }
-                            response.sendRedirect("https://eihabitat.site/loginWithGoogle?email="+email+"&token="+token);
-                        }
-                    });
-                })
+//                .oauth2Login(oauth2login->{
+//                    oauth2login.successHandler(new AuthenticationSuccessHandler() {
+//                        @Override
+//                        public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response, Authentication authentication) throws IOException, ServletException {
+//                            OAuth2AuthenticationToken authToken = (OAuth2AuthenticationToken) authentication;
+//                            String email = authToken.getPrincipal().getAttribute("email");
+//                            JWSHeader header = new JWSHeader(JWSAlgorithm.HS512);
+//
+//                            JWTClaimsSet jwtClaimsSet = new JWTClaimsSet.Builder()
+//                                    .subject(email)
+//                                    .issuer("eihabitat")
+//                                    .issueTime(new java.util.Date())
+//                                    .expirationTime(new Date(
+//                                            Instant.now().plus(24, ChronoUnit.HOURS).toEpochMilli()
+//                                    ))
+//                                    .jwtID(UUID.randomUUID().toString())
+//                                    .build();
+//                            Payload payload = new Payload(jwtClaimsSet.toJSONObject());
+//
+//                            JWSObject jwsObject = new JWSObject(header, payload);
+//                            String token="";
+//                            try {
+//                                jwsObject.sign(new MACSigner(SIGNER_KEY.getBytes()));
+//                                token = jwsObject.serialize();
+//                            } catch (JOSEException e) {
+//                                log.error("Cannot sign JWT object", e);
+//                                throw new RuntimeException(e);
+//                            }
+//                            response.sendRedirect("https://eihabitat.site/loginWithGoogle?email="+email+"&token="+token);
+//                        }
+//                    });
+//                })
+                .oauth2Login(oauth2 -> oauth2.successHandler(authenticationSuccessHandler()))
                 .formLogin(Customizer.withDefaults());
         return http.build();
     }
@@ -159,5 +160,39 @@ public class SecurityConfig {
     @Bean
     PasswordEncoder passwordEncoder(){
         return new BCryptPasswordEncoder(10);
+    }
+
+    @Bean
+    public AuthenticationSuccessHandler authenticationSuccessHandler() {
+        return new AuthenticationSuccessHandler() {
+            @Override
+            public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response, Authentication authentication) throws IOException, ServletException {
+                OAuth2AuthenticationToken authToken = (OAuth2AuthenticationToken) authentication;
+                String email = authToken.getPrincipal().getAttribute("email");
+                JWSHeader header = new JWSHeader(JWSAlgorithm.HS512);
+
+                JWTClaimsSet jwtClaimsSet = new JWTClaimsSet.Builder()
+                        .subject(email)
+                        .issuer("eihabitat")
+                        .issueTime(new java.util.Date())
+                        .expirationTime(new Date(
+                                Instant.now().plus(24, ChronoUnit.HOURS).toEpochMilli()
+                        ))
+                        .jwtID(UUID.randomUUID().toString())
+                        .build();
+                Payload payload = new Payload(jwtClaimsSet.toJSONObject());
+
+                JWSObject jwsObject = new JWSObject(header, payload);
+                String token="";
+                try {
+                    jwsObject.sign(new MACSigner(SIGNER_KEY.getBytes()));
+                    token = jwsObject.serialize();
+                } catch (JOSEException e) {
+                    log.error("Cannot sign JWT object", e);
+                    throw new RuntimeException(e);
+                }
+                response.sendRedirect("https://eihabitat.site/loginWithGoogle?email="+email+"&token="+token);
+            }
+        };
     }
 }
