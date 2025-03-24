@@ -21,7 +21,7 @@ import java.util.Set;
 @RestController
 @RequiredArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
-@RequestMapping("/post")
+@RequestMapping("/api/post")
 public class PostController {
     PostService postService;
 
