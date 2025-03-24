@@ -15,7 +15,7 @@ import java.util.List;
 @RestController
 @RequiredArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
-@RequestMapping("/api/follow")
+@RequestMapping("/follow")
 public class UserFollowController {
     private final UserFollowService followService;
 

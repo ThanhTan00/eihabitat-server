@@ -19,7 +19,7 @@ import java.util.*;
 @RestController
 @RequiredArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
-@RequestMapping("/api/chat")
+@RequestMapping("/chat")
 public class ChatController {
     ChatService chatService;
 

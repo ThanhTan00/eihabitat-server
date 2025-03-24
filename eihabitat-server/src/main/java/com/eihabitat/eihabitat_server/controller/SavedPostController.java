@@ -16,7 +16,7 @@ import java.util.List;
 @RestController
 @RequiredArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
-@RequestMapping("/api/savedPost")
+@RequestMapping("/savedPost")
 public class SavedPostController {
 
     SavedPostService savedPostService;
