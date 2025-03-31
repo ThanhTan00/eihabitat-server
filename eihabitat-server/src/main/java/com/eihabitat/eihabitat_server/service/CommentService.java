@@ -7,12 +7,14 @@ import com.eihabitat.eihabitat_server.dto.request.LikeCommentRequest;
 import com.eihabitat.eihabitat_server.dto.response.CommentResponse;
 import com.eihabitat.eihabitat_server.entity.Comment;
 import com.eihabitat.eihabitat_server.entity.LikeComment;
+import com.eihabitat.eihabitat_server.entity.Post;
 import com.eihabitat.eihabitat_server.entity.User;
 import com.eihabitat.eihabitat_server.exception.AppException;
 import com.eihabitat.eihabitat_server.exception.ErrorCode;
 import com.eihabitat.eihabitat_server.mapper.CommentMapper;
 import com.eihabitat.eihabitat_server.repository.CommentRepository;
 import com.eihabitat.eihabitat_server.repository.LikeCommentRepository;
+import com.eihabitat.eihabitat_server.repository.PostRepository;
 import com.eihabitat.eihabitat_server.repository.UserRepository;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
@@ -33,11 +35,16 @@ import java.util.Set;
 public class CommentService {
     CommentRepository commentRepository;
     LikeCommentRepository likeCommentRepository;
+    PostRepository postRepository;
     UserRepository userRepository;
+
+    NotificationService notificationService;
+
     CommentMapper commentMapper;
 
     public CommentResponse addComment(CommentCreationReq data, String userID) {
         User user = userRepository.findById(userID).orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
+        Post post = postRepository.findById(data.getPostId()).orElseThrow(() -> new AppException(ErrorCode.POST_NOT_FOUND));
 
         Comment comment = commentMapper.toComment(data);
         comment.setPostId(data.getPostId());
@@ -51,6 +58,18 @@ public class CommentService {
         commentResponse.setOwnerUrl(user.getUserUrl());
         commentResponse.setNumberOfLike(0);
         commentResponse.setLikedByMe(false);
+
+        if (!commentResponse.getReplyTo().isEmpty()){
+            Comment replyTo = commentRepository.findById(commentResponse.getReplyTo()).orElseThrow(() -> new AppException(ErrorCode.COMMENT_NOT_EXISTED));
+            if (!replyTo.getOwnerId().equals(user.getId())){
+                notificationService.sendReplyCommentNotification(user, replyTo);
+            }
+        } else if (!userID.equals(post.getAuthor().getId())) {
+            notificationService.sendCommentNotification(user, post);
+        }
+
+
+
 
         return commentResponse;
     }
@@ -84,9 +103,14 @@ public class CommentService {
             likeCommentRepository.deleteAllByCommentIdAndUserId(request.getCommentId(), request.getUserId());
             return "Comment unliked!";
         }
+        User user = userRepository.findById(request.getUserId()).orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
+        Comment comment = commentRepository.findById(request.getCommentId()).orElseThrow(() -> new AppException(ErrorCode.COMMENT_NOT_EXISTED));
         LikeComment likeComment = commentMapper.toLikeComment(request);
         likeComment.setLikedAt(LocalDateTime.now());
         likeCommentRepository.save(likeComment);
+
+        notificationService.sendLikeCommentNotification(user, comment);
+
         return "Comment liked!";
     }
 }

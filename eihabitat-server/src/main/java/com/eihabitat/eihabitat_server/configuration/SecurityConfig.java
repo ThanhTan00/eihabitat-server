@@ -132,11 +132,13 @@ public class SecurityConfig {
     @Bean
     public CorsFilter corsFilter() {
         CorsConfiguration corsConfiguration = new CorsConfiguration();
-        corsConfiguration.addAllowedOrigin("http://14.225.253.213:3000/");
+
+        corsConfiguration.addAllowedOrigin("http://14.225.253.213:3000");
         corsConfiguration.addAllowedOrigin("https://14.225.253.213");
         corsConfiguration.addAllowedOrigin("https://eihabitat.site");
         corsConfiguration.addAllowedOrigin("https://www.eihabitat.site");
-        corsConfiguration.addAllowedOrigin("http://localhost:3000/");
+        corsConfiguration.addAllowedOrigin("http://localhost:3000");
+
         corsConfiguration.addAllowedMethod("*");
         corsConfiguration.addAllowedHeader("*");
         corsConfiguration.setAllowCredentials(true);

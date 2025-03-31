@@ -27,17 +27,26 @@ import java.util.List;
 public class UserFollowService {
     private final UserRepository userRepository;
     private final UserFollowRepository userFollowRepository;
+
+    NotificationService notificationService;
+
     private final UserFollowMapper userFollowMapper;
 
     public String followUser(UserFollowReq requestDto) {
         if (requestDto.getFollowerId().equals(requestDto.getFollowedId())) {
             throw new RuntimeException("Users cannot follow themselves");
         }
+        User follower = userRepository.findById(requestDto.getFollowerId())
+                .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
+        User following = userRepository.findById(requestDto.getFollowedId())
+                .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
 
         UserFollow userFollow = userFollowMapper.toUserFollow(requestDto);
         userFollow.setFollowedAt(new Date());
 
         userFollow = userFollowRepository.save(userFollow);
+
+        notificationService.sendFollowNotification(follower, following);
 
         return "Follow user successfully followed by " + userFollow.getFollowedId();
     }
