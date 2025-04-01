@@ -1,9 +1,7 @@
-package com.eihabitat.eihabitat_server.entity;
+package com.eihabitat.eihabitat_server.dto.response;
 
 import lombok.*;
 import lombok.experimental.FieldDefaults;
-import org.springframework.data.annotation.Id;
-import org.springframework.data.mongodb.core.mapping.Document;
 
 import java.time.LocalDateTime;
 
@@ -12,13 +10,12 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @AllArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE)
-@Document(collection = "message")
-public class Message {
-    @Id
+public class MessageResponse {
     String id;
-    String chatRoomId;
-    String content;
     String senderId;
+    String content;
     LocalDateTime timestamp;
     boolean seen;
+    String senderAvatar;
+    String senderUrl;
 }

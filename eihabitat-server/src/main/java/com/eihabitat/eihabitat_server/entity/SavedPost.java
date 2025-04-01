@@ -16,7 +16,7 @@ import java.util.ArrayList;
 @Document(collection = "savedPost")
 public class SavedPost {
     @Id
-    private String id;
+    String id;
     String postId;
     String userId;
     String albumId;

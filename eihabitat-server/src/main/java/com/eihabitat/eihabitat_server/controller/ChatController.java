@@ -2,9 +2,8 @@ package com.eihabitat.eihabitat_server.controller;
 
 import com.eihabitat.eihabitat_server.dto.request.ApiResponse;
 import com.eihabitat.eihabitat_server.dto.request.ChatBotMessageReq;
-import com.eihabitat.eihabitat_server.dto.response.AlbumResponse;
-import com.eihabitat.eihabitat_server.dto.response.ChatBotMessageResponse;
-import com.eihabitat.eihabitat_server.dto.response.ChatConversationResponse;
+import com.eihabitat.eihabitat_server.dto.request.MessageReq;
+import com.eihabitat.eihabitat_server.dto.response.*;
 import com.eihabitat.eihabitat_server.entity.ChatBot;
 import com.eihabitat.eihabitat_server.entity.ChatMessage;
 import com.eihabitat.eihabitat_server.service.ChatService;
@@ -23,38 +22,46 @@ import java.util.*;
 public class ChatController {
     ChatService chatService;
 
-    @GetMapping("/conversations/{userId}")
-    public ResponseEntity<List<ChatConversationResponse>> getConversations(@PathVariable String userId) {
-        return ResponseEntity.ok(chatService.getConversations(userId));
+    @GetMapping("/chatRoom/{userId}")
+    public ApiResponse<List<ChatRoomResponse>> getAllRooms(@PathVariable String userId) {
+        return  ApiResponse.<List<ChatRoomResponse>>builder()
+                .code(1000)
+                .data(chatService.getAllChatRooms(userId))
+                .build();
     }
 
-    @GetMapping("/history/{senderId}/{recipientId}")
-    public ResponseEntity<List<ChatMessage>> getChatHistory(
-            @PathVariable String senderId, @PathVariable String recipientId) {
-        return ResponseEntity.ok(chatService.getChatHistory(senderId, recipientId));
+    @GetMapping("/history/{roomId}")
+    public ApiResponse<List<MessageResponse>> getChatHistory(@PathVariable String roomId) {
+        return  ApiResponse.<List<MessageResponse>>builder()
+                .code(1000)
+                .data(chatService.getMessageHistory(roomId))
+                .build();
     }
-
+//
     @PostMapping("/send")
-    public ResponseEntity<ChatMessage> testSendMessage(@RequestBody ChatMessage message) {
-        return ResponseEntity.ok(chatService.sendMessage(message));
+    public ApiResponse<MessageResponse> testSendMessage(@RequestBody MessageReq message) {
+        return  ApiResponse.<MessageResponse>builder()
+                .code(1000)
+                .data(chatService.sendMessage(message))
+                .build();
     }
-
-    @GetMapping("/messages")
-    public ResponseEntity<List<ChatMessage>> getAllMessages() {
-        return ResponseEntity.ok(chatService.getAllMessages());
-    }
-
-    @GetMapping("/messages/{senderId}/{recipientId}")
-    public ResponseEntity<List<ChatMessage>> getMessagesBetweenUsers(
-            @PathVariable String senderId, @PathVariable String recipientId) {
-        return ResponseEntity.ok(chatService.getMessagesBetweenUsers(senderId, recipientId));
-    }
-
-    @DeleteMapping("/messages")
-    public ResponseEntity<Void> clearAllMessages() {
-        chatService.clearAllMessages();
-        return ResponseEntity.ok().build();
-    }
+//
+//    @GetMapping("/messages")
+//    public ResponseEntity<List<ChatMessage>> getAllMessages() {
+//        return ResponseEntity.ok(chatService.getAllMessages());
+//    }
+//
+//    @GetMapping("/messages/{senderId}/{recipientId}")
+//    public ResponseEntity<List<ChatMessage>> getMessagesBetweenUsers(
+//            @PathVariable String senderId, @PathVariable String recipientId) {
+//        return ResponseEntity.ok(chatService.getMessagesBetweenUsers(senderId, recipientId));
+//    }
+//
+//    @DeleteMapping("/messages")
+//    public ResponseEntity<Void> clearAllMessages() {
+//        chatService.clearAllMessages();
+//        return ResponseEntity.ok().build();
+//    }
 
     @PostMapping("/chatBot/{userId}")
     public ApiResponse<ChatBot> chatBot(@PathVariable String userId, @RequestBody ChatBotMessageReq req) {
