@@ -154,42 +154,42 @@ public class PostService {
         return "Deleted post successfully";
     }
 
-    public List<PostResponse> findAllNewsFeedPosts(String rootUserId) throws Exception {
-        List<UserFollow> followeds = userFollowRepo.findByFollowerId(rootUserId);
-        Set<String> followedIds = new HashSet<>();
-        for (UserFollow userFollow : followeds) {
-            followedIds.add(userFollow.getFollowedId());
-        }
-        followedIds.add(rootUserId);
-        List<Post> listPost = postRepository.findAllByAuthorIdIn(Sort.by(Sort.Direction.DESC, "createdAt"), followedIds);
-        List<PostResponse> listPostResponse = new ArrayList<>();
-        for (Post post : listPost) {
-            PostResponse postResponse = findPostById(post.getId(), rootUserId);
-            listPostResponse.add(postResponse);
-        }
-        listPostResponse.sort((post1, post2) -> post2.getCreatedAt().compareTo(post1.getCreatedAt()));
-
-        return listPostResponse;
-    }
-
-//    public Page<PostResponse> findAllNewsFeedPosts(int page, int size, String rootUserId) throws Exception {
+//    public List<PostResponse> findAllNewsFeedPosts(String rootUserId) throws Exception {
 //        List<UserFollow> followeds = userFollowRepo.findByFollowerId(rootUserId);
-//        Set<String> followedIds = followeds.stream()
-//                .map(UserFollow::getFollowedId)
-//                .collect(Collectors.toSet());
+//        Set<String> followedIds = new HashSet<>();
+//        for (UserFollow userFollow : followeds) {
+//            followedIds.add(userFollow.getFollowedId());
+//        }
 //        followedIds.add(rootUserId);
-//        Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "createdAt"));
-//        Page<Post> posts = postRepository.findAllByAuthorIdIn(pageable, followedIds);
-//        List<PostResponse> content = posts.getContent().stream()
-//                .map(post -> {
-//                    try {
-//                        return findPostById(post.getId(), rootUserId);
-//                    } catch (Exception e) {
-//                        throw new RuntimeException(e);
-//                    }
-//                })
-//                .collect(Collectors.toList());
-//        return new PageImpl<>(content, pageable, posts.getTotalElements());
+//        List<Post> listPost = postRepository.findAllByAuthorIdIn(Sort.by(Sort.Direction.DESC, "createdAt"), followedIds);
+//        List<PostResponse> listPostResponse = new ArrayList<>();
+//        for (Post post : listPost) {
+//            PostResponse postResponse = findPostById(post.getId(), rootUserId);
+//            listPostResponse.add(postResponse);
+//        }
+//        listPostResponse.sort((post1, post2) -> post2.getCreatedAt().compareTo(post1.getCreatedAt()));
+//
+//        return listPostResponse;
 //    }
+
+    public Page<PostResponse> findAllNewsFeedPosts(int page, int size, String rootUserId) throws Exception {
+        List<UserFollow> followeds = userFollowRepo.findByFollowerId(rootUserId);
+        Set<String> followedIds = followeds.stream()
+                .map(UserFollow::getFollowedId)
+                .collect(Collectors.toSet());
+        followedIds.add(rootUserId);
+        Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "createdAt"));
+        Page<Post> posts = postRepository.findAllByAuthorIdIn(pageable, followedIds);
+        List<PostResponse> content = posts.getContent().stream()
+                .map(post -> {
+                    try {
+                        return findPostById(post.getId(), rootUserId);
+                    } catch (Exception e) {
+                        throw new RuntimeException(e);
+                    }
+                })
+                .collect(Collectors.toList());
+        return new PageImpl<>(content, pageable, posts.getTotalElements());
+    }
 
 }
