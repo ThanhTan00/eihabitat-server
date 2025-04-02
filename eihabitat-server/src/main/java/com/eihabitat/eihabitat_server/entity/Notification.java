@@ -25,4 +25,5 @@ public class Notification {
     LocalDateTime createdAt;
     String userId;
     String postId;
+    boolean seen;
 }

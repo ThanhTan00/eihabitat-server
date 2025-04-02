@@ -26,6 +26,7 @@ public enum ErrorCode {
     EMAIL_CONFIRM_TOKEN_INVALID(1016, "Email confirmation token is invalid", HttpStatus.CONFLICT),
     ALBUM_NOT_FOUND(1017, "Album not found", HttpStatus.NOT_FOUND),
     CHAT_ROOM_NOT_FOUND(1018, "Chat room not found", HttpStatus.NOT_FOUND),
+    NOTIFICATION_NOT_FOUND(1019, "Notification not found", HttpStatus.NOT_FOUND),
     ;
 
     ErrorCode(int code, String message, HttpStatusCode statusCode) {

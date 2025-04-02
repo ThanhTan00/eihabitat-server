@@ -62,6 +62,7 @@ public class NotificationService {
                 .recipient(post.getAuthor().getProfileName())
                 .postId(post.getId())
                 .userId(user.getId())
+                .seen(false)
                 .build();
 
         NotificationResponse notificationResponse = notificationMapper.toNotificationResponse(notificationRepository.save(notification));
@@ -80,6 +81,7 @@ public class NotificationService {
                 .recipient(following.getProfileName())
                 .userId(follower.getId())
                 .postId("")
+                .seen(false)
                 .build();
         NotificationResponse notificationResponse = notificationMapper.toNotificationResponse(notificationRepository.save(notification));
         notificationResponse.setUserProfileName(follower.getProfileName());
@@ -96,6 +98,7 @@ public class NotificationService {
                 .recipient(post.getAuthor().getProfileName())
                 .postId(post.getId())
                 .userId(user.getId())
+                .seen(false)
                 .build();
 
         NotificationResponse notificationResponse = notificationMapper.toNotificationResponse(notificationRepository.save(notification));
@@ -116,6 +119,7 @@ public class NotificationService {
                 .recipient(owner.getProfileName())
                 .postId(post.getId())
                 .userId(user.getId())
+                .seen(false)
                 .build();
 
         NotificationResponse notificationResponse = notificationMapper.toNotificationResponse(notificationRepository.save(notification));
@@ -136,6 +140,7 @@ public class NotificationService {
                 .recipient(owner.getProfileName())
                 .postId(post.getId())
                 .userId(user.getId())
+                .seen(false)
                 .build();
 
         NotificationResponse notificationResponse = notificationMapper.toNotificationResponse(notificationRepository.save(notification));
@@ -145,6 +150,15 @@ public class NotificationService {
         notificationResponse.setPostImage(postContentRepository.findFirstByPostId(post.getId()).getImageId());
 
         messagingTemplate.convertAndSendToUser(notificationResponse.getRecipient(), "/notifications", notificationResponse);
+    }
+
+    public String seenNotifications(List<String> notificationIds) {
+        for (String notificationId : notificationIds) {
+            Notification notification = notificationRepository.findById(notificationId).orElseThrow(() -> new AppException(ErrorCode.NOTIFICATION_NOT_FOUND));
+            notification.setSeen(true);
+            notificationRepository.save(notification);
+        }
+        return "Seen notifications successfully";
     }
 
 }

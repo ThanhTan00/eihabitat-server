@@ -46,6 +46,6 @@ public class EmailService {
     }
 
     private String generateConfirmationLink(String token){
-        return "<a href=http://14.225.253.213:8080/auth/confirm-email?token="+token+">Click Here To Confirm Your Email</a>";
+        return "<a href=https://eihabitat.site/api/auth/confirm-email?token="+token+">Click Here To Confirm Your Email</a>";
     }
 }

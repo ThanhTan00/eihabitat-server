@@ -12,6 +12,7 @@ import lombok.experimental.FieldDefaults;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequiredArgsConstructor
@@ -25,6 +26,14 @@ public class NotificationController {
         return ApiResponse.<List<NotificationResponse>>builder()
                 .code(1000)
                 .data(notificationService.getTop10Notifications(recipient))
+                .build();
+    }
+
+    @PostMapping("/seen")
+    public ApiResponse<String> seenNotifications(@RequestBody List<String> request) {
+        return ApiResponse.<String>builder()
+                .code(1000)
+                .data(notificationService.seenNotifications(request))
                 .build();
     }
 }

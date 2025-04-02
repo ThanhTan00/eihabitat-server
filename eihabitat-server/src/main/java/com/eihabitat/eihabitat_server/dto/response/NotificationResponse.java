@@ -16,6 +16,7 @@ public class NotificationResponse {
     NotificationType type;
     String recipient;
     LocalDateTime createdAt;
+    boolean seen;
     String userProfileName;
     String userProfileAvatar;
     String userUrl;
